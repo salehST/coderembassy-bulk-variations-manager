@@ -1,0 +1,24 @@
+{
+	"name": "coderembassy-bulk-variations-manager",
+	"version": "0.1.7",
+	"private": true,
+	"scripts": {
+		"build": "wp-scripts build assets/admin/src/index.js --output-path=assets/admin/dist",
+		"lint:js": "wp-scripts lint-js assets/admin/src",
+		"package:release": "php scripts/package-release.php",
+		"test:e2e": "playwright test"
+	},
+	"dependencies": {
+		"@wordpress/components": "^33.1.0",
+		"@wordpress/data": "^10.46.0",
+		"@wordpress/element": "^6.46.0",
+		"@wordpress/hooks": "^4.46.0",
+		"@wordpress/i18n": "^6.19.0",
+		"@wordpress/icons": "^13.1.0",
+		"ag-grid-community": "^35.3.0",
+		"ag-grid-react": "^35.3.0"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^32.2.0"
+	}
+}
