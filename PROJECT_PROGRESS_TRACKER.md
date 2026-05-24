@@ -1,6 +1,6 @@
 # CoderEmbassy Bulk Variations Manager for WooCommerce — Progress Tracker
 
-Last updated: 2026-05-22
+Last updated: 2026-05-24
 
 ## WordPress.org identity (2026-05-22)
 
@@ -122,14 +122,15 @@ Important CSV fixes already made:
 - Import diff omits unchanged fields.
 - Import apply toast now says "Import applied." for sync imports.
 
-## Recent Validation From Cursor
+## Recent Validation
 
 Last reported passing checks:
 
-- PHPUnit: 122+ tests OK (includes `ImportCsvTemplateTest`).
+- PHPUnit: 136 tests / 432 assertions.
 - PHPStan: OK.
 - `npm run lint:js`: OK.
 - `npm run build`: OK.
+- `composer package:release`: OK.
 
 ## Known Design Notes
 
@@ -348,21 +349,36 @@ Optional second row (only if the combo + SKU are unique):
 4. Confirm the bar appears and shows pending changes.
 5. Click **Discard** and confirm the bar disappears after rows reload.
 
-## Recommended Next Work
+## Free Release Completion Checklist
 
-1. Run CSV **new variation creation** smoke test (1–2 rows, unique attribute combination + SKU) using the attribute helper table for column names/slugs.
-2. Confirm new variation appears in WooCommerce and parent Attributes tab.
-3. Confirm rollback behavior matches expectations (meta reverted; post may remain).
-4. Add or improve CSV template/download sample if not already present.
-5. Polish CSV Import UI to match Bulk Editor styling.
-6. Continue with the next planned prompt after CSV create path is stable.
+Core Free scope is feature-complete. Remaining work before publishing is release QA and packaging verification.
+
+1. Run a final manual QA pass in Laragon:
+   - Bulk Editor: edit SKU, prices, sale dates, stock, status -> preview -> apply -> rollback.
+   - Confirm the sticky apply bar is hidden until a real grid change exists.
+   - CSV update existing variations -> preview -> apply -> rollback.
+   - CSV create new variation -> preview -> apply -> rollback; remember the known caveat that the created variation post may remain.
+   - Settings: save theme, default product ID, jobs per page, and uninstall cleanup preference.
+2. Build and install the release zip on a clean WordPress + WooCommerce site.
+3. Confirm the zip has the correct root folder, includes production `vendor/`, and excludes tests, `node_modules`, source admin JS, and planning docs.
+4. Confirm no Pro UI, Pro locks, Pro badges, or disabled Pro-only buttons appear in the Free plugin.
+5. Finalize WordPress.org assets:
+   - `readme.txt` wording.
+   - Screenshots.
+   - Optional plugin banner/icon assets.
+6. Optional Free polish after release candidate:
+   - Default visible columns setting.
+   - Editor density / thumbnail size.
+   - Confirmation toggles for rollback/delete/disable.
+   - Job retention setting.
+   - CSV default status / stock status.
 
 ## New Chat Starting Prompt
 
 Use the prompt below to start a new chat.
 
 ```text
-You are helping me build a WooCommerce WordPress plugin called "Bulk Variations Add & Edit Product".
+You are helping me build a WooCommerce WordPress plugin called "CoderEmbassy Bulk Variations Manager for WooCommerce".
 
 Current repo/folder:
 C:\Users\User\Desktop\My Plugins\Bulk Variation\bulk-variations
@@ -373,14 +389,15 @@ We are building the Free plugin only in this folder. Do not add Pro UI, Pro lock
 Please read PROJECT_PROGRESS_TRACKER.md first and use it as the source of truth for what is already done, what is Free vs Pro, and what should be done next.
 
 Current status:
-- Bulk Editor is mostly working.
-- SKU, regular price, sale price, sale dates, stock, status, multi-row set price, apply, and rollback have been tested.
-- Jobs, preview/approve, discard orphan previews, job progress, and rollback are working.
-- CSV import now validates, previews, applies, and runs fast for small imports.
-- Latest checks from Cursor: PHPUnit 119 tests OK, PHPStan OK, npm lint/build OK.
+- Free core scope is feature-complete.
+- Bulk Editor supports single-product editing, preview/apply, jobs, and rollback.
+- CSV import supports update existing variations, create new variations, attribute readiness, template download, preview/apply, and rollback.
+- Settings screen is implemented for Free-safe preferences.
+- Release packaging is set up and creates the WordPress.org-style zip.
+- Latest checks: PHPUnit OK, PHPStan OK, npm lint/build OK.
 
 What I want next:
-Continue from the tracker. Start by reviewing the current code and the tracker, then tell me the next safest step. Prefer giving me Cursor-ready prompts instead of directly making large code changes unless I ask you to edit.
+Continue from the tracker. Start by reviewing the current code and the tracker, then focus on final release QA, clean zip install testing, and WordPress.org packaging polish.
 
 When you find an issue, give me:
 1. What is wrong.
