@@ -336,6 +336,18 @@ Optional second row (only if the combo + SKU are unique):
 6. Run `npm run build` before packaging.
 7. Run `composer package:release`; confirm `artifacts/coderembassy-bulk-variations-manager-0.1.7.zip` is created.
 
+## Bulk Editor apply bar visibility (2026-05-24)
+
+**Fixed:** The sticky apply bar no longer appears just because a product has rows loaded. It now appears only when there are pending grid changes or an apply-preview request is submitting.
+
+**Manual test checklist:**
+
+1. Open Bulk Editor and select a product.
+2. Confirm the bottom **Discard / Preview & Approve** bar is hidden before any edits.
+3. Change one editable cell and commit the edit.
+4. Confirm the bar appears and shows pending changes.
+5. Click **Discard** and confirm the bar disappears after rows reload.
+
 ## Recommended Next Work
 
 1. Run CSV **new variation creation** smoke test (1–2 rows, unique attribute combination + SKU) using the attribute helper table for column names/slugs.

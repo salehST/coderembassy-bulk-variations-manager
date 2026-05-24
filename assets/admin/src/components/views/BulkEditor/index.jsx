@@ -848,7 +848,6 @@ export default function BulkEditor() {
 
 			<ApplyBar
 				pendingChanges={ pendingChanges }
-				canCheckForChanges={ rows.length > 0 }
 				productId={ productIds[ 0 ] }
 				onBeforePreview={ flushGridEdits }
 				onDiscard={ () => {

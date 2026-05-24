@@ -9,7 +9,6 @@ import { navigateTo } from '../../../navigation';
 
 export default function ApplyBar( {
 	pendingChanges = [],
-	canCheckForChanges = false,
 	productId,
 	onBeforePreview,
 	onDiscard,
@@ -56,7 +55,7 @@ export default function ApplyBar( {
 		}
 	};
 
-	if ( ! count && ! canCheckForChanges ) {
+	if ( ! count && ! submitting ) {
 		return null;
 	}
 
