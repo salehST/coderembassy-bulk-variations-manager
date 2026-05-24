@@ -12,6 +12,10 @@ const root = document.getElementById( 'bv-admin-root' );
 if ( root ) {
 	const globals = window.BulkVariationsAdmin || {};
 	dispatch( STORE_NAME ).setGlobals( globals );
-	dispatch( STORE_NAME ).setTheme( readInitialTheme( 'auto' ) );
+	dispatch( STORE_NAME ).setTheme(
+		readInitialTheme(
+			globals?.settings?.theme || globals?.initial_theme || 'auto'
+		)
+	);
 	render( <App />, root );
 }

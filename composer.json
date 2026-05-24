@@ -36,7 +36,8 @@
 		"lint:php": "phpcs",
 		"lint:fix": "phpcbf",
 		"phpstan": "phpstan analyse --configuration=phpstan.neon.dist",
-		"build-free": "echo 'Strauss build: configure composer-strauss.json and run strauss in CI (PROMPT 02+).'"
+		"build-free": "echo 'Strauss build: configure composer-strauss.json and run strauss in CI (PROMPT 02+).'",
+		"package:release": "php scripts/package-release.php"
 	},
 	"config": {
 		"sort-packages": true,

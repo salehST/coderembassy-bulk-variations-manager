@@ -1,10 +1,16 @@
 /**
  * Free CSV import preview + approve flow.
  */
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from '@wordpress/element';
 import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
-import { imports, jobs, products } from '../../../api/endpoints';
+import { imports, jobs, products, settings } from '../../../api/endpoints';
 import { STORE_NAME } from '../../../store';
 import { navigateTo } from '../../../navigation';
 import Button from '../../shared/Button';
@@ -153,6 +159,7 @@ export default function ImportView() {
 	const [ attributeLoading, setAttributeLoading ] = useState( false );
 	const [ attributeError, setAttributeError ] = useState( '' );
 	const [ templateDownloading, setTemplateDownloading ] = useState( false );
+	const productIdTouched = useRef( false );
 
 	const canPreview = !! file && ! loading;
 	const canApprove =
@@ -222,6 +229,30 @@ export default function ImportView() {
 
 		return () => window.clearTimeout( timer );
 	}, [ defaultProductId, fetchAttributeGuide ] );
+
+	useEffect( () => {
+		let cancelled = false;
+
+		settings
+			.get()
+			.then( ( response ) => {
+				const savedProductId = Number(
+					response?.default_product_id || 0
+				);
+				if (
+					! cancelled &&
+					! productIdTouched.current &&
+					savedProductId > 0
+				) {
+					setDefaultProductId( String( savedProductId ) );
+				}
+			} )
+			.catch( () => {} );
+
+		return () => {
+			cancelled = true;
+		};
+	}, [] );
 
 	const handlePreview = async () => {
 		if ( ! file ) {
@@ -407,9 +438,10 @@ export default function ImportView() {
 						type="number"
 						min="0"
 						value={ defaultProductId }
-						onChange={ ( event ) =>
-							setDefaultProductId( event.target.value )
-						}
+						onChange={ ( event ) => {
+							productIdTouched.current = true;
+							setDefaultProductId( event.target.value );
+						} }
 					/>
 					<div className="bv-import-view__product-actions">
 						<Button

@@ -97,6 +97,23 @@ class RestController {
 
 		register_rest_route(
 			self::NAMESPACE,
+			'/settings',
+			array(
+				array(
+					'methods'             => 'GET',
+					'callback'            => array( $this, 'get_settings' ),
+					'permission_callback' => $permission,
+				),
+				array(
+					'methods'             => 'POST',
+					'callback'            => array( $this, 'update_settings' ),
+					'permission_callback' => $permission,
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
 			'/jobs',
 			array(
 				array(
@@ -377,6 +394,29 @@ class RestController {
 		return new WP_REST_Response( $this->rollback->preview( (int) $request['id'] ) );
 	}
 
+	public function get_settings( WP_REST_Request $request ): WP_REST_Response {
+		unset( $request );
+		return new WP_REST_Response( $this->read_settings() );
+	}
+
+	public function update_settings( WP_REST_Request $request ): WP_REST_Response {
+		$user_id = get_current_user_id();
+
+		$theme = $this->sanitize_theme_setting( $request->get_param( 'theme' ) );
+		update_user_meta( $user_id, 'bv_admin_theme', $theme );
+
+		$default_product_id = $this->absint_setting( $request->get_param( 'default_product_id' ) );
+		update_user_meta( $user_id, 'bv_default_product_id', $default_product_id );
+
+		$jobs_per_page = $this->sanitize_jobs_per_page( $request->get_param( 'jobs_per_page' ) );
+		update_user_meta( $user_id, 'bv_jobs_per_page', $jobs_per_page );
+
+		$remove_data = (bool) $request->get_param( 'remove_data_on_uninstall' );
+		update_option( 'bv_uninstall_remove_data', $remove_data, false );
+
+		return new WP_REST_Response( $this->read_settings() );
+	}
+
 	protected function create_import_preview_temp_path(): ?string {
 		$dir = trailingslashit( get_temp_dir() );
 		if ( '' === $dir ) {
@@ -631,5 +671,45 @@ class RestController {
 		);
 
 		return (int) $wpdb->get_var( $sql );
+	}
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	private function read_settings(): array {
+		$user_id = get_current_user_id();
+
+		return array(
+			'theme'                    => $this->sanitize_theme_setting( get_user_meta( $user_id, 'bv_admin_theme', true ) ),
+			'default_product_id'       => $this->absint_setting( get_user_meta( $user_id, 'bv_default_product_id', true ) ),
+			'jobs_per_page'            => $this->sanitize_jobs_per_page( get_user_meta( $user_id, 'bv_jobs_per_page', true ) ),
+			'remove_data_on_uninstall' => (bool) get_option( 'bv_uninstall_remove_data', false ),
+		);
+	}
+
+	/**
+	 * @param mixed $value Raw setting.
+	 */
+	private function sanitize_theme_setting( mixed $value ): string {
+		$theme = sanitize_key( (string) $value );
+		return in_array( $theme, array( 'auto', 'light', 'dark' ), true ) ? $theme : 'auto';
+	}
+
+	/**
+	 * @param mixed $value Raw setting.
+	 */
+	private function sanitize_jobs_per_page( mixed $value ): int {
+		$count = $this->absint_setting( $value );
+		if ( ! in_array( $count, array( 20, 50, 100 ), true ) ) {
+			return 50;
+		}
+		return $count;
+	}
+
+	/**
+	 * @param mixed $value Raw integer-ish setting.
+	 */
+	private function absint_setting( mixed $value ): int {
+		return max( 0, (int) $value );
 	}
 }

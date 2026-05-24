@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f456d9ba6ec413111758ba6bc12d08fb",
+    "content-hash": "529a0558d6daab0ec261296b33b56c3d",
     "packages": [
         {
             "name": "lucatume/di52",

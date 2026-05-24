@@ -5,7 +5,7 @@ import { useEffect } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { STORE_NAME } from '../store';
 
-const THEME_KEY = 'bv_admin_theme';
+export const THEME_KEY = 'bv_admin_theme';
 
 const resolveTheme = ( theme ) => {
 	if ( theme !== 'auto' ) {
@@ -56,11 +56,7 @@ export function useTheme() {
 		const resolved = resolveTheme( theme );
 		const next = resolved === 'dark' ? 'light' : 'dark';
 		setTheme( next );
-		try {
-			window.localStorage.setItem( THEME_KEY, next );
-		} catch ( err ) {
-			void err;
-		}
+		persistTheme( next );
 	};
 
 	/** Cycle auto → light → dark (settings UI). */
@@ -69,11 +65,7 @@ export function useTheme() {
 		const index = order.indexOf( theme );
 		const next = order[ ( index + 1 ) % order.length ];
 		setTheme( next );
-		try {
-			window.localStorage.setItem( THEME_KEY, next );
-		} catch ( err ) {
-			void err;
-		}
+		persistTheme( next );
 	};
 
 	return {
@@ -91,5 +83,13 @@ export function readInitialTheme( fallback = 'auto' ) {
 	} catch ( err ) {
 		void err;
 		return fallback;
+	}
+}
+
+export function persistTheme( theme ) {
+	try {
+		window.localStorage.setItem( THEME_KEY, theme );
+	} catch ( err ) {
+		void err;
 	}
 }

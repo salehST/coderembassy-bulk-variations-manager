@@ -76,6 +76,12 @@ class AdminPage {
 			'logo_light'   => BV_PLUGIN_URL . 'assets/admin/logo-light.png',
 			'logo_dark'    => BV_PLUGIN_URL . 'assets/admin/logo-dark.png',
 			'initial_theme'=> (string) get_user_meta( (int) $user->ID, 'bv_admin_theme', true ),
+			'settings'     => array(
+				'theme'                    => (string) get_user_meta( (int) $user->ID, 'bv_admin_theme', true ),
+				'default_product_id'       => max( 0, (int) get_user_meta( (int) $user->ID, 'bv_default_product_id', true ) ),
+				'jobs_per_page'            => (int) get_user_meta( (int) $user->ID, 'bv_jobs_per_page', true ) ?: 50,
+				'remove_data_on_uninstall' => (bool) get_option( 'bv_uninstall_remove_data', false ),
+			),
 			'current_user' => array(
 				'id'           => (int) $user->ID,
 				'display_name' => (string) $user->display_name,
@@ -99,4 +105,3 @@ class AdminPage {
 		return trim( $classes . ' bv-admin-active' );
 	}
 }
-

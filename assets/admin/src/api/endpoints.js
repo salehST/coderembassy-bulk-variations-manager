@@ -96,3 +96,16 @@ export const imports = {
 		} );
 	},
 };
+
+export const settings = {
+	get() {
+		return bvRequest( { path: path( 'settings' ), method: 'GET' } );
+	},
+	update( body ) {
+		return bvRequest( {
+			path: path( 'settings' ),
+			method: 'POST',
+			data: body,
+		} );
+	},
+};

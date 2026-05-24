@@ -8,6 +8,7 @@ import Dashboard from '../components/views/Dashboard';
 import BulkEditor from '../components/views/BulkEditor';
 import ImportView from '../components/views/Import';
 import Jobs from '../components/views/Jobs';
+import Settings from '../components/views/Settings';
 import PlaceholderView from '../components/views/PlaceholderView';
 
 /** @typedef {import('react').ComponentType} ViewComponent */
@@ -74,7 +75,7 @@ const FREE_VIEWS = [
 		route: 'settings',
 		getLabel: () =>
 			__( 'Settings', 'coderembassy-bulk-variations-manager' ),
-		component: PlaceholderView,
+		component: Settings,
 		sidebar: true,
 		order: 40,
 		badge: null,

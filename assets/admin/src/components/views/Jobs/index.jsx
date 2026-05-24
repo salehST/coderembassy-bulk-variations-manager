@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { jobs as jobsApi } from '../../../api/endpoints';
+import { jobs as jobsApi, settings } from '../../../api/endpoints';
 import { parseHash } from '../../../navigation';
 import { STORE_NAME } from '../../../store';
 import CardIntro from '../BulkEditor/CardIntro';
@@ -40,11 +40,12 @@ export default function Jobs() {
 	const [ loading, setLoading ] = useState( true );
 	const [ jobList, setJobList ] = useState( [] );
 	const [ statusFilter, setStatusFilter ] = useState( readStatusFilter );
+	const [ perPage, setPerPage ] = useState( 50 );
 
 	const loadJobs = useCallback( async () => {
 		setLoading( true );
 		try {
-			const query = { per_page: 50 };
+			const query = { per_page: perPage };
 			if ( statusFilter ) {
 				query.status =
 					statusFilter === 'completed' ? 'complete' : statusFilter;
@@ -65,7 +66,24 @@ export default function Jobs() {
 		} finally {
 			setLoading( false );
 		}
-	}, [ setJobs, statusFilter ] );
+	}, [ perPage, setJobs, statusFilter ] );
+
+	useEffect( () => {
+		let cancelled = false;
+		settings
+			.get()
+			.then( ( response ) => {
+				const next = Number( response?.jobs_per_page || 50 );
+				if ( ! cancelled && [ 20, 50, 100 ].includes( next ) ) {
+					setPerPage( next );
+				}
+			} )
+			.catch( () => {} );
+
+		return () => {
+			cancelled = true;
+		};
+	}, [] );
 
 	useEffect( () => {
 		setStatusFilter( readStatusFilter() );

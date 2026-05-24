@@ -590,6 +590,95 @@
 	box-shadow: var(--bv-focus-ring);
 }
 
+/* Settings --------------------------------------------------------------- */
+.bv-settings {
+	display: grid;
+	gap: var(--bv-s5);
+}
+
+.bv-settings__hero {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--bv-s4);
+}
+
+.bv-settings__hero h2,
+.bv-settings-card h3 {
+	margin: 0;
+	color: var(--bv-text);
+}
+
+.bv-settings__hero p,
+.bv-settings-card p {
+	margin: 6px 0 0;
+}
+
+.bv-settings__grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--bv-s5);
+	align-items: start;
+}
+
+.bv-settings-card {
+	display: grid;
+	gap: var(--bv-s4);
+}
+
+.bv-settings-field {
+	display: grid;
+	gap: 6px;
+	font-weight: 600;
+	color: var(--bv-text);
+}
+
+.bv-settings-field input,
+.bv-settings-field select {
+	width: 100%;
+	min-height: 40px;
+	border: 1px solid var(--bv-border-strong);
+	border-radius: var(--bv-radius-sm);
+	background: var(--bv-surface);
+	color: var(--bv-text);
+	padding: 8px 10px;
+}
+
+.bv-settings-field input:focus,
+.bv-settings-field select:focus {
+	outline: 0;
+	border-color: var(--bv-primary);
+	box-shadow: var(--bv-focus-ring);
+}
+
+.bv-settings-toggle {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: var(--bv-s3);
+	align-items: start;
+	color: var(--bv-text);
+}
+
+.bv-settings-toggle strong,
+.bv-settings-toggle small {
+	display: block;
+}
+
+.bv-settings-toggle small {
+	margin-top: 4px;
+	color: var(--bv-muted);
+	line-height: 1.45;
+}
+
+.bv-settings__notice {
+	border: 1px solid rgba(220, 38, 38, 0.28);
+	border-radius: var(--bv-radius-sm);
+	background: rgba(220, 38, 38, 0.08);
+	color: var(--bv-err);
+	padding: var(--bv-s3) var(--bv-s4);
+	font-weight: 600;
+}
+
 /* Progress ---------------------------------------------------------------- */
 .bv-progress {
 	display: grid;
@@ -2796,12 +2885,21 @@ body.bv-admin-active #wpbody-content > .e-notice--extended {
 }
 
 @media (max-width: 900px) {
+	.bv-settings__grid {
+		grid-template-columns: 1fr;
+	}
+
 	.bv-import-preview__summary {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
 
 @media (max-width: 520px) {
+	.bv-settings__hero {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
 	.bv-import-preview__summary {
 		grid-template-columns: 1fr;
 	}

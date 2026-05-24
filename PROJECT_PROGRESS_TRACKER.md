@@ -306,6 +306,36 @@ Optional second row (only if the combo + SKU are unique):
 
 **Gaps (no integration test yet):** full apply + WC post creation, duplicate attribute combo handling, wrong term slug behavior.
 
+## Settings screen + release packaging restore (2026-05-24)
+
+**Implemented (Free):**
+
+- Real **Settings** screen replaced the placeholder route.
+- `GET /bv/v1/settings` and `POST /bv/v1/settings` persist Free-safe preferences.
+- Settings available:
+  - Theme: `auto`, `light`, `dark`.
+  - Default product ID for CSV Import.
+  - Jobs per page: `20`, `50`, or `100`.
+  - Remove plugin data on uninstall (backs existing `bv_uninstall_remove_data` behavior).
+- CSV Import now reads the saved default product ID.
+- Jobs screen now reads the saved jobs-per-page value.
+- Release packaging files restored:
+  - `.distignore`
+  - `readme.txt`
+  - `scripts/package-release.php`
+  - `scripts/package-release.ps1`
+  - Composer script `package:release`.
+
+**Manual test checklist:**
+
+1. Open **Settings** from the plugin sidebar.
+2. Change theme and save; confirm the admin app theme changes and survives refresh.
+3. Set Default product ID (e.g. 18), save, then open **CSV Import** and confirm it pre-fills.
+4. Change Jobs per page, save, then open **Jobs** and confirm the list loads normally.
+5. Toggle Remove plugin data on uninstall only when you intentionally want cleanup during uninstall.
+6. Run `npm run build` before packaging.
+7. Run `composer package:release`; confirm `artifacts/coderembassy-bulk-variations-manager-0.1.7.zip` is created.
+
 ## Recommended Next Work
 
 1. Run CSV **new variation creation** smoke test (1–2 rows, unique attribute combination + SKU) using the attribute helper table for column names/slugs.
