@@ -87,7 +87,7 @@
 	align-items: center;
 	justify-content: flex-end;
 	gap: var(--bv-s4);
-	padding: 0 var(--bv-s5) var(--bv-s4);
+	padding: var(--bv-s3) 44px var(--bv-s4) var(--bv-s5);
 	margin-bottom: var(--bv-s2);
 	background: transparent;
 	border: 0;
@@ -2650,19 +2650,25 @@ body.bv-admin-active #wpbody-content > .e-notice--extended {
 /* CSV import preview */
 .bv-import-view__controls {
 	display: grid;
-	gap: var(--bv-space-2);
+	gap: var(--bv-s3);
 	max-width: 32rem;
 }
 
 .bv-import-view__product-actions {
-	margin-top: var(--bv-space-1);
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--bv-s2);
+	margin-top: var(--bv-s1);
 }
 
 .bv-import-view__actions {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 0.5rem;
-	margin-top: var(--bv-space-2);
+	align-items: center;
+	gap: var(--bv-s3);
+	margin-top: var(--bv-s2);
+	padding-top: var(--bv-s1);
 }
 
 .bv-import-attributes {
