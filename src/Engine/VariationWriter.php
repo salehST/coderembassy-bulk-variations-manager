@@ -39,13 +39,15 @@ class VariationWriter {
 			$created_ids[] = $variation_id;
 			$meta_pairs    = $this->extractMetaPairs( $row );
 			foreach ( $meta_pairs as $meta_key => $meta_value ) {
-				$sql = $wpdb->prepare(
-					"INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value) VALUES (%d, %s, %s)",
-					$variation_id,
-					$meta_key,
-					$meta_value
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->query(
+					$wpdb->prepare(
+						"INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value) VALUES (%d, %s, %s)",
+						$variation_id,
+						$meta_key,
+						$meta_value
+					)
 				);
-				$wpdb->query( $sql );
 
 				if ( null !== $this->history_logger && null !== $job_id ) {
 					$this->history_logger->recordChange( $job_id, 'variation', $variation_id, $meta_key, null, (string) $meta_value );

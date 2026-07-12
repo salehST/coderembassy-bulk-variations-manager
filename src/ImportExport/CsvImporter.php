@@ -114,6 +114,7 @@ class CsvImporter {
 	 * @return array<int, array<string, string>>
 	 */
 	private function streamRows( string $path ): array {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 		$fp = fopen( $path, 'rb' );
 		if ( false === $fp ) {
 			throw new RuntimeException( 'Unable to open CSV file.' );
@@ -121,6 +122,7 @@ class CsvImporter {
 
 		$headers = fgetcsv( $fp );
 		if ( false === $headers || ! is_array( $headers ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 			fclose( $fp );
 			return array();
 		}
@@ -143,6 +145,7 @@ class CsvImporter {
 				$rows[] = $row;
 			}
 		}
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		fclose( $fp );
 		return $rows;
 	}

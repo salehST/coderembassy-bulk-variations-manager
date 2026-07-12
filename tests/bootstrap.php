@@ -1,4 +1,8 @@
 <?php
+// phpcs:ignoreFile
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', __DIR__ . '/' );
+}
 /**
  * PHPUnit bootstrap.
  *

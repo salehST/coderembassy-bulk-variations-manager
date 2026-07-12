@@ -17,6 +17,10 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \BulkVariations\ImportExport\ImportValidator
  */
+
+// phpcs:disable WordPress.DB.SlowDBQuery
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
+
 class ImportValidatorTest extends TestCase {
 
 	/**

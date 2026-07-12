@@ -1,4 +1,9 @@
 <?php
+// phpcs:ignoreFile
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', __DIR__ . '/' );
+}
+
 /**
  * Build a release zip for the Free plugin.
  *

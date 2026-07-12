@@ -77,6 +77,7 @@ class ImportCsvTemplate {
 		$headers = $this->getHeaders( $readiness );
 		$rows    = $this->getSampleRows( $readiness );
 
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 		$fp = fopen( 'php://temp', 'r+' );
 		if ( false === $fp ) {
 			return '';
@@ -91,6 +92,7 @@ class ImportCsvTemplate {
 		}
 		rewind( $fp );
 		$csv = stream_get_contents( $fp );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		fclose( $fp );
 		return is_string( $csv ) ? $csv : '';
 	}

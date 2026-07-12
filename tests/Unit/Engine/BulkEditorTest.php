@@ -20,6 +20,8 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \BulkVariations\Engine\BulkEditor
  */
+// phpcs:disable WordPress.DB.SlowDBQuery
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
 class BulkEditorTest extends TestCase {
 
 	/**

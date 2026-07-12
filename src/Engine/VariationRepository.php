@@ -21,18 +21,18 @@ class VariationRepository {
 		}
 
 		global $wpdb;
-		$ids_sql = implode( ',', array_map( 'intval', $variation_ids ) );
-		$where   = "post_id IN ($ids_sql)";
+		$placeholders = implode( ',', array_fill( 0, count( $variation_ids ), '%d' ) );
+		$args         = $variation_ids;
+		$where        = "post_id IN ($placeholders)";
 		if ( ! empty( $meta_keys ) ) {
-			$escaped = array_map(
-				static fn( string $key ): string => "'" . str_replace( "'", "''", $key ) . "'",
-				$meta_keys
-			);
-			$where .= ' AND meta_key IN (' . implode( ',', $escaped ) . ')';
+			$meta_placeholders = implode( ',', array_fill( 0, count( $meta_keys ), '%s' ) );
+			$where            .= " AND meta_key IN ($meta_placeholders)";
+			$args              = array_merge( $args, array_values( $meta_keys ) );
 		}
 
-		$sql  = "SELECT post_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE {$where} ORDER BY post_id ASC, meta_key ASC, meta_id DESC";
-		$rows = $wpdb->get_results( $sql, ARRAY_A );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE {$where} ORDER BY post_id ASC, meta_key ASC, meta_id DESC", ...$args ), ARRAY_A );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		$out  = array();
 		foreach ( $rows as $row ) {
 			$post_id = (int) ( $row['post_id'] ?? 0 );
@@ -57,11 +57,14 @@ class VariationRepository {
 			? (int) get_post_thumbnail_id( $product_id )
 			: 0;
 
-		$posts_sql = $wpdb->prepare(
-			"SELECT ID, post_status, post_title FROM {$wpdb->posts} WHERE post_parent = %d AND post_type = 'product_variation'",
-			$product_id
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$posts = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT ID, post_status, post_title FROM {$wpdb->posts} WHERE post_parent = %d AND post_type = 'product_variation'",
+				$product_id
+			),
+			ARRAY_A
 		);
-		$posts = $wpdb->get_results( $posts_sql, ARRAY_A );
 		if ( empty( $posts ) ) {
 			return array();
 		}
@@ -76,22 +79,32 @@ class VariationRepository {
 		}
 		$snapshot = $this->getMetaSnapshot( $ids );
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$lookup_table = $wpdb->get_var( "SHOW TABLES LIKE '{$wpdb->prefix}wc_product_meta_lookup'" );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$lookup_by_id = array();
 		if ( is_string( $lookup_table ) && '' !== $lookup_table ) {
+			$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 			$lookup_rows = $wpdb->get_results(
-				"SELECT product_id, sku FROM {$lookup_table} WHERE product_id IN (" . implode( ',', $ids ) . ')',
+				$wpdb->prepare( "SELECT product_id, sku FROM {$lookup_table} WHERE product_id IN ($placeholders)", ...$ids ),
 				ARRAY_A
 			);
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 			foreach ( $lookup_rows as $lookup ) {
 				$lookup_by_id[ (int) $lookup['product_id'] ] = (string) $lookup['sku'];
 			}
 		}
 
+		$placeholders   = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+		$like           = $wpdb->esc_like( 'attribute_' ) . '%';
+		$args           = array_merge( $ids, array( $like ) );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		$attribute_rows = $wpdb->get_results(
-			"SELECT post_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE post_id IN (" . implode( ',', $ids ) . ") AND meta_key LIKE 'attribute_%'",
+			$wpdb->prepare( "SELECT post_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE post_id IN ($placeholders) AND meta_key LIKE %s", ...$args ),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		$attributes = array();
 		foreach ( $attribute_rows as $row ) {
 			$attributes[ (int) $row['post_id'] ][ (string) $row['meta_key'] ] = (string) $row['meta_value'];
@@ -152,17 +165,22 @@ class VariationRepository {
 	public function getExistingCombinationSignatures( int $product_id ): array {
 		global $wpdb;
 
-		$sql  = $wpdb->prepare(
-			"SELECT p.ID AS variation_id, pm.meta_key, pm.meta_value
-			FROM {$wpdb->posts} p
-			INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID
-			WHERE p.post_parent = %d
-				AND p.post_type = 'product_variation'
-				AND pm.meta_key LIKE 'attribute_%'
-			ORDER BY p.ID ASC, pm.meta_key ASC",
-			$product_id
+		$like = $wpdb->esc_like( 'attribute_' ) . '%';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT p.ID AS variation_id, pm.meta_key, pm.meta_value
+				FROM {$wpdb->posts} p
+				INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID
+				WHERE p.post_parent = %d
+					AND p.post_type = 'product_variation'
+					AND pm.meta_key LIKE %s
+				ORDER BY p.ID ASC, pm.meta_key ASC",
+				$product_id,
+				$like
+			),
+			ARRAY_A
 		);
-		$rows = $wpdb->get_results( $sql, ARRAY_A );
 		$out  = array();
 
 		if ( is_array( $rows ) && ! empty( $rows ) ) {
@@ -217,9 +235,13 @@ class VariationRepository {
 			return array();
 		}
 		global $wpdb;
-		$ids_sql = implode( ',', array_map( 'intval', $variation_ids ) );
-		$sql     = "SELECT ID, post_status FROM {$wpdb->posts} WHERE post_type = 'product_variation' AND ID IN ($ids_sql)";
-		$rows    = $wpdb->get_results( $sql, ARRAY_A );
+		$placeholders = implode( ',', array_fill( 0, count( $variation_ids ), '%d' ) );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		$rows = $wpdb->get_results(
+			$wpdb->prepare( "SELECT ID, post_status FROM {$wpdb->posts} WHERE post_type = 'product_variation' AND ID IN ($placeholders)", ...$variation_ids ),
+			ARRAY_A
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		$out     = array();
 		foreach ( $rows as $row ) {
 			$out[ (int) $row['ID'] ] = (string) $row['post_status'];

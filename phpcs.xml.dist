@@ -30,6 +30,25 @@
 		</properties>
 	</rule>
 
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="coderembassy_bulk_variations_manager"/>
+				<element value="bv"/>
+			</property>
+		</properties>
+		<exclude-pattern>coderembassy-bulk-variations-manager\.php</exclude-pattern>
+		<exclude-pattern>uninstall\.php</exclude-pattern>
+		<exclude-pattern>phpstan-bootstrap\.php</exclude-pattern>
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.DB.SlowDBQuery">
+		<exclude-pattern>/tests/*</exclude-pattern>
+		<exclude-pattern>tests/*</exclude-pattern>
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+
 	<!-- PROMPT pack uses camelCase API names on contracts and services. -->
 	<rule ref="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid">
 		<exclude-pattern>*/src/Contracts/*</exclude-pattern>

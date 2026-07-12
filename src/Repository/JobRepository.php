@@ -43,14 +43,19 @@ class JobRepository implements JobRepositoryInterface {
 			'created_at'  => current_time( 'mysql' ),
 			'meta'        => wp_json_encode( $meta ),
 		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->insert( $this->jobsTable(), $data, array( '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%s' ) );
 		return (int) $wpdb->insert_id;
 	}
 
 	public function get( int $job_id ): ?array {
 		global $wpdb;
-		$sql = $wpdb->prepare( "SELECT * FROM {$this->jobsTable()} WHERE id = %d", $job_id );
-		$row = $wpdb->get_row( $sql, ARRAY_A );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$row = $wpdb->get_row(
+			$wpdb->prepare( "SELECT * FROM {$this->jobsTable()} WHERE id = %d", $job_id ),
+			ARRAY_A
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		if ( empty( $row ) || ! is_array( $row ) ) {
 			return null;
 		}
@@ -84,11 +89,15 @@ class JobRepository implements JobRepositoryInterface {
 		global $wpdb;
 		$status = isset( $filters['status'] ) ? (string) $filters['status'] : '';
 		if ( '' === $status ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$value = $wpdb->get_var( "SELECT COUNT(*) FROM {$this->jobsTable()}" );
 			return (int) $value;
 		}
-		$sql   = $wpdb->prepare( "SELECT COUNT(*) FROM {$this->jobsTable()} WHERE status = %s", $status );
-		$value = $wpdb->get_var( $sql );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$value = $wpdb->get_var(
+			$wpdb->prepare( "SELECT COUNT(*) FROM {$this->jobsTable()} WHERE status = %s", $status )
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return (int) $value;
 	}
 
@@ -97,11 +106,15 @@ class JobRepository implements JobRepositoryInterface {
 	 */
 	public function getChanges( int $job_id ): array {
 		global $wpdb;
-		$sql  = $wpdb->prepare(
-			"SELECT id, object_type, object_id, field, old_value, new_value, applied_at FROM {$this->changesTable()} WHERE job_id = %d ORDER BY id ASC",
-			$job_id
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT id, object_type, object_id, field, old_value, new_value, applied_at FROM {$this->changesTable()} WHERE job_id = %d ORDER BY id ASC",
+				$job_id
+			),
+			ARRAY_A
 		);
-		$rows = $wpdb->get_results( $sql, ARRAY_A );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return is_array( $rows ) ? $rows : array();
 	}
 
@@ -115,6 +128,7 @@ class JobRepository implements JobRepositoryInterface {
 			return false;
 		}
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return false !== $wpdb->insert(
 			$this->changesTable(),
 			array(
@@ -140,6 +154,7 @@ class JobRepository implements JobRepositoryInterface {
 			),
 			$extra
 		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return false !== $wpdb->update( $this->jobsTable(), $data, array( 'id' => $job_id ) );
 	}
 

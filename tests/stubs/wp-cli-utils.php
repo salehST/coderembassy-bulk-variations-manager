@@ -1,4 +1,8 @@
 <?php
+// phpcs:ignoreFile
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', __DIR__ . '/' );
+}
 /**
  * WP-CLI Utils stubs for tests.
  *

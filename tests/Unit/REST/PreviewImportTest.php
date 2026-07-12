@@ -291,7 +291,11 @@ CSV;
 
 		$this->assertSame( 1, $result['valid_count'] );
 
-		unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink
+		if ( function_exists( 'wp_delete_file' ) ) {
+			wp_delete_file( $path );
+		} else {
+			unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink, WordPress.WP.AlternativeFunctions.unlink_unlink
+		}
 	}
 
 	/**
@@ -309,7 +313,11 @@ CSV;
 		$this->assertStringEndsWith( '.csv', $path );
 
 		if ( is_string( $path ) && file_exists( $path ) ) {
-			unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink
+			if ( function_exists( 'wp_delete_file' ) ) {
+				wp_delete_file( $path );
+			} else {
+				unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink, WordPress.WP.AlternativeFunctions.unlink_unlink
+			}
 		}
 	}
 }

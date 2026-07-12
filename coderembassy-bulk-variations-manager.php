@@ -21,6 +21,8 @@
 
 declare(strict_types=1);
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
+
 if (! defined('ABSPATH')) {
 	exit;
 }
@@ -91,6 +93,7 @@ add_action(
 add_action(
 	'plugins_loaded',
 	static function (): void {
+		// phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound
 		load_plugin_textdomain(
 			'coderembassy-bulk-variations-manager',
 			false,
@@ -143,7 +146,9 @@ function bv_maybe_start_rest_output_buffer(): void
  */
 function bv_is_bulk_variations_rest_request(): bool
 {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$rest_route = isset($_GET['rest_route'])
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		? sanitize_text_field(wp_unslash((string) $_GET['rest_route']))
 		: '';
 
@@ -152,7 +157,7 @@ function bv_is_bulk_variations_rest_request(): bool
 	}
 
 	$request_uri = isset($_SERVER['REQUEST_URI'])
-		? (string) wp_unslash($_SERVER['REQUEST_URI'])
+		? sanitize_text_field((string) wp_unslash($_SERVER['REQUEST_URI']))
 		: '';
 
 	$path = wp_parse_url($request_uri, PHP_URL_PATH);
@@ -249,7 +254,7 @@ function bv_unschedule_bv_actions(): void
 	}
 
 	$like = $wpdb->esc_like('bv_') . '%';
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 	$hooks = $wpdb->get_col(
 		$wpdb->prepare(
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Action Scheduler table name validated above.

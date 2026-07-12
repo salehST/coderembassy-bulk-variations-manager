@@ -8,10 +8,7 @@ coderembassy-bulk-variations-manager/
 assets/admin/src/
 tests/
 scripts/
-PROJECT_PROGRESS_TRACKER.md
-cursor-prompt-pack*.md
-bulk-variations-plan*.md
-bulk-variations-uniqueness-and-polish.md
+docs/
 readme.md
 package.json
 package-lock.json

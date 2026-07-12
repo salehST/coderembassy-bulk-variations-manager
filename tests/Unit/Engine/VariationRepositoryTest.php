@@ -17,6 +17,10 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \BulkVariations\Engine\VariationRepository
  */
+
+// phpcs:disable WordPress.DB.SlowDBQuery
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
+
 class VariationRepositoryTest extends TestCase {
 
 	/**

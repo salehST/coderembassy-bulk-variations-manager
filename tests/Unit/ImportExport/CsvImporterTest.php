@@ -21,6 +21,10 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \BulkVariations\ImportExport\CsvImporter
  */
+
+// phpcs:disable WordPress.DB.SlowDBQuery
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
+
 class CsvImporterTest extends TestCase {
 
 	/**
@@ -144,7 +148,11 @@ class CsvImporterTest extends TestCase {
 		);
 		$result = $importer->previewImport( $path, 18, array() );
 
-		unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink
+		if ( function_exists( 'wp_delete_file' ) ) {
+			wp_delete_file( $path );
+		} else {
+			unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink, WordPress.WP.AlternativeFunctions.unlink_unlink
+		}
 
 		$this->assertSame( 1, $result['valid_count'] );
 		$this->assertSame( 0, $result['invalid_count'] );
@@ -202,7 +210,11 @@ class CsvImporterTest extends TestCase {
 		$this->expectExceptionMessage( '.csv extension' );
 		$importer->previewImport( $path, 1, array() );
 
-		unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink
+		if ( function_exists( 'wp_delete_file' ) ) {
+			wp_delete_file( $path );
+		} else {
+			unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink, WordPress.WP.AlternativeFunctions.unlink_unlink
+		}
 	}
 
 	/**
@@ -224,7 +236,11 @@ class CsvImporterTest extends TestCase {
 		$this->expectException( \RuntimeException::class );
 		$importer->import( $path, 1, array() );
 
-		unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink
+		if ( function_exists( 'wp_delete_file' ) ) {
+			wp_delete_file( $path );
+		} else {
+			unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink, WordPress.WP.AlternativeFunctions.unlink_unlink
+		}
 	}
 
 	/**

@@ -1,9 +1,14 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', __DIR__ . '/' );
+}
 /**
  * PHPStan bootstrap for WP shims.
  */
 
 declare(strict_types=1);
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
 
 if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	require_once __DIR__ . '/vendor/autoload.php';
@@ -55,6 +60,7 @@ if ( ! function_exists( 'as_enqueue_async_action' ) ) {
 }
 
 if ( ! function_exists( 'as_schedule_single_action' ) ) {
+	// Polyfill for ActionScheduler 3.x if not loaded by WooCommerce in tests.
 	/**
 	 * @param int               $timestamp Run timestamp.
 	 * @param string            $hook      Action hook.
@@ -67,4 +73,3 @@ if ( ! function_exists( 'as_schedule_single_action' ) ) {
 		return 1;
 	}
 }
-

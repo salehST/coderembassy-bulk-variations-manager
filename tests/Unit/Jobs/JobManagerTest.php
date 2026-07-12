@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 /**
  * JobManager unit tests.
  *
@@ -33,6 +36,9 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \BulkVariations\Jobs\JobManager
  */
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
+
 class JobManagerTest extends TestCase {
 
 	/**

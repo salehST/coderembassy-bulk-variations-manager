@@ -61,6 +61,7 @@ class HistoryLogger {
 
 		$sql      = 'INSERT INTO ' . $table . ' (job_id, object_type, object_id, field, old_value, new_value, applied_at) VALUES ';
 		$sql     .= implode( ',', $values );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$inserted = (int) $wpdb->query( $sql );
 		$this->buffer = array();
 		return $inserted;

@@ -19,6 +19,8 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \BulkVariations\Engine\VariationGenerator
  */
+// phpcs:disable WordPress.DB.SlowDBQuery
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
 class VariationGeneratorTest extends TestCase {
 
 	/**
