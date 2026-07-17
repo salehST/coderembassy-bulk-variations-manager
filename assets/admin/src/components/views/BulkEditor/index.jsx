@@ -2,12 +2,14 @@
  * Bulk Editor - AG Grid Community spreadsheet.
  */
 import {
+	Fragment,
 	useCallback,
 	useEffect,
 	useMemo,
 	useRef,
 	useState,
 } from '@wordpress/element';
+import { applyFilters } from '@wordpress/hooks';
 import { AgGridReact } from 'ag-grid-react';
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
 import { Icon as WPIcon } from '@wordpress/components';
@@ -528,6 +530,116 @@ export default function BulkEditor() {
 		[ applySelection, hasSelection, setPriceValue ]
 	);
 
+	const bulkActionContext = useMemo(
+		() => ( {
+			hasSelection,
+			selectedRows,
+			applySelection,
+			recordChange,
+			gridRef,
+		} ),
+		[ hasSelection, selectedRows, applySelection, recordChange ]
+	);
+
+	const bulkActions = useMemo( () => {
+		const defaults = [
+			{
+				id: 'increase',
+				label: __(
+					'Increase price %',
+					'coderembassy-bulk-variations-manager'
+				),
+				icon: arrowUp,
+				className: 'bv-action-btn bv-action-btn--blue',
+				disabled: ! hasSelection,
+				onClick: () => onActionClick( 'increase' ),
+			},
+			{
+				id: 'decrease',
+				label: __(
+					'Decrease price %',
+					'coderembassy-bulk-variations-manager'
+				),
+				icon: arrowDown,
+				className: 'bv-action-btn bv-action-btn--blue',
+				disabled: ! hasSelection,
+				onClick: () => onActionClick( 'decrease' ),
+			},
+			{
+				id: 'set_price',
+				label: __(
+					'Set price',
+					'coderembassy-bulk-variations-manager'
+				),
+				icon: tag,
+				className: 'bv-action-btn bv-action-btn--slate',
+				disabled: ! hasSelection,
+				onClick: () => onActionClick( 'set_price' ),
+			},
+			{
+				id: 'enable',
+				label: __( 'Enable', 'coderembassy-bulk-variations-manager' ),
+				icon: check,
+				className: 'bv-action-btn bv-action-btn--green',
+				disabled: ! hasSelection,
+				onClick: () => onActionClick( 'enable' ),
+			},
+			{
+				id: 'disable',
+				label: __( 'Disable', 'coderembassy-bulk-variations-manager' ),
+				icon: closeSmall,
+				className: 'bv-action-btn bv-action-btn--orange',
+				disabled: ! hasSelection,
+				onClick: () => onActionClick( 'disable' ),
+			},
+			{
+				id: 'delete',
+				label: __( 'Delete', 'coderembassy-bulk-variations-manager' ),
+				icon: trash,
+				variant: 'danger',
+				className: 'bv-action-btn',
+				disabled: ! hasSelection,
+				onClick: () => onActionClick( 'delete' ),
+			},
+		];
+		const filtered = applyFilters(
+			'bv_bulk_actions',
+			defaults,
+			bulkActionContext
+		);
+		return Array.isArray( filtered ) ? filtered : defaults;
+	}, [ bulkActionContext, hasSelection, onActionClick ] );
+
+	const renderBulkAction = useCallback(
+		( action ) => {
+			if ( typeof action.render === 'function' ) {
+				return (
+					<Fragment key={ action.id }>
+						{ action.render( bulkActionContext ) }
+					</Fragment>
+				);
+			}
+			return (
+				<Button
+					key={ action.id }
+					size="sm"
+					variant={ action.variant }
+					className={ action.className }
+					disabled={ action.disabled }
+					onClick={
+						action.onClick || ( () => onActionClick( action.id ) )
+					}
+				>
+					{ action.icon && (
+						<WPIcon icon={ action.icon } size={ 16 } />
+					) }
+					{ action.label }
+				</Button>
+			);
+		},
+		[ bulkActionContext, onActionClick ]
+	);
+
 	const applyFormulaToSelection = useCallback( () => {
 		if ( ! hasSelection || ! formulaValue.trim() ) {
 			return;
@@ -700,30 +812,7 @@ export default function BulkEditor() {
 			>
 				<CardIntro title={ actionsHeading } help={ actionsHelp } />
 				<div className="bv-action-row">
-					<Button
-						size="sm"
-						className="bv-action-btn bv-action-btn--blue"
-						disabled={ ! hasSelection }
-						onClick={ () => onActionClick( 'increase' ) }
-					>
-						<WPIcon icon={ arrowUp } size={ 16 } />
-						{ __(
-							'Increase price %',
-							'coderembassy-bulk-variations-manager'
-						) }
-					</Button>
-					<Button
-						size="sm"
-						className="bv-action-btn bv-action-btn--blue"
-						disabled={ ! hasSelection }
-						onClick={ () => onActionClick( 'decrease' ) }
-					>
-						<WPIcon icon={ arrowDown } size={ 16 } />
-						{ __(
-							'Decrease price %',
-							'coderembassy-bulk-variations-manager'
-						) }
-					</Button>
+					{ bulkActions.slice( 0, 2 ).map( renderBulkAction ) }
 					<input
 						type="number"
 						className="bv-product-picker__input bv-action-row__price"
@@ -738,55 +827,7 @@ export default function BulkEditor() {
 							setSetPriceValue( event.target.value )
 						}
 					/>
-					<Button
-						size="sm"
-						className="bv-action-btn bv-action-btn--slate"
-						disabled={ ! hasSelection }
-						onClick={ () => onActionClick( 'set_price' ) }
-					>
-						<WPIcon icon={ tag } size={ 16 } />
-						{ __(
-							'Set price',
-							'coderembassy-bulk-variations-manager'
-						) }
-					</Button>
-					<Button
-						size="sm"
-						className="bv-action-btn bv-action-btn--green"
-						disabled={ ! hasSelection }
-						onClick={ () => onActionClick( 'enable' ) }
-					>
-						<WPIcon icon={ check } size={ 16 } />
-						{ __(
-							'Enable',
-							'coderembassy-bulk-variations-manager'
-						) }
-					</Button>
-					<Button
-						size="sm"
-						className="bv-action-btn bv-action-btn--orange"
-						disabled={ ! hasSelection }
-						onClick={ () => onActionClick( 'disable' ) }
-					>
-						<WPIcon icon={ closeSmall } size={ 16 } />
-						{ __(
-							'Disable',
-							'coderembassy-bulk-variations-manager'
-						) }
-					</Button>
-					<Button
-						size="sm"
-						variant="danger"
-						className="bv-action-btn"
-						disabled={ ! hasSelection }
-						onClick={ () => onActionClick( 'delete' ) }
-					>
-						<WPIcon icon={ trash } size={ 16 } />
-						{ __(
-							'Delete',
-							'coderembassy-bulk-variations-manager'
-						) }
-					</Button>
+					{ bulkActions.slice( 2 ).map( renderBulkAction ) }
 				</div>
 				<div className="bv-formula-row">
 					<div className="bv-formula-row__field">

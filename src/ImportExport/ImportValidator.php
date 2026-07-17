@@ -39,14 +39,9 @@ class ImportValidator {
 			$issues[] = 'Duplicate sku in import batch.';
 		}
 
-		foreach ( array( 'regular_price', 'sale_price' ) as $price_field ) {
-			if ( ! array_key_exists( $price_field, $fixed ) || '' === (string) $fixed[ $price_field ] ) {
-				continue;
-			}
-			if ( (float) $fixed[ $price_field ] < 0 ) {
-				$issues[] = $price_field . ' cannot be negative.';
-			}
-		}
+		$this->validateDecimalFields( $fixed, $issues );
+		$this->validateStockQuantity( $fixed, $issues );
+		$this->validateChoiceFields( $fixed, $issues );
 
 		$fixed = $this->normalizeSaleDates( $fixed, $warnings );
 
@@ -91,6 +86,62 @@ class ImportValidator {
 			'warnings'  => $warnings,
 			'fixed_row' => $fixed,
 		);
+	}
+
+	/**
+	 * @param array<string, mixed> $row
+	 * @param array<int, string>   $issues
+	 */
+	private function validateDecimalFields( array $row, array &$issues ): void {
+		foreach ( array( 'regular_price', 'sale_price' ) as $price_field ) {
+			if ( ! array_key_exists( $price_field, $row ) || '' === (string) $row[ $price_field ] ) {
+				continue;
+			}
+
+			if ( ! is_numeric( $row[ $price_field ] ) ) {
+				$issues[] = $price_field . ' must be numeric.';
+				continue;
+			}
+
+			if ( (float) $row[ $price_field ] < 0 ) {
+				$issues[] = $price_field . ' cannot be negative.';
+			}
+		}
+	}
+
+	/**
+	 * @param array<string, mixed> $row
+	 * @param array<int, string>   $issues
+	 */
+	private function validateStockQuantity( array $row, array &$issues ): void {
+		if ( ! array_key_exists( 'stock_quantity', $row ) || '' === (string) $row['stock_quantity'] ) {
+			return;
+		}
+
+		if ( ! preg_match( '/^\d+$/', (string) $row['stock_quantity'] ) ) {
+			$issues[] = 'stock_quantity must be a whole number.';
+		}
+	}
+
+	/**
+	 * @param array<string, mixed> $row
+	 * @param array<int, string>   $issues
+	 */
+	private function validateChoiceFields( array $row, array &$issues ): void {
+		$choices = array(
+			'stock_status' => array( 'instock', 'outofstock', 'onbackorder' ),
+			'status'       => array( 'publish', 'private', 'draft', 'pending' ),
+		);
+
+		foreach ( $choices as $field => $allowed ) {
+			if ( ! array_key_exists( $field, $row ) || '' === (string) $row[ $field ] ) {
+				continue;
+			}
+
+			if ( ! in_array( (string) $row[ $field ], $allowed, true ) ) {
+				$issues[] = $field . ' must be one of: ' . implode( ', ', $allowed ) . '.';
+			}
+		}
 	}
 
 	/**
@@ -153,4 +204,3 @@ class ImportValidator {
 		return null;
 	}
 }
-

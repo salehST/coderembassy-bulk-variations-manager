@@ -19,7 +19,6 @@ use BulkVariations\ImportExport\ImportAttributeReadiness;
 use BulkVariations\ImportExport\ImportCsvTemplate;
 use BulkVariations\ImportExport\ImportValidator;
 use BulkVariations\Jobs\JobManager;
-use BulkVariations\Licensing\FeatureFlags;
 use BulkVariations\Repository\TemplateRepository;
 use BulkVariations\REST\RestController;
 use BulkVariations\Rollback\RollbackService;
@@ -150,8 +149,7 @@ CSV;
 			$csv_importer ?? $this->createMock( CsvImporter::class ),
 			$this->createMock( ImportAttributeReadiness::class ),
 			$this->createMock( ImportCsvTemplate::class ),
-			$this->createMock( TemplateRepository::class ),
-			$this->createMock( FeatureFlags::class )
+			$this->createMock( TemplateRepository::class )
 		);
 	}
 

@@ -1,6 +1,12 @@
 # CoderEmbassy Bulk Variations Manager for WooCommerce — Progress Tracker
 
-Last updated: 2026-05-24
+Last updated: 2026-07-17
+
+## Status: FREE v0.1.8 — RELEASE CANDIDATE
+
+Free core scope is feature-complete and validated (PHPUnit 143 tests / 451 assertions, PHPStan clean, all PHP files lint clean, npm lint + build OK, release zip builds). v0.1.8 adds a generic, inert Extension API for developer hooks (`bv_booted`, `bv_admin_views`, `bv_admin_script_bundles`, `bv_grid_columns`, `bv_bulk_actions`) without adding Pro UI or Pro-specific hooks. The WordPress.org technical review findings were addressed on 2026-07-17: removed the Free licensing/feature-flag placeholder, removed `load_plugin_textdomain()`, added REST nonce verification, corrected the contributor, documented Google Fonts, removed unused `di52`, upgraded Action Scheduler to 4.0.0, and expanded release exclusions. The audited v0.1.8 ZIP contains production runtime files only. Remaining before resubmission: settle the display-name/slug concern with the review team and complete listing assets or clean-install QA if still required.
+
+Known non-blocking caveats: no storefront variation grid in this release (admin-only scope); CSV "create" rollback reverts meta but leaves the variation post; `wp_insert_post` create failures are skipped silently; repo root has dev artifacts (`.phpunit.result.cache`, `.tmp-npd/`, build-staging folder) that should be gitignored.
 
 ## WordPress.org identity (2026-05-22)
 
@@ -9,13 +15,24 @@ Last updated: 2026-05-24
 - **Main plugin file:** `coderembassy-bulk-variations-manager.php`
 - **Admin menu slug:** `coderembassy-bulk-variations-manager` (re-activate plugin after folder/file rename on existing sites)
 
-## Current Build Target
+## Current Build Targets
 
-We are building the Free plugin in this folder:
+Free plugin repo:
 
 `C:\Users\User\Desktop\My Plugins\Bulk Variation\bulk-variations`
 
-No Pro plugin folder has been created yet. The Pro plugin will be a separate addon later.
+Pro addon source:
+
+`C:\Users\User\Desktop\My Plugins\Bulk Variation\coderembassy-bulk-variations-manager-pro`
+
+Laragon localhost plugin folders:
+
+- Free: `C:\laragon\www\plugins\wp-content\plugins\coderembassy-bulk-variations-manager`
+- Pro: `C:\laragon\www\plugins\wp-content\plugins\coderembassy-bulk-variations-manager-pro`
+
+Current Pro zip artifact:
+
+`C:\Users\User\Desktop\My Plugins\Bulk Variation\coderembassy-bulk-variations-manager-pro\artifacts\coderembassy-bulk-variations-manager-pro-0.1.0.zip`
 
 ## Product Strategy
 
@@ -29,6 +46,8 @@ Free plugin must show zero Pro UI:
 Pro features should be advertised on the plugin website/sales page and injected only by the future Pro addon.
 
 ## Free Features Confirmed In Scope
+
+> Canonical Free/Pro feature matrix: `cursor-prompt-pack-v2.md` → Appendix B "Full Free / Pro split (LOCKED)" (in the plan folder). The lists below are a working summary; if they disagree with Appendix B, Appendix B wins.
 
 - Single-product variation spreadsheet editor.
 - Product search for variable products.
@@ -59,6 +78,148 @@ Pro features should be advertised on the plugin website/sales page and injected 
 - Heatmaps/analytics.
 - Quantity-tier pricing.
 - Multi-site/team approval workflows.
+
+## Pro Addon Progress (2026-06-09)
+
+Pro addon source:
+
+`C:\Users\User\Desktop\My Plugins\Bulk Variation\coderembassy-bulk-variations-manager-pro`
+
+Important architecture status:
+
+- Pro is a separate addon plugin.
+- Pro requires and reuses the Free plugin engine/services.
+- Free remains the base plugin and must not contain Pro UI, Pro marketing, Pro feature gates, or addon detection.
+- Free only exposes generic extension points and neutral field support.
+
+Pro v0.1.0 feature checklist:
+
+- [x] Pro addon bootstrap, activation dependency check, and admin integration through the generic extension API.
+- [x] Dashboard Pro/version badges in the plugin banner when Pro is active.
+- [x] Cross-product Editor view injected by Pro.
+- [x] Product selection/search and multi-product variation loading.
+- [x] Dynamic attribute filters based on the loaded variations; no hardcoded size/color-only logic.
+- [x] Grouped variation tables by product, with per-product select all and collapse controls.
+- [x] Row selection model with "select all in current view" behavior.
+- [x] Pending change summary grouped by product before preview.
+- [x] Pending summary now distinguishes real changes from rows that already match the target value.
+- [x] Image column with per-row image preview and image change/remove actions.
+- [x] Bulk image change for selected variations through Preview & Approve.
+- [x] SKU generator for selected rows with prefix, first number, increment, and padding.
+- [x] Price tools: set exact, increase/decrease by amount, increase/decrease by percent, round to nearest `.99`, clear sale price, set sale dates.
+- [x] Stock tools: set quantity, increase/decrease quantity, set stock status, enable/disable stock management.
+- [x] Physical tools: set/increase/decrease weight, length, width, height.
+- [x] Tax/shipping tools: dropdown-only tax class and shipping class controls using real WooCommerce options.
+- [x] Direct cell edit fan-out for safe set-same fields when multiple rows are selected.
+- [x] Virtual/downloadable variation toggles.
+- [x] Variation description editing.
+- [x] Downloadable file fields: downloadable file name/URL list, download limit, and download expiry.
+- [x] Advanced SKU token patterns, e.g. `{product}`, `{attribute_size}`, `{attribute_color}`, `{number}`.
+- [x] Saved views / table presets.
+- [x] Reusable bulk edit templates.
+- [x] Loaded product group removal in the Cross-product Editor.
+- [x] Advanced formulas for selected numeric fields.
+- [x] Focused bulk tools UI: one selected tool panel is shown at a time instead of a long stacked control list.
+- [x] AI assistant for bulk-edit help.
+- [x] AI-assisted formula/action generation.
+- [x] AI-assisted CSV mapping or cleanup suggestions.
+- [x] Automation/rules groundwork: saved rule drafts and dry-run matching.
+- [x] Rules dry-run matches can be sent to the shared Preview & Approve job workflow.
+- [x] Rules drafts are persisted server-side through Pro REST endpoints instead of browser-only local storage.
+- [x] Saved Rules can be manually run into Preview & Approve from a saved draft.
+- [x] Saved Rules manual runs show a confirmation summary before creating a Preview & Approve job.
+- [x] Saved Rules store preview-only schedule settings: manual, daily preview, or weekly preview.
+- [x] Automation / rules engine foundation: scheduled rules create preview-only jobs through WP-Cron/admin checks.
+- [x] Saved automation presets.
+- [x] Scheduled bulk changes.
+- [x] Conditional bulk rules, e.g. "increase only large blue variations".
+- [ ] Heatmaps / analytics.
+- [ ] Quantity-tier pricing.
+- [ ] Multi-site workflows.
+- [ ] Team approval workflows.
+- [ ] Advanced reporting/history exports.
+- [x] Pro license SDK, REST routes, updater wiring, and SPA License screen integration from `LICENSE_INTEGRATION_GUIDE.md`.
+- [ ] License server product registration + production HMAC secret injection for release builds.
+- [x] Pro package/build cleanup: `npm install`, `npm run lint:js`, and `npm run build` work in the Pro addon.
+- [x] Full Pro QA pass: preview, apply, WooCommerce verify, rollback for every Pro action.
+- [x] Pro zip install/package QA.
+
+Implemented neutral Free support used by Pro:
+
+- [x] Generic field/meta handling for image ID, stock management, virtual/downloadable, downloadable files/limits, weight, dimensions, tax class.
+- [x] VariationRepository now returns image, sale dates, stock management, virtual/downloadable, downloadable files/limits, description, weight/dimensions, tax class, and shipping class ID data.
+- [x] BulkEditor can apply neutral meta fields, downloadable files/limits, variation description, and shipping class taxonomy changes through the existing job workflow.
+- [x] Job diff labels were added for image, stock management, virtual/downloadable, downloadable files/limits, description, weight/dimensions, tax class, and shipping class.
+
+Latest Pro validation:
+
+- `npm run build` passed in the Free repo after neutral Free changes.
+- PHP lint passed for touched Free PHP files.
+- PHP lint passed for Pro `src\REST\CrossProductController.php`.
+- Pro compiled admin JS passed `node --check`.
+- Files were synced to the Laragon localhost plugin folders after each batch.
+- Pro zip rebuilt at `artifacts\coderembassy-bulk-variations-manager-pro-0.1.0.zip`.
+- Fixed downloadable file meta storage so WooCommerce receives file arrays instead of double-serialized strings, and added Woo approved-directory handling so customer downloads are not hidden as disabled/untrusted files; local order `#194` download permissions were regenerated after repairing variation `#188`.
+- Pro storefront now adds a product-page downloadable badge for selected downloadable variations.
+- Cross-product Editor loaded product groups can now be removed before preview/apply, clearing that product's rows, selected variations, pending drafts, image previews, collapsed state, and cached combination warnings.
+- Advanced formula panel added for selected rows across regular price, sale price, stock quantity, weight, length, width, and height. Formula drafts use the existing Preview & Approve workflow and can be saved in bulk edit templates.
+- Runtime QA pass created a temporary variable product/order, verified Pro cross-product loading, dynamic attributes, SKU token preview, preview/apply, formulas, stock, virtual/downloadable files, customer download permission, description, physical fields, tax/shipping class, SKU, and rollback. Temporary product/order/shipping class/custom QA job rows were cleaned up.
+- Fixed rollback mapping for shipping class history (`product_shipping_class` -> `shipping_class_id`) so Pro tax/shipping changes can be restored correctly through the shared Free rollback engine.
+- Cross-product Editor empty state now hides disabled bulk-edit panels until variations are loaded.
+- Cross-product Editor loaded-state UI now uses a compact Bulk tools switcher so users choose one focused action panel at a time while the product tables stay easy to reach.
+- Pro build tooling is installed and validated. `npm run lint:js` and `npm run build` now pass in the Pro addon, so compiled admin JS can be generated from source instead of patched manually.
+- Pro release packaging now runs through `npm run package:release`, builds admin JS first, and creates a clean install zip with runtime files only. The generated zip was extracted to a temp install folder, packaged PHP passed lint, packaged admin JS passed `node --check`, and the zip excludes `node_modules`, package files, admin source JSX, scripts, and planning docs.
+- Follow-up Pro runtime QA found one rollback gap: variation status changes were applied but had no history delta. Free now records `post_status` history, rollback maps it back to the neutral `status` field, and job diff labels render it as `Status`. PHP lint, Free `npm run lint:js`, Free `npm run build`, and Free PHPUnit all pass.
+- Full Laragon Pro runtime QA rerun passed: 71 checks, 0 failures. It verified Pro cross-product loading, dynamic attribute metadata, SKU preview, WooCommerce class endpoints, preview/apply workflow, downloadable customer permissions, all currently implemented Pro field writes, and rollback restoration including variation status.
+- Pro Formula tool now includes a local assistant prompt that converts plain-language requests such as "increase regular price by 10%" or "round sale price to .99" into a target field and formula expression. It does not call an external provider yet; generated formulas still require Add formula changes and Preview & Approve.
+- Pro `npm run lint:js`, `npm run build`, compiled admin JS `node --check`, and `npm run package:release` passed after the formula assistant batch. The Pro zip was rebuilt and verified clean, then admin CSS/dist assets were synced to Laragon.
+- Pro CSV Assistant view added as a Pro-only admin view. It loads product-specific CSV template headers, maps messy source columns to importer-safe headers, normalizes common date/status values, flags duplicate SKUs and obvious numeric/date issues, and downloads/copies a cleaned CSV for the existing Free CSV Import workflow.
+- Pro `npm run lint:js`, `npm run build`, compiled admin JS `node --check`, and `npm run package:release` passed after the CSV Assistant batch. The Pro zip was rebuilt and verified clean, then admin CSS/dist assets were synced to Laragon.
+- CSV Assistant follow-up: strengthened messy header mapping so `Product` reliably maps to `product_id`, `Variant SKU` maps to `sku`, and common attribute names such as frame/size/color can become `attribute_*` columns when exact product headers are not loaded. Pro lint/build/package checks passed and assets were resynced to Laragon.
+- CSV Assistant follow-up: fixed cleaned CSV output so mapped generic attribute columns such as `attribute_frame`, `attribute_size`, and `attribute_color` are included in the generated CSV even when those columns were inferred instead of loaded from the product template.
+- Free CSV Import follow-up: tightened preview validation so non-numeric prices, non-whole-number stock quantities, and unsupported stock/status values are rejected before Preview & Approve. Import preview now returns warnings and sample rows, and the admin UI joins row `issues`/`warnings` messages instead of showing blank invalid rows. PHP lint, targeted importer tests, full Free PHPUnit, JS lint, Free build, and Free release packaging passed; patched Free files were synced to Laragon.
+- Free CSV Import UI polish: preview results now show a clear continue/fix status message, separate "Rows to fix", "Warnings to review", and "Rows ready for preview" sections, and sample rows include extra CSV columns such as product attributes. Free JS lint and build passed after the polish.
+- Free rollback follow-up: fixed rollback of CSV-created variations when `_regular_price` and `_price` history deltas target the same variation. Rollback now groups deltas by variation before calling the shared BulkEditor and reports processed history items so rollback jobs can complete at 100%. PHP lint, focused rollback tests, full Free PHPUnit, and JS lint passed.
+- Pro Cross-product Editor now has a local Bulk edit Help tool. It accepts plain-language prompts, recommends the right bulk tool, explains next steps, warns when row selection is needed, and can open the suggested tool without creating pending edits. Pro `npm run lint:js`, `npm run build`, compiled admin JS `node --check`, and `npm run package:release` passed; runtime CSS/dist assets were synced to Laragon.
+- Pro Bulk edit Help follow-up: price prompts such as "increase regular price by 10%" now prefill the Prices tool before opening it, while formula prompts can prefill the Formula tool. Users still add drafts manually and continue through Preview & Approve. Pro `npm run lint:js`, `npm run build`, compiled admin JS `node --check`, and `npm run package:release` passed; runtime assets were resynced to Laragon.
+- Pro Rules view added as automation groundwork. It creates browser-saved rule drafts, searches/selects variable products, dry-runs matching variations through the existing Pro cross-product variation endpoint, and previews what numeric price/stock actions would become without applying or scheduling anything. Pro `npm run lint:js`, `npm run build`, compiled admin JS `node --check`, and `npm run package:release` passed; runtime CSS/dist assets were synced to Laragon.
+- Pro Rules dry-run UI polish: result columns now explicitly show the matched condition field, the rule threshold, the current action field, and the projected value after the action so merchants can verify why each row matched. Pro lint/build/package checks passed and runtime assets were resynced to Laragon.
+- Pro Rules dry-run table polish: results now use a cleaner full-width table with compact headers, product/variation/SKU grouped into one identity column, and pill-style matched/current/result values for faster scanning. Pro lint/build/package checks passed and runtime assets were resynced to Laragon.
+- Pro Rules Preview & Approve bridge: dry-run matches now have a "Send to Preview & Approve" action that converts changed matches into normal Free `bulk_edit` preview jobs with source `pro_rules`, skips no-op/invalid projected values, and opens the shared job diff screen. Pro lint/build/package checks passed and runtime assets were resynced to Laragon.
+- Pro Rules server-side drafts: added Pro REST draft routes under `bv-pro/v1/rules` backed by per-admin WordPress user meta, and updated the Rules UI to load/save/delete drafts from WordPress instead of browser-only `localStorage`. PHP lint, Pro JS lint/build/package checks, compiled JS syntax checks, and Laragon synced-file syntax checks passed.
+- Pro Rules manual run: selected saved drafts can now load their saved product selection, run the rule immediately, create a normal Preview & Approve job, and open the shared job diff screen without scheduling or auto-applying. Pro JS lint/build/package checks, PHP lint for the Rules REST controller, compiled JS syntax checks, and Laragon synced-file syntax checks passed.
+- Pro Rules confirmation step: saved rule runs now stop at a review card showing selected products, loaded rows, matched rows, rows with real changes, a sample of changed variations, and an explicit "Create Preview Job" action before opening the shared diff screen. Pro JS lint/build/package checks, PHP lint for the Rules REST controller, compiled JS syntax checks, and Laragon synced-file syntax checks passed.
+- Pro Rules preview-only scheduling: saved drafts now persist sanitized schedule metadata (`manual`, `daily`, `weekly`, `HH:MM` time, weekday), the rule builder exposes schedule controls, and the saved drafts panel shows each draft's schedule status. No background automation or auto-apply behavior has been enabled yet. Pro JS lint/build/package checks, PHP lint for the Rules REST controller, compiled JS syntax checks, and Laragon synced-file syntax checks passed.
+- Pro Rules scheduled preview engine: preview schedules now run through a Pro `RuleScheduler` registered with WP-Cron and admin-page checks, and the Rules screen can also poll/check due schedules while open. Due rules create normal Free Preview & Approve jobs with source `pro_rules_schedule`; rules without saved products are skipped with a visible status; rules with no real changes are marked as no-change. No auto-apply behavior is enabled. PHP lint, Pro JS lint/build/package checks, compiled JS syntax checks, package rebuild, and Laragon synced-file syntax checks passed.
+- Pro Rules scheduled preview follow-up: schedule checks now refresh the loaded draft status and show an "Open Preview Job" button for the latest scheduled Preview & Approve job, making created jobs easy to find from the Rules screen. Pro JS lint/build/package checks passed, the Pro zip was rebuilt, and runtime assets were synced to Laragon.
+- Pro Rules conditional fields: selected products now load their variation attribute columns into the Rules condition field dropdown, and drafts support extra AND conditions so rules can target combinations such as Size = Large and Color = Blue. Saved drafts and scheduled preview runs safely preserve/evaluate `attribute_*` condition fields while still creating Preview & Approve jobs only. Pro JS lint/build/package checks passed, the Pro zip was rebuilt, and runtime assets were synced to Laragon.
+- Pro Rules condition value polish: known fields now use clearer value controls. Status, stock status, virtual/downloadable, and loaded product attributes show value dropdowns when possible; free-text fields show a "Value to match" placeholder; empty/not-empty operators show that no value is needed. Pro JS lint/build/package checks passed, the Pro zip was rebuilt, and runtime assets were synced to Laragon.
+- Pro Rules condition builder simplification: the rule builder now uses a sentence-style "Match variations" filter card with "Where" and "And" rows, context-aware match options, and an "Add filter" action so combination rules are easier to build without decoding field/condition/value columns. Pro JS lint/build/package checks passed, the Pro zip was rebuilt, and runtime assets were synced to Laragon.
+- Pro Rules saved automation presets: the Rules screen now includes preset buttons for common rule drafts such as high-price markdown, large blue discount, low-stock price bump, digital product markdown, and daily high-price preview. Presets populate the simplified rule builder without saving or applying until the merchant dry-runs or saves them. Pro JS lint/build/package checks passed, the Pro zip was rebuilt, and runtime assets were synced to Laragon.
+- Pro Rules run-history/status visibility: rule draft save now preserves existing schedule runtime fields instead of wiping them, each scheduled run appends a capped sanitized `runHistory` entry (with status, message, job ID, matched/changed counts), and manual "Create Preview Job" actions on saved rules also append history before opening the shared Preview & Approve diff. Rules UI now shows recent run history entries with quick "Open #job" links. Pro JS lint/build/package checks passed, Pro zip was rebuilt, PHP lint passed for touched Pro backend files, and runtime files were synced to Laragon.
+- Pro Rules scheduled control-center (small safe slice): the Saved drafts panel now includes a dedicated "Scheduled runs" list that aggregates recent scheduled history across drafts, sorted newest first, with matched/changed counts, status message, and quick actions to "Open #job" and "Load rule". Pro JS lint/build/package checks passed, Pro zip was rebuilt, and runtime assets were synced to Laragon.
+- Pro Rules scheduled control-center deepening: added triage filters (`All`, `Created preview`, `No changes`, `Failed`, `Skipped`), search (`rule/message/#job`), and health counters (total runs, previews created, failures) above the Scheduled runs list. Run rows now also show normalized status badges for faster at-a-glance diagnosis before opening jobs. Pro JS lint/build/package checks passed, Pro zip was rebuilt, and runtime assets were synced to Laragon.
+- Pro Rules scheduled controls deepening: added per-rule `schedulePaused` support (REST sanitization + scheduler guard) and a Schedule card Pause/Resume toggle in the Rules UI. Paused rules keep their draft configuration/history but are skipped by due-run checks until resumed. Schedule labels now show `(Paused)` for daily/weekly rules when paused. Pro JS lint/build/package checks passed, Pro zip was rebuilt, PHP lint passed for touched Pro backend files, and runtime files were synced to Laragon.
+- Pro Rules scheduled controls deepening: added a `Run now` control path for saved drafts. Backend now exposes `POST /bv-pro/v1/rules/{id}/run-now`, runs the selected rule immediately for the current admin user, appends normalized run-history/status metadata, and returns updated rules + created job ID. Rules UI now includes `Run now` actions in Saved drafts and Scheduled runs entries, with inline running states and direct navigation when a preview job is created. Pro JS lint/build/package checks passed, Pro zip was rebuilt, PHP lint passed for touched Pro backend files, and runtime files were synced to Laragon.
+- Pro Rules reliability guardrails: `Run now` now has backend cooldown locking (20s transient per user/rule) to reduce accidental duplicate preview creation from rapid clicks. A throttled manual run records status `manual_throttled` with a clear wait message. Scheduled control-center now surfaces throttled counts and supports filtering by throttled status; failed rows expose a contextual `Retry failed` action that re-runs the rule immediately. Pro JS lint/build/package checks passed, Pro zip was rebuilt, PHP lint passed for touched Pro backend files, and runtime files were synced to Laragon.
+- Pro Rules reporting follow-up: Scheduled runs control-center now supports CSV export for the currently filtered/searched run set. Export includes rule name, timestamp, source, status, message, job ID, matched count, and changed count, enabling quick sharing/auditing outside wp-admin. Pro JS lint/build/package checks passed, Pro zip was rebuilt, and runtime assets were synced to Laragon.
+- Pro Rules saved-drafts triage polish: the Saved drafts list now shows each draft's latest run timestamp and normalized outcome badge (derived from run history with fallback to last schedule metadata), so operators can spot stale/failed rules without opening each draft first. Pro JS lint/build/package checks passed, Pro zip was rebuilt, and runtime assets were synced to Laragon.
+- Pro Rules controls follow-up: Saved drafts now include inline `Pause` / `Resume` actions per rule row, so schedule state can be changed quickly without opening the draft editor. The action persists immediately through existing Pro rule save routes and shows inline busy state while saving. Pro JS lint/build/package checks passed, Pro zip was rebuilt, and runtime assets were synced to Laragon.
+- Pro Rules QA fix batch: weekly schedules now compare locale-independent weekday keys (`monday`…`sunday`) instead of localized day names; `Run now` cooldown lock is applied only after the rule draft is found; Saved drafts rows no longer nest buttons inside buttons (load row is a focusable div); `manual_preview` now has a proper status label and is included in preview stats/filters. Pro PHP lint, JS lint/build/package checks passed, Pro zip was rebuilt, and runtime files were synced to Laragon.
+
+- Pro Scheduled bulk changes: pending Preview & Approve jobs can now be scheduled to apply later from the shared job diff screen. Free only exposes neutral job-diff action/visibility filters; Pro injects the "Apply later" control, stores schedule metadata on the existing job, hides immediate Apply while a schedule is active, supports cancel, and runs due schedules through the existing Free `JobManager::resumeAfterApproval()` path. This does not add recurring auto-apply rules. Free JS lint/build passed; Pro PHP lint, JS lint/build/package checks passed; compiled admin JS passed `node --check`; runtime files were synced to Laragon and the Pro zip was rebuilt.
+- Pro Scheduled bulk changes localhost fallback: scheduled apply now has a Pro REST "check scheduled apply" path and the job diff UI sets a due-time timer/check button, so overdue schedules can apply while the admin screen is open or after refresh even if local WP-Cron/Action Scheduler does not wake exactly on time. Pro PHP lint, JS lint/package checks, compiled JS syntax check, zip rebuild, and Laragon sync passed.
+- Scheduled apply progress QA fix: completed scheduled jobs now normalize final processed/progress counters when the stored job row reports `0 / total`, and the Jobs UI displays completed jobs as 100% with rollback available when change history exists. Free JS lint/build passed; Pro PHP lint/package checks passed; compiled Free/Pro JS syntax checks passed after Laragon sync.
+- Pro License integration: copied the shared CoderEmbassy SDK into the Pro addon, added `LicenseSdkBootstrap`, Pro REST license routes (`GET /license`, activate/deactivate/check/modal-shown), updater wiring, localized license data, and replaced the placeholder Pro License view with an activation/status/deactivation screen. The release package now includes `includes/` so the SDK is present in the zip. For source safety, the HMAC constant remains empty with the `<CE_SECRET_INJECT />` marker; local testing can use `BV_PRO_HMAC_SECRET`, and production still needs license-server product registration plus release-time secret injection.
+- Pro License UI follow-up: `Check status` no longer checks an empty saved-license state while a new key is typed into the input. If a key is entered and no active license is saved, the button now runs the activation/check path for that key; failed activation responses render as errors instead of misleading success notices. Pro JS lint/package checks passed, the Pro zip was rebuilt, and runtime admin JS was synced to Laragon.
+- User documentation batch: added a Free-only user guide at `docs/USER_GUIDE_FREE.md` plus `docs/CoderEmbassy-Bulk-Variations-Manager-Free-User-Guide.docx`, and a Pro addon user guide at `docs/USER_GUIDE_PRO.md` plus `docs/CoderEmbassy-Bulk-Variations-Manager-Pro-User-Guide.docx` in the Pro source. The Pro package script now includes `docs/` so the Pro user guide files ship in the addon zip.
+
+Known Pro notes / next likely work:
+
+- Continue one feature batch at a time and let the user test in Laragon after each.
+- Next likely Pro batch: heatmaps/analytics, quantity-tier pricing, team/multisite workflows, advanced reporting, or production license-server registration.
+- License SDK/UI integration is in place. Production activation requires registering `coderembassy-bulk-variations-manager-pro` on the license server and injecting the real HMAC secret during release packaging.
+- Keep Pro `package-lock.json` with the source addon for reproducible admin builds. Do not include `node_modules` in install zips.
 
 ## Completed And Verified
 
@@ -373,35 +534,129 @@ Core Free scope is feature-complete. Remaining work before publishing is release
    - Job retention setting.
    - CSV default status / stock status.
 
-## New Chat Starting Prompt
+## Superseded New Chat Starting Prompt (Do Not Use)
 
-Use the prompt below to start a new chat.
+This project is continuing in Claude Code. Open Claude Code in the repo folder
+(`C:\Users\User\Desktop\My Plugins\Bulk Variation\bulk-variations`) and paste the
+prompt below to start.
 
 ```text
-You are helping me build a WooCommerce WordPress plugin called "CoderEmbassy Bulk Variations Manager for WooCommerce".
+I'm building a WooCommerce plugin: "CoderEmbassy Bulk Variations Manager for
+WooCommerce". You are continuing the project in Claude Code.
 
-Current repo/folder:
+Repo (Free plugin): the current working directory.
+Main file: coderembassy-bulk-variations-manager.php
+
+STEP 1 — Read these before doing anything, as the source of truth:
+  1. PROJECT_PROGRESS_TRACKER.md  — what's done, Free vs Pro scope, caveats, next steps.
+  2. cursor-prompt-pack-v2.md     — the full build plan + the "FREE / PRO PLUGIN
+     BOUNDARY" section. It says "Cursor" but the prompts are tool-agnostic —
+     execute them directly.
+
+HARD PROJECT RULE:
+This folder is the FREE plugin. It must contain ZERO Pro UI — no locked screens,
+no Pro badges, no disabled Pro-only buttons, no <ProLock>. The Pro addon is a
+SEPARATE plugin (bulk-variations-pro/) to be built later.
+
+CURRENT STATUS:
+Free v0.1.7 is feature-complete and validated — single-product Bulk Editor,
+CSV import (update + create), Jobs + diff + rollback, Settings, release packaging.
+PHPUnit 136 tests pass, PHPStan clean, npm lint + build OK, release zip builds.
+
+WORKING RULES (important — these caught real regressions during the build):
+- Before claiming any task complete, run ALL of: composer test:unit,
+  composer phpstan, npm run lint:js, npm run build. Every one must pass.
+- Trust but verify: after editing, re-read the file on disk. Do not trust a
+  summary that says work is done — confirm the actual code.
+- One change at a time. Show the diff. Let me test in Laragon before moving on.
+- Never defer real implementation behind a "later" comment and call it done.
+- Do not add Pro features to this folder.
+
+WHAT I WANT NEXT — pick the one I tell you:
+  Option A (recommended): finish the Free release. Final QA pass on the zip
+    installed to a clean WordPress + WooCommerce site, fix anything found,
+    produce WordPress.org listing assets (screenshots, icon, banner), and
+    prep the readme.txt for submission.
+  Option B: start the Pro addon — create the separate bulk-variations-pro/
+    plugin per PROMPT 21 in cursor-prompt-pack-v2.md (addon bootstrap +
+    extension API), then build Pro features into it.
+
+I will tell you A or B. Start by reading the two docs above and confirming
+you understand the Free/Pro boundary.
+```
+
+## New Chat Starting Prompt (Current)
+
+Open the new chat with the Free repo as the working directory:
+
+`C:\Users\User\Desktop\My Plugins\Bulk Variation\bulk-variations`
+
+Paste this prompt:
+
+```text
+We are continuing a WooCommerce plugin project.
+
+Free plugin repo:
 C:\Users\User\Desktop\My Plugins\Bulk Variation\bulk-variations
 
-Important project rule:
-We are building the Free plugin only in this folder. Do not add Pro UI, Pro locks, Pro badges, or disabled Pro-only features. The Pro addon will be a separate plugin later.
+Pro addon source:
+C:\Users\User\Desktop\My Plugins\Bulk Variation\coderembassy-bulk-variations-manager-pro
 
-Please read PROJECT_PROGRESS_TRACKER.md first and use it as the source of truth for what is already done, what is Free vs Pro, and what should be done next.
+Localhost plugin folders:
+Free: C:\laragon\www\plugins\wp-content\plugins\coderembassy-bulk-variations-manager
+Pro:  C:\laragon\www\plugins\wp-content\plugins\coderembassy-bulk-variations-manager-pro
+
+First, read PROJECT_PROGRESS_TRACKER.md in full. Treat it as the current source
+of truth. Then read claude_plan_cursor-prompt-pack-v2.md and use its corrected
+PROMPT 21 / Section 7 architecture rules, not the old standalone/Freemius-era
+plan.
+
+Architecture rules:
+- Free must remain WordPress.org-safe.
+- Do not add Pro UI, Pro badges, Pro strings, Pro feature gates, or addon
+  detection to Free.
+- Free is the base plugin and only exposes generic extension points / neutral
+  field support.
+- Pro is a separate addon plugin that requires Free and reuses Free engine
+  services.
+- Pro features are injected only when the Pro addon is active.
 
 Current status:
-- Free core scope is feature-complete.
-- Bulk Editor supports single-product editing, preview/apply, jobs, and rollback.
-- CSV import supports update existing variations, create new variations, attribute readiness, template download, preview/apply, and rollback.
-- Settings screen is implemented for Free-safe preferences.
-- Release packaging is set up and creates the WordPress.org-style zip.
-- Latest checks: PHPUnit OK, PHPStan OK, npm lint/build OK.
+- Free v0.1.8 is still the release candidate.
+- Pro v0.1.0 addon is in active build.
+- Pro Cross-product Editor is working in Laragon.
+- Current Pro zip:
+  C:\Users\User\Desktop\My Plugins\Bulk Variation\coderembassy-bulk-variations-manager-pro\artifacts\coderembassy-bulk-variations-manager-pro-0.1.0.zip
 
-What I want next:
-Continue from the tracker. Start by reviewing the current code and the tracker, then focus on final release QA, clean zip install testing, and WordPress.org packaging polish.
+Implemented Pro features so far:
+- Cross-product product selection/search and variation loading.
+- Dynamic attribute filters and grouped product tables.
+- Row selection, select all in current view, select all in product.
+- Pending change summary with "already matched" rows for no-op selected rows.
+- Batch image change/remove through Preview & Approve.
+- SKU generator for selected rows.
+- Price tools: set exact, +/- amount, +/- percent, round .99, clear sale price,
+  set sale dates.
+- Stock tools: set/adjust quantity, stock status, enable/disable stock management.
+- Physical tools: weight/length/width/height set/increase/decrease.
+- Tax/shipping tools: dropdown-only tax class and shipping class from WooCommerce options.
+- Direct cell fan-out for safe set-same fields when multiple rows are selected.
 
-When you find an issue, give me:
-1. What is wrong.
-2. Why it matters.
-3. A precise Cursor prompt to fix it.
-4. Acceptance checks and functional test steps.
+Recent validation:
+- Free npm run build passed after neutral Free changes.
+- PHP lint passed for touched Free PHP files and Pro CrossProductController.php.
+- Pro compiled admin JS passed node --check.
+- Pro `npm run lint:js` and `npm run build` now pass after installing npm dependencies.
+- Files were synced to the Laragon plugin folders.
+
+Important known note:
+The Pro source addon now has `node_modules` locally for development and a
+`package-lock.json` for reproducible installs. Do not include `node_modules` in
+the install zip.
+
+Next likely task:
+Continue Pro one feature batch at a time. The next sensible batch is broader
+Pro QA / zip install QA, then AI assistant or license integration after the core
+tools stay stable. After each batch, sync to localhost, rebuild the Pro zip, and
+let me test in Laragon.
 ```

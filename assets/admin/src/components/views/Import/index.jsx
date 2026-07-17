@@ -58,6 +58,17 @@ const SAMPLE_COLUMNS = [
 ];
 
 /**
+ * @param {string} key CSV/import column key.
+ * @return {string} Human-readable column label.
+ */
+const formatImporterColumnLabel = ( key ) =>
+	String( key || '' )
+		.replace( /^attribute_/, 'Attribute: ' )
+		.replace( /^pa_/, '' )
+		.replace( /_/g, ' ' )
+		.replace( /\b\w/g, ( letter ) => letter.toUpperCase() );
+
+/**
  * @param {Object|Array|null} issues API errors/warnings map or list.
  * @return {Array<{ row: number, message: string }>} Row/issue pairs for display.
  */
@@ -71,9 +82,25 @@ const normalizeRowIssues = ( issues ) => {
 				return { row: index + 1, message: entry };
 			}
 			if ( entry && typeof entry === 'object' ) {
+				const messages = [
+					entry.message,
+					entry.error,
+					...( Array.isArray( entry.issues ) ? entry.issues : [] ),
+					...( Array.isArray( entry.warnings )
+						? entry.warnings
+						: [] ),
+				].filter( Boolean );
+
 				return {
-					row: Number( entry.row ?? entry._row_num ?? index + 1 ),
-					message: String( entry.message ?? entry.error ?? '' ),
+					row: Number(
+						entry.row ?? entry.line ?? entry._row_num ?? index + 1
+					),
+					message:
+						messages.join( ' ' ) ||
+						__(
+							'This row has a validation problem.',
+							'coderembassy-bulk-variations-manager'
+						),
 				};
 			}
 			return { row: index + 1, message: String( entry ) };
@@ -81,7 +108,12 @@ const normalizeRowIssues = ( issues ) => {
 	}
 	return Object.entries( issues ).map( ( [ row, message ] ) => ( {
 		row: Number( row ),
-		message: String( message ),
+		message:
+			String( message ) ||
+			__(
+				'This row has a validation problem.',
+				'coderembassy-bulk-variations-manager'
+			),
 	} ) );
 };
 
@@ -188,6 +220,124 @@ export default function ImportView() {
 			Array.isArray( preview?.sample_rows ) ? preview.sample_rows : [],
 		[ preview ]
 	);
+
+	const sampleColumns = useMemo( () => {
+		if ( sampleRows.length === 0 ) {
+			return SAMPLE_COLUMNS;
+		}
+
+		const known = new Set( SAMPLE_COLUMNS.map( ( column ) => column.key ) );
+		const extraColumns = [];
+		sampleRows.forEach( ( row ) => {
+			Object.keys( row || {} ).forEach( ( key ) => {
+				if ( known.has( key ) ) {
+					return;
+				}
+				known.add( key );
+				extraColumns.push( {
+					key,
+					label: formatImporterColumnLabel( key ),
+				} );
+			} );
+		} );
+
+		return [ ...SAMPLE_COLUMNS, ...extraColumns ];
+	}, [ sampleRows ] );
+
+	const previewStatus = useMemo( () => {
+		if ( ! preview ) {
+			return null;
+		}
+
+		const validCount = Number( preview.valid_count || 0 );
+		const invalidCount = Number( preview.invalid_count || 0 );
+
+		if ( validCount === 0 && invalidCount > 0 ) {
+			return {
+				tone: 'error',
+				title: __(
+					'Fix the CSV before previewing',
+					'coderembassy-bulk-variations-manager'
+				),
+				message: sprintf(
+					/* translators: %d: invalid row count */
+					__(
+						'%d row(s) cannot be imported yet. Fix the row(s) below, then validate again.',
+						'coderembassy-bulk-variations-manager'
+					),
+					invalidCount
+				),
+			};
+		}
+
+		if ( validCount > 0 && invalidCount > 0 ) {
+			return {
+				tone: 'warning',
+				title: __(
+					'Some rows are ready',
+					'coderembassy-bulk-variations-manager'
+				),
+				message: sprintf(
+					/* translators: 1: valid row count, 2: invalid row count */
+					__(
+						'%1$d valid row(s) can continue to Preview & Approve. %2$d invalid row(s) will be skipped until fixed.',
+						'coderembassy-bulk-variations-manager'
+					),
+					validCount,
+					invalidCount
+				),
+			};
+		}
+
+		const warningCount = Number( preview.warning_count || 0 );
+
+		if ( validCount > 0 && warningCount > 0 ) {
+			return {
+				tone: 'warning',
+				title: __(
+					'Ready with warnings',
+					'coderembassy-bulk-variations-manager'
+				),
+				message: sprintf(
+					/* translators: 1: valid row count, 2: warning count */
+					__(
+						'%1$d valid row(s) can continue. Review %2$d warning(s) before applying.',
+						'coderembassy-bulk-variations-manager'
+					),
+					validCount,
+					warningCount
+				),
+			};
+		}
+
+		return {
+			tone: validCount > 0 ? 'success' : 'neutral',
+			title:
+				validCount > 0
+					? __(
+							'Ready to preview',
+							'coderembassy-bulk-variations-manager'
+					  )
+					: __(
+							'No importable rows found',
+							'coderembassy-bulk-variations-manager'
+					  ),
+			message:
+				validCount > 0
+					? sprintf(
+							/* translators: %d: valid row count */
+							__(
+								'%d valid row(s) can continue to Preview & Approve.',
+								'coderembassy-bulk-variations-manager'
+							),
+							validCount
+					  )
+					: __(
+							'Check that the CSV has headers and at least one editable value.',
+							'coderembassy-bulk-variations-manager'
+					  ),
+		};
+	}, [ preview ] );
 
 	const fetchAttributeGuide = useCallback( async ( productId ) => {
 		const id = Number( productId );
@@ -685,14 +835,32 @@ export default function ImportView() {
 							) ) }
 						</div>
 
+						{ previewStatus ? (
+							<div
+								className={ `bv-import-preview__notice bv-import-preview__notice--${ previewStatus.tone }` }
+								role="status"
+							>
+								<strong>{ previewStatus.title }</strong>
+								<span>{ previewStatus.message }</span>
+							</div>
+						) : null }
+
 						{ invalidRows.length > 0 ? (
 							<div className="bv-import-preview__section">
-								<h3 className="bv-import-preview__heading">
-									{ __(
-										'Invalid rows',
-										'coderembassy-bulk-variations-manager'
-									) }
-								</h3>
+								<div className="bv-import-preview__section-heading">
+									<h3 className="bv-import-preview__heading">
+										{ __(
+											'Rows to fix',
+											'coderembassy-bulk-variations-manager'
+										) }
+									</h3>
+									<p className="bv-import-preview__section-help">
+										{ __(
+											'These rows will not be included in the preview job.',
+											'coderembassy-bulk-variations-manager'
+										) }
+									</p>
+								</div>
 								<ul className="bv-import-preview__issue-list">
 									{ invalidRows.map( ( item ) => (
 										<li
@@ -720,12 +888,20 @@ export default function ImportView() {
 
 						{ warningRows.length > 0 ? (
 							<div className="bv-import-preview__section">
-								<h3 className="bv-import-preview__heading">
-									{ __(
-										'Warnings',
-										'coderembassy-bulk-variations-manager'
-									) }
-								</h3>
+								<div className="bv-import-preview__section-heading">
+									<h3 className="bv-import-preview__heading">
+										{ __(
+											'Warnings to review',
+											'coderembassy-bulk-variations-manager'
+										) }
+									</h3>
+									<p className="bv-import-preview__section-help">
+										{ __(
+											'Warnings do not block import, but the values may need a second look.',
+											'coderembassy-bulk-variations-manager'
+										) }
+									</p>
+								</div>
 								<ul className="bv-import-preview__issue-list bv-import-preview__issue-list--warnings">
 									{ warningRows.map( ( item ) => (
 										<li
@@ -752,14 +928,22 @@ export default function ImportView() {
 						) : null }
 
 						<div className="bv-import-preview__section">
-							<h3 className="bv-import-preview__heading">
-								{ __(
-									'Sample rows',
-									'coderembassy-bulk-variations-manager'
-								) }
-							</h3>
+							<div className="bv-import-preview__section-heading">
+								<h3 className="bv-import-preview__heading">
+									{ __(
+										'Rows ready for preview',
+										'coderembassy-bulk-variations-manager'
+									) }
+								</h3>
+								<p className="bv-import-preview__section-help">
+									{ __(
+										'Showing a sample of valid rows that will be sent to Preview & Approve.',
+										'coderembassy-bulk-variations-manager'
+									) }
+								</p>
+							</div>
 							{ sampleRows.length === 0 ? (
-								<p className="bv-muted">
+								<p className="bv-import-preview__empty-note">
 									{ __(
 										'No valid rows to preview.',
 										'coderembassy-bulk-variations-manager'
@@ -770,7 +954,7 @@ export default function ImportView() {
 									<table className="bv-import-preview__table">
 										<thead>
 											<tr>
-												{ SAMPLE_COLUMNS.map(
+												{ sampleColumns.map(
 													( column ) => (
 														<th
 															key={ column.key }
@@ -788,7 +972,7 @@ export default function ImportView() {
 													<tr
 														key={ `sample-${ index }` }
 													>
-														{ SAMPLE_COLUMNS.map(
+														{ sampleColumns.map(
 															( column ) => (
 																<td
 																	key={

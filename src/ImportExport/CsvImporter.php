@@ -41,12 +41,19 @@ class CsvImporter {
 
 		$valid_rows = array();
 		$errors     = array();
+		$warnings   = array();
 		$seen       = array();
 		foreach ( $rows as $line => $row ) {
 			$result = $this->validator->validateRow( $row, $existing_skus, $seen, $slug_map );
 			$sku    = (string) ( $result['fixed_row']['sku'] ?? '' );
 			if ( '' !== $sku ) {
 				$seen[ $sku ] = true;
+			}
+			if ( ! empty( $result['warnings'] ) ) {
+				$warnings[] = array(
+					'line'     => $line + 2,
+					'warnings' => $result['warnings'],
+				);
 			}
 			if ( true === ( $result['is_valid'] ?? false ) ) {
 				$valid_rows[] = $result['fixed_row'];
@@ -62,8 +69,11 @@ class CsvImporter {
 			'total_rows'   => count( $rows ),
 			'valid_count'  => count( $valid_rows ),
 			'invalid_count'=> count( $errors ),
+			'warning_count'=> count( $warnings ),
 			'valid_rows'   => $valid_rows,
+			'sample_rows'  => array_slice( $valid_rows, 0, 5 ),
 			'errors'       => $errors,
+			'warnings'     => $warnings,
 		);
 	}
 
@@ -147,4 +157,3 @@ class CsvImporter {
 		return $rows;
 	}
 }
-

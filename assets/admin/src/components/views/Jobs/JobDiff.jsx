@@ -3,6 +3,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { useDispatch } from '@wordpress/data';
+import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { jobs as jobsApi } from '../../../api/endpoints';
 import { navigateTo } from '../../../navigation';
@@ -30,11 +31,68 @@ const getRows = ( job ) => {
 	return Array.isArray( preview ) ? preview : [];
 };
 
+const getProductLabel = ( row ) => {
+	const title = String( row?.product_title || '' ).trim();
+	if ( title ) {
+		return title;
+	}
+
+	const productId = Number( row?.product_id || 0 );
+	return productId > 0 ? `#${ productId }` : '-';
+};
+
+const IMAGE_FIELDS = new Set( [ 'image_id', '_thumbnail_id' ] );
+
+const getAttachmentId = ( value ) => {
+	const id = Number( String( value ?? '' ).trim() );
+	return Number.isInteger( id ) && id > 0 ? id : 0;
+};
+
+const getWpRestUrl = () =>
+	window.BulkVariationsAdmin?.wp_rest_url ||
+	`${ window.location.origin }/wp-json/wp/v2/`;
+
+const JOB_DIFF_ACTIONS_FILTER = 'bv_job_diff_actions';
+const JOB_DIFF_SHOW_APPLY_FILTER = 'bv_job_diff_show_apply';
+
+function DiffImageValue( { value, media } ) {
+	const id = getAttachmentId( value );
+	if ( id <= 0 ) {
+		return <span className="bv-muted">-</span>;
+	}
+
+	const item = media[ id ];
+	const url =
+		item?.media_details?.sizes?.thumbnail?.source_url ||
+		item?.media_details?.sizes?.woocommerce_thumbnail?.source_url ||
+		item?.source_url ||
+		'';
+
+	return (
+		<div className="bv-diff-image">
+			<div className="bv-diff-image__preview">
+				{ url ? (
+					<img src={ url } alt="" />
+				) : (
+					<span>
+						{ __(
+							'Image',
+							'coderembassy-bulk-variations-manager'
+						) }
+					</span>
+				) }
+			</div>
+			<span className="bv-muted">#{ id }</span>
+		</div>
+	);
+}
+
 export default function JobDiff( { jobId } ) {
 	const { pushToast } = useDispatch( STORE_NAME );
 	const [ loading, setLoading ] = useState( true );
 	const [ job, setJob ] = useState( null );
 	const [ busy, setBusy ] = useState( false );
+	const [ media, setMedia ] = useState( {} );
 
 	const loadJob = useCallback( async () => {
 		if ( ! jobId ) {
@@ -59,11 +117,87 @@ export default function JobDiff( { jobId } ) {
 	}, [ loadJob ] );
 
 	const rows = useMemo( () => getRows( job ), [ job ] );
+	const imageIds = useMemo( () => {
+		const ids = new Set();
+		rows.forEach( ( row ) => {
+			const field = String( row?.field || '' );
+			if ( ! IMAGE_FIELDS.has( field ) ) {
+				return;
+			}
+			[ row?.old_value, row?.new_value ].forEach( ( value ) => {
+				const id = getAttachmentId( value );
+				if ( id > 0 ) {
+					ids.add( id );
+				}
+			} );
+		} );
+		return Array.from( ids );
+	}, [ rows ] );
+
+	useEffect( () => {
+		const missingIds = imageIds.filter( ( id ) => ! media[ id ] );
+		if ( missingIds.length === 0 ) {
+			return;
+		}
+
+		let mounted = true;
+		missingIds.forEach( async ( id ) => {
+			try {
+				const response = await window.fetch(
+					new URL( `media/${ id }`, getWpRestUrl() ),
+					{
+						credentials: 'same-origin',
+						headers: {
+							Accept: 'application/json',
+							'X-WP-Nonce':
+								window.BulkVariationsAdmin?.nonce || '',
+						},
+					}
+				);
+				const body = response.ok ? await response.json() : null;
+				if ( mounted && body ) {
+					setMedia( ( current ) => ( {
+						...current,
+						[ id ]: body,
+					} ) );
+				}
+			} catch ( err ) {
+				void err;
+			}
+		} );
+
+		return () => {
+			mounted = false;
+		};
+	}, [ imageIds, media ] );
+
+	const hasProductContext = useMemo(
+		() =>
+			rows.some(
+				( row ) =>
+					String( row?.product_title || '' ).trim() ||
+					Number( row?.product_id || 0 ) > 0
+			),
+		[ rows ]
+	);
 	const meta = useMemo( () => getDiffPageMeta( job || {} ), [ job ] );
 	const isPendingReview = canReviewDiff( job || {} );
 	const rollbackAvailable = canRollback( job || {} );
 	const status = getDisplayStatus( job || {} );
 	const progressDisplay = getJobProgressDisplay( job || {} );
+	const showApply = applyFilters(
+		JOB_DIFF_SHOW_APPLY_FILTER,
+		meta.showApply,
+		job || {}
+	);
+	const extensionActions = applyFilters( JOB_DIFF_ACTIONS_FILTER, [], {
+		job: job || {},
+		jobId,
+		busy,
+		setBusy,
+		reload: loadJob,
+		pushToast,
+	} );
 
 	const handleApply = async () => {
 		if ( ! jobId || busy ) {
@@ -293,6 +427,14 @@ export default function JobDiff( { jobId } ) {
 						<table className="bv-jobs-table">
 							<thead>
 								<tr>
+									{ hasProductContext && (
+										<th scope="col">
+											{ __(
+												'Product',
+												'coderembassy-bulk-variations-manager'
+											) }
+										</th>
+									) }
 									<th scope="col">
 										{ __(
 											'Variation',
@@ -326,6 +468,8 @@ export default function JobDiff( { jobId } ) {
 										row?.object_id ||
 										'-';
 									const field = String( row?.field || '' );
+									const isImageField =
+										IMAGE_FIELDS.has( field );
 									const oldValue = formatDiffCellValue(
 										field,
 										row?.old_value
@@ -339,14 +483,37 @@ export default function JobDiff( { jobId } ) {
 										<tr
 											key={ `${ objectId }-${ field }-${ index }` }
 										>
+											{ hasProductContext && (
+												<td>
+													{ getProductLabel( row ) }
+												</td>
+											) }
 											<td>{ objectId }</td>
 											<td>
 												{ formatDiffFieldLabel(
 													field
 												) }
 											</td>
-											<td>{ oldValue || '—' }</td>
-											<td>{ newValue || '—' }</td>
+											<td>
+												{ isImageField ? (
+													<DiffImageValue
+														value={ row?.old_value }
+														media={ media }
+													/>
+												) : (
+													oldValue || '-'
+												) }
+											</td>
+											<td>
+												{ isImageField ? (
+													<DiffImageValue
+														value={ row?.new_value }
+														media={ media }
+													/>
+												) : (
+													newValue || '-'
+												) }
+											</td>
 										</tr>
 									);
 								} ) }
@@ -368,7 +535,16 @@ export default function JobDiff( { jobId } ) {
 							) }
 						</Button>
 					) }
-					{ meta.showApply && isPendingReview && rows.length > 0 && (
+					{ Array.isArray( extensionActions ) &&
+						extensionActions.map( ( action, index ) => (
+							<span
+								key={ `job-extension-action-${ index }` }
+								className="bv-jobs__extension-action"
+							>
+								{ action }
+							</span>
+						) ) }
+					{ showApply && isPendingReview && rows.length > 0 && (
 						<Button
 							variant="primary"
 							disabled={ busy }

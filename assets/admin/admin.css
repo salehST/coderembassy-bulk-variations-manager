@@ -2394,6 +2394,13 @@ body.bv-admin-active #wpbody-content > .e-notice--extended {
 	gap: var(--bv-space-4);
 }
 
+.bv-jobs__footer {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--bv-s3);
+}
+
 .bv-jobs-table-wrap {
 	overflow-x: auto;
 }
@@ -2420,6 +2427,33 @@ body.bv-admin-active #wpbody-content > .e-notice--extended {
 
 .bv-jobs-table tbody tr:hover {
 	background: var(--bv-surface-hover);
+}
+
+.bv-diff-image {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--bv-s2);
+	min-height: 44px;
+}
+
+.bv-diff-image__preview {
+	display: grid;
+	place-items: center;
+	width: 40px;
+	height: 40px;
+	border: 1px solid var(--bv-border);
+	border-radius: var(--bv-radius-sm);
+	background: var(--bv-surface-2);
+	color: var(--bv-muted);
+	font-size: 10px;
+	font-weight: 800;
+	overflow: hidden;
+}
+
+.bv-diff-image__preview img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 .bv-jobs-table__progress {
@@ -2781,16 +2815,64 @@ body.bv-admin-active #wpbody-content > .e-notice--extended {
 	color: var(--bv-warning, #b45309);
 }
 
+.bv-import-preview__notice {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--bv-space-2);
+	padding: 0.75rem 0.9rem;
+	border: 1px solid var(--bv-border);
+	border-radius: var(--bv-radius-md);
+	background: var(--bv-surface-muted, rgba(0, 0, 0, 0.02));
+	color: var(--bv-text);
+}
+
+.bv-import-preview__notice strong {
+	font-weight: 700;
+}
+
+.bv-import-preview__notice span {
+	color: var(--bv-text-muted);
+}
+
+.bv-import-preview__notice--success {
+	border-color: rgba(21, 128, 61, 0.28);
+	background: rgba(21, 128, 61, 0.08);
+}
+
+.bv-import-preview__notice--warning {
+	border-color: rgba(180, 83, 9, 0.28);
+	background: rgba(180, 83, 9, 0.08);
+}
+
+.bv-import-preview__notice--error {
+	border-color: rgba(185, 28, 28, 0.28);
+	background: rgba(185, 28, 28, 0.08);
+}
+
 .bv-import-preview__section {
 	display: flex;
 	flex-direction: column;
 	gap: var(--bv-space-2);
 }
 
+.bv-import-preview__section-heading {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
 .bv-import-preview__heading {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: 600;
+}
+
+.bv-import-preview__section-help,
+.bv-import-preview__empty-note {
+	margin: 0;
+	color: var(--bv-text-muted);
+	font-size: 0.875rem;
 }
 
 .bv-import-preview__issue-list {
@@ -2864,6 +2946,7 @@ body.bv-admin-active #wpbody-content > .e-notice--extended {
 	border: 1px solid var(--bv-border);
 	border-radius: var(--bv-radius-md);
 	padding: 0.65rem 0.85rem;
+	background: var(--bv-surface-muted, rgba(0, 0, 0, 0.02));
 }
 
 .bv-import-preview__technical summary {

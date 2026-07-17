@@ -215,6 +215,25 @@ class BulkEditorTest extends TestCase {
 	}
 
 	/**
+	 * Downloadable files must be passed to update_post_meta as an array so WordPress serializes once.
+	 *
+	 * @return void
+	 */
+	public function test_downloadable_files_payload_is_prepared_as_meta_array(): void {
+		$editor = $this->make_editor();
+		$method = new \ReflectionMethod( $editor, 'prepareDownloadableFilesForMeta' );
+
+		$files = array(
+			'abc123' => array(
+				'name' => 'Poster file',
+				'file' => 'https://example.test/poster.jpg',
+			),
+		);
+
+		$this->assertSame( $files, $method->invoke( $editor, serialize( $files ) ) );
+	}
+
+	/**
 	 * Existing _regular_price meta should use CASE UPDATE.
 	 *
 	 * @return void

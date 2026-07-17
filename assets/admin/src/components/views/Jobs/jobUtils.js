@@ -105,7 +105,7 @@ export function canRollback( job ) {
 		status === 'completed' &&
 		! isJobRolledBack( job ) &&
 		ROLLBACK_JOB_TYPES.includes( type ) &&
-		( job?.processed || 0 ) > 0
+		( ( job?.processed || 0 ) > 0 || hasJobChanges( job ) )
 	);
 }
 
@@ -267,6 +267,10 @@ export function getJobUpdatedAt( job ) {
  * @return {number} Progress percentage from 0–100.
  */
 export function getJobProgressPercent( job ) {
+	if ( getDisplayStatus( job ) === 'completed' ) {
+		return 100;
+	}
+
 	const progress = Number( job?.progress );
 	const total = Number( job?.total_items || 0 );
 	const processed = Number( job?.processed || 0 );
@@ -475,7 +479,11 @@ export function getDiffPageMeta( job ) {
  */
 export function getJobProgressDisplay( job ) {
 	const total = Number( job?.total_items || 0 );
-	const processed = Number( job?.processed || 0 );
+	const rawProcessed = Number( job?.processed || 0 );
+	const processed =
+		getDisplayStatus( job ) === 'completed' && total > 0
+			? Math.max( rawProcessed, total )
+			: rawProcessed;
 	const percent = getJobProgressPercent( job );
 
 	return {

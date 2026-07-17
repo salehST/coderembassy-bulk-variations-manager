@@ -113,6 +113,72 @@ class ImportValidatorTest extends TestCase {
 	}
 
 	/**
+	 * Non-numeric price values are rejected.
+	 *
+	 * @return void
+	 */
+	public function test_validate_row_rejects_non_numeric_price(): void {
+		$validator = new ImportValidator();
+		$result    = $validator->validateRow(
+			array(
+				'sku'           => 'SKU-PRICE',
+				'regular_price' => 'abc',
+			),
+			array(),
+			array()
+		);
+
+		$this->assertFalse( $result['is_valid'] );
+		$this->assertStringContainsString( 'numeric', implode( ' ', $result['issues'] ) );
+	}
+
+	/**
+	 * Stock quantity must be a whole number.
+	 *
+	 * @return void
+	 */
+	public function test_validate_row_rejects_non_numeric_stock_quantity(): void {
+		$validator = new ImportValidator();
+		$result    = $validator->validateRow(
+			array(
+				'sku'            => 'SKU-STOCK',
+				'product_id'     => 55,
+				'attribute_size' => 'large',
+				'stock_quantity' => 'abc',
+			),
+			array(),
+			array()
+		);
+
+		$this->assertFalse( $result['is_valid'] );
+		$this->assertStringContainsString( 'stock_quantity', implode( ' ', $result['issues'] ) );
+	}
+
+	/**
+	 * Stock and post status values are limited to supported importer values.
+	 *
+	 * @return void
+	 */
+	public function test_validate_row_rejects_unknown_status_values(): void {
+		$validator = new ImportValidator();
+		$result    = $validator->validateRow(
+			array(
+				'sku'            => 'SKU-STATUS',
+				'product_id'     => 55,
+				'attribute_size' => 'large',
+				'stock_status'   => 'available',
+				'status'         => 'enabled',
+			),
+			array(),
+			array()
+		);
+
+		$this->assertFalse( $result['is_valid'] );
+		$this->assertStringContainsString( 'stock_status', implode( ' ', $result['issues'] ) );
+		$this->assertStringContainsString( 'status', implode( ' ', $result['issues'] ) );
+	}
+
+	/**
 	 * US sale date values normalize and ordering warning is raised.
 	 *
 	 * @return void

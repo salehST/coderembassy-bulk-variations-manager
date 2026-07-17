@@ -23,6 +23,8 @@ class EditorPreviewChanges {
 			$out[] = array(
 				'variation_id' => $id,
 				'object_id'    => $id,
+				'product_id'   => (int) ( $row['product_id'] ?? 0 ),
+				'product_title' => (string) ( $row['product_title'] ?? '' ),
 				'field'        => (string) ( $row['field'] ?? '' ),
 				'old_value'    => $old,
 				'new_value'    => $new,
@@ -31,4 +33,3 @@ class EditorPreviewChanges {
 		return $out;
 	}
 }
-

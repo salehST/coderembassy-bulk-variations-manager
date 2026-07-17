@@ -11,6 +11,7 @@ namespace BulkVariations;
 
 use BulkVariations\Admin\AdminPage;
 use BulkVariations\CLI\BulkVariationsCLI;
+use BulkVariations\Contracts\JobRepositoryInterface;
 use BulkVariations\Engine\AttributeMatrix;
 use BulkVariations\Engine\BulkEditor;
 use BulkVariations\Engine\VariationGenerator;
@@ -27,7 +28,6 @@ use BulkVariations\Jobs\JobManager;
 use BulkVariations\Jobs\RollbackJob;
 use BulkVariations\Jobs\StagedExecutionJob;
 use BulkVariations\Jobs\StagedRevertJob;
-use BulkVariations\Licensing\FeatureFlags;
 use BulkVariations\Repository\JobRepository;
 use BulkVariations\Repository\RollbackRepository;
 use BulkVariations\Repository\TemplateRepository;
@@ -41,11 +41,27 @@ use BulkVariations\Updater\MigrationRunner;
 class Plugin {
 	private static ?self $instance = null;
 
+	/**
+	 * @var array<class-string, object>
+	 */
+	private array $services = array();
+
 	public static function instance(): self {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 		return self::$instance;
+	}
+
+	public function service( string $id ): ?object {
+		return $this->services[ $id ] ?? null;
+	}
+
+	/**
+	 * @return array<class-string, object>
+	 */
+	public function services(): array {
+		return $this->services;
 	}
 
 	public function boot(): void {
@@ -57,7 +73,8 @@ class Plugin {
 		$editor    = new BulkEditor( $jobs, $repo, $history );
 		$writer    = new VariationWriter( $history );
 		$generator = new VariationGenerator( $repo, new AttributeMatrix(), $writer );
-		$flags     = new FeatureFlags();
+		$readiness = new ImportAttributeReadiness( new AttributeMatrix(), $repo, $generator );
+		$rollback_repository = new RollbackRepository( $jobs );
 
 		$manager = new JobManager(
 			$jobs,
@@ -70,23 +87,41 @@ class Plugin {
 			new StagedRevertJob(),
 			new ActivityRecorder(),
 			$editor,
-			new RollbackRepository( $jobs )
+			$rollback_repository
 		);
+		$rollback = new RollbackService( $jobs, $rollback_repository, $manager, new RollbackJob( $editor ) );
+		$csv      = new CsvImporter( $jobs, $manager, new ImportValidator(), $readiness );
 
 		$rest = new RestController(
 			$jobs,
 			$manager,
-			new RollbackService( $jobs, new RollbackRepository( $jobs ), $manager, new RollbackJob( $editor ) ),
+			$rollback,
 			$generator,
 			$repo,
-			new CsvImporter( $jobs, $manager, new ImportValidator(), new ImportAttributeReadiness( new AttributeMatrix(), $repo, $generator ) ),
-			new ImportAttributeReadiness( new AttributeMatrix(), $repo, $generator ),
+			$csv,
+			$readiness,
 			new ImportCsvTemplate(),
-			new TemplateRepository(),
-			$flags
+			new TemplateRepository()
 		);
 
-		$admin = new AdminPage( $flags );
+		$admin = new AdminPage();
+		$this->services = array(
+			JobRepositoryInterface::class => $jobs,
+			JobRepository::class => $jobs,
+			HistoryLogger::class => $history,
+			VariationRepository::class => $repo,
+			BulkEditor::class => $editor,
+			VariationWriter::class => $writer,
+			VariationGenerator::class => $generator,
+			ImportAttributeReadiness::class => $readiness,
+			JobManager::class => $manager,
+			RollbackRepository::class => $rollback_repository,
+			RollbackService::class => $rollback,
+			CsvImporter::class => $csv,
+			RestController::class => $rest,
+			AdminPage::class => $admin,
+		);
+
 		add_action( 'rest_api_init', array( $rest, 'register_routes' ) );
 		add_action( JobManager::ACTION_HOOK, array( $manager, 'processChunk' ), 10, 2 );
 		add_action( 'admin_menu', array( $admin, 'register_menu' ) );
@@ -97,5 +132,7 @@ class Plugin {
 		if ( class_exists( 'WP_CLI' ) ) {
 			\WP_CLI::add_command( 'bulk-variations', BulkVariationsCLI::class );
 		}
+
+		do_action( 'bv_booted', $this );
 	}
 }

@@ -35,6 +35,7 @@ class BulkEditor {
 
 		$meta_snapshot   = $this->repository->getMetaSnapshot( $ids );
 		$status_snapshot = $this->repository->getPostStatusSnapshot( $ids );
+		$excerpt_snapshot = $this->repository->getPostExcerptSnapshot( $ids );
 
 		foreach ( $rows as $row ) {
 			$variation_id = (int) ( $row['variation_id'] ?? 0 );
@@ -45,6 +46,7 @@ class BulkEditor {
 
 			$current_meta   = $meta_snapshot[ $variation_id ] ?? array();
 			$current_status = $status_snapshot[ $variation_id ] ?? 'publish';
+			$current_excerpt = $excerpt_snapshot[ $variation_id ] ?? '';
 			$ops            = $this->buildMetaOperations( $row, $current_meta );
 			$applied_ops    = 0;
 			$ok             = true;
@@ -69,6 +71,7 @@ class BulkEditor {
 			$status_changed = false;
 			if ( $ok && array_key_exists( 'status', $row ) ) {
 				$status_changed = $this->updateStatus(
+					$job_id,
 					$variation_id,
 					(string) $row['status'],
 					(string) $current_status
@@ -76,12 +79,34 @@ class BulkEditor {
 				$ok             = $status_changed;
 			}
 
+			$description_changed = false;
+			if ( $ok && array_key_exists( 'description', $row ) ) {
+				$description_changed = $this->updatePostField(
+					$job_id,
+					$variation_id,
+					'post_excerpt',
+					(string) $row['description'],
+					(string) $current_excerpt
+				);
+				$ok                  = $description_changed;
+			}
+
+			$shipping_class_changed = false;
+			if ( $ok && array_key_exists( 'shipping_class_id', $row ) ) {
+				$shipping_class_changed = $this->updateShippingClass(
+					$job_id,
+					$variation_id,
+					(string) $row['shipping_class_id']
+				);
+				$ok                     = $shipping_class_changed;
+			}
+
 			if ( ! $ok ) {
 				$errors[] = 'Database update failed.';
 				continue;
 			}
 
-			if ( 0 === $applied_ops && ! $status_changed ) {
+			if ( 0 === $applied_ops && ! $status_changed && ! $description_changed && ! $shipping_class_changed ) {
 				continue;
 			}
 
@@ -127,6 +152,10 @@ class BulkEditor {
 				$raw = $this->normalizeDateValue( $raw, false );
 			} elseif ( 'sale_to' === $field ) {
 				$raw = $this->normalizeDateValue( $raw, true );
+			} elseif ( 'downloadable_files' === $field ) {
+				$raw = $this->normalizeDownloadableFiles( $raw );
+			} elseif ( in_array( $field, array( 'download_limit', 'download_expiry' ), true ) ) {
+				$raw = $this->normalizeWholeNumberValue( $raw );
 			}
 			$old = (string) ( $existing[ $meta_key ] ?? '' );
 			if ( $old === $raw ) {
@@ -219,6 +248,55 @@ class BulkEditor {
 		return (string) $time;
 	}
 
+	private function normalizeWholeNumberValue( string $value ): string {
+		$trimmed = trim( $value );
+		if ( '' === $trimmed ) {
+			return '';
+		}
+		if ( ! is_numeric( $trimmed ) ) {
+			return '';
+		}
+		return (string) max( 0, (int) $trimmed );
+	}
+
+	private function normalizeDownloadableFiles( string $value ): string {
+		$trimmed = trim( $value );
+		if ( '' === $trimmed ) {
+			return '';
+		}
+		if ( preg_match( '/^a:\d+:\{/', $trimmed ) ) {
+			return $trimmed;
+		}
+
+		$decoded = json_decode( $trimmed, true );
+		if ( ! is_array( $decoded ) ) {
+			return '';
+		}
+
+		$files = array();
+		foreach ( $decoded as $file ) {
+			if ( ! is_array( $file ) ) {
+				continue;
+			}
+			$name = trim( (string) ( $file['name'] ?? '' ) );
+			$url  = trim( (string) ( $file['file'] ?? $file['url'] ?? '' ) );
+			if ( '' === $name && '' === $url ) {
+				continue;
+			}
+			$key           = md5( $name . '|' . $url );
+			$files[ $key ] = array(
+				'name' => $name,
+				'file' => $url,
+			);
+		}
+
+		if ( empty( $files ) ) {
+			return '';
+		}
+
+		return function_exists( 'maybe_serialize' ) ? maybe_serialize( $files ) : serialize( $files );
+	}
+
 	/**
 	 * @param array<string, string> $operation
 	 */
@@ -233,11 +311,35 @@ class BulkEditor {
 			'sale_price'             => '_sale_price',
 			'stock_quantity'         => '_stock',
 			'stock_status'           => '_stock_status',
+			'manage_stock'           => '_manage_stock',
+			'virtual'                => '_virtual',
+			'downloadable'           => '_downloadable',
+			'downloadable_files'      => '_downloadable_files',
+			'download_limit'          => '_download_limit',
+			'download_expiry'         => '_download_expiry',
+			'image_id'               => '_thumbnail_id',
+			'weight'                 => '_weight',
+			'length'                 => '_length',
+			'width'                  => '_width',
+			'height'                 => '_height',
+			'tax_class'              => '_tax_class',
 			'_price'                 => '_price',
 			'_regular_price'         => '_regular_price',
 			'_sale_price'            => '_sale_price',
 			'_stock'                 => '_stock',
 			'_stock_status'          => '_stock_status',
+			'_manage_stock'          => '_manage_stock',
+			'_virtual'               => '_virtual',
+			'_downloadable'          => '_downloadable',
+			'_downloadable_files'     => '_downloadable_files',
+			'_download_limit'         => '_download_limit',
+			'_download_expiry'        => '_download_expiry',
+			'_thumbnail_id'          => '_thumbnail_id',
+			'_weight'                => '_weight',
+			'_length'                => '_length',
+			'_width'                 => '_width',
+			'_height'                => '_height',
+			'_tax_class'             => '_tax_class',
 			'_sale_price_dates_from' => '_sale_price_dates_from',
 			'_sale_price_dates_to'   => '_sale_price_dates_to',
 		);
@@ -265,6 +367,23 @@ class BulkEditor {
 					return true;
 				}
 				return (bool) delete_post_meta( $variation_id, $key );
+			}
+
+			if ( '_downloadable_files' === $key ) {
+				$new_files = $this->prepareDownloadableFilesForMeta( $new );
+				if ( empty( $new_files ) ) {
+					return (bool) delete_post_meta( $variation_id, $key );
+				}
+
+				if ( function_exists( 'get_post_meta' ) && function_exists( 'maybe_serialize' ) ) {
+					$current = get_post_meta( $variation_id, $key, true );
+					if ( is_array( $current ) && maybe_serialize( $current ) === $new ) {
+						return true;
+					}
+				}
+
+				$result = update_post_meta( $variation_id, $key, $new_files );
+				return false !== $result;
 			}
 
 			if ( function_exists( 'get_post_meta' ) ) {
@@ -306,6 +425,64 @@ class BulkEditor {
 		return false !== $wpdb->query( $sql );
 	}
 
+	/**
+	 * @return array<string, array{name:string, file:string}>
+	 */
+	private function prepareDownloadableFilesForMeta( string $value ): array {
+		$files = function_exists( 'maybe_unserialize' ) ? maybe_unserialize( $value ) : @unserialize( $value );
+		if ( ! is_array( $files ) ) {
+			return array();
+		}
+
+		$out = array();
+		foreach ( $files as $key => $file ) {
+			if ( ! is_array( $file ) ) {
+				continue;
+			}
+			$name = trim( (string) ( $file['name'] ?? '' ) );
+			$url  = trim( (string) ( $file['file'] ?? $file['url'] ?? '' ) );
+			if ( '' === $name && '' === $url ) {
+				continue;
+			}
+			$this->approveDownloadableFileDirectory( $url );
+			$key         = is_string( $key ) && '' !== $key ? $key : md5( $name . '|' . $url );
+			$out[ $key ] = array(
+				'name' => $name,
+				'file' => $url,
+			);
+		}
+
+		return $out;
+	}
+
+	private function approveDownloadableFileDirectory( string $url ): void {
+		if (
+			'' === $url
+			|| ! function_exists( 'wc_get_container' )
+			|| ! class_exists( \Automattic\WooCommerce\Internal\ProductDownloads\ApprovedDirectories\Register::class )
+			|| ! class_exists( \Automattic\WooCommerce\Internal\Utilities\URL::class )
+		) {
+			return;
+		}
+
+		try {
+			$directories = wc_get_container()->get(
+				\Automattic\WooCommerce\Internal\ProductDownloads\ApprovedDirectories\Register::class
+			);
+			$parent_url  = ( new \Automattic\WooCommerce\Internal\Utilities\URL( $url ) )->get_parent_url();
+			$existing    = $directories->get_by_url( $parent_url );
+
+			if ( $existing && ! $existing->is_enabled() ) {
+				$directories->update_approved_directory( $existing->get_id(), $parent_url, true );
+				return;
+			}
+
+			$directories->add_approved_directory( $parent_url, true );
+		} catch ( \Throwable ) {
+			return;
+		}
+	}
+
 	private function normalizePriceValue( string $value ): string {
 		$trimmed = trim( $value );
 		if ( '' === $trimmed ) {
@@ -316,7 +493,7 @@ class BulkEditor {
 		return is_string( $normalized ) && '' !== $normalized ? $normalized : $trimmed;
 	}
 
-	private function updateStatus( int $variation_id, string $new_status, string $old_status ): bool {
+	private function updateStatus( int $job_id, int $variation_id, string $new_status, string $old_status ): bool {
 		if ( '' === $new_status || $new_status === $old_status ) {
 			return true;
 		}
@@ -328,16 +505,119 @@ class BulkEditor {
 				),
 				true
 			);
-			return ! is_wp_error( $result );
+			if ( is_wp_error( $result ) ) {
+				return false;
+			}
+		} else {
+			global $wpdb;
+			$sql = $wpdb->prepare(
+				"UPDATE {$wpdb->posts} SET post_status = %s WHERE ID = %d",
+				$new_status,
+				$variation_id
+			);
+			if ( false === $wpdb->query( $sql ) ) {
+				return false;
+			}
 		}
 
-		global $wpdb;
-		$sql = $wpdb->prepare(
-			"UPDATE {$wpdb->posts} SET post_status = %s WHERE ID = %d",
-			$new_status,
-			$variation_id
+		$this->history->recordChange(
+			$job_id,
+			'variation',
+			$variation_id,
+			'post_status',
+			$old_status,
+			$new_status
 		);
-		return false !== $wpdb->query( $sql );
+
+		return true;
+	}
+
+	private function updatePostField( int $job_id, int $variation_id, string $field, string $new_value, string $old_value ): bool {
+		if ( 'post_excerpt' !== $field ) {
+			return false;
+		}
+
+		if ( $new_value === $old_value ) {
+			return true;
+		}
+
+		if ( function_exists( 'wp_update_post' ) ) {
+			$result = wp_update_post(
+				array(
+					'ID'    => $variation_id,
+					$field => $new_value,
+				),
+				true
+			);
+			if ( is_wp_error( $result ) ) {
+				return false;
+			}
+		} else {
+			global $wpdb;
+			$sql = $wpdb->prepare(
+				"UPDATE {$wpdb->posts} SET {$field} = %s WHERE ID = %d",
+				$new_value,
+				$variation_id
+			);
+			if ( false === $wpdb->query( $sql ) ) {
+				return false;
+			}
+		}
+
+		$this->history->recordChange(
+			$job_id,
+			'variation',
+			$variation_id,
+			$field,
+			$old_value,
+			$new_value
+		);
+
+		return true;
+	}
+
+	private function updateShippingClass( int $job_id, int $variation_id, string $new_value ): bool {
+		if ( ! function_exists( 'wp_get_post_terms' ) || ! function_exists( 'wp_set_object_terms' ) ) {
+			return false;
+		}
+
+		$old_terms = wp_get_post_terms(
+			$variation_id,
+			'product_shipping_class',
+			array( 'fields' => 'ids' )
+		);
+		if ( is_wp_error( $old_terms ) ) {
+			return false;
+		}
+
+		$old_value = empty( $old_terms ) ? '' : (string) absint( $old_terms[0] );
+		$new_id    = absint( $new_value );
+		$new_clean = $new_id > 0 ? (string) $new_id : '';
+
+		if ( $old_value === $new_clean ) {
+			return true;
+		}
+
+		$result = wp_set_object_terms(
+			$variation_id,
+			$new_id > 0 ? array( $new_id ) : array(),
+			'product_shipping_class'
+		);
+
+		if ( is_wp_error( $result ) ) {
+			return false;
+		}
+
+		$this->history->recordChange(
+			$job_id,
+			'variation',
+			$variation_id,
+			'product_shipping_class',
+			$old_value,
+			$new_clean
+		);
+
+		return true;
 	}
 
 	private function clearVariationCaches( int $variation_id ): void {

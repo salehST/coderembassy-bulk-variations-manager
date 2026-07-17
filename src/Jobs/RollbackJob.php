@@ -21,6 +21,7 @@ class RollbackJob {
 	 */
 	public function run( int $job_id, array $deltas ): array {
 		$rows = array();
+		$processed_items = 0;
 		foreach ( $deltas as $delta ) {
 			$variation_id = (int) ( $delta['object_id'] ?? 0 );
 			$field        = (string) ( $delta['field'] ?? '' );
@@ -28,12 +29,17 @@ class RollbackJob {
 				continue;
 			}
 			$editor_field = $this->toEditorField( $field );
-			$rows[]       = array(
-				'variation_id' => $variation_id,
-				$editor_field  => $delta['new_value'] ?? '',
-			);
+			if ( ! isset( $rows[ $variation_id ] ) ) {
+				$rows[ $variation_id ] = array( 'variation_id' => $variation_id );
+			}
+			$rows[ $variation_id ][ $editor_field ] = $delta['new_value'] ?? '';
+			++$processed_items;
 		}
-		return $this->editor->processChunk( $job_id, $rows );
+		$result = $this->editor->processChunk( $job_id, array_values( $rows ) );
+		if ( empty( $result['errors'] ) ) {
+			$result['processed'] = $processed_items;
+		}
+		return $result;
 	}
 
 	private function toEditorField( string $field ): string {
@@ -43,12 +49,20 @@ class RollbackJob {
 			'_sale_price'            => 'sale_price',
 			'_stock'                 => 'stock_quantity',
 			'_stock_status'          => 'stock_status',
+			'_manage_stock'          => 'manage_stock',
+			'_virtual'               => 'virtual',
+			'_downloadable'          => 'downloadable',
+			'_downloadable_files'    => 'downloadable_files',
+			'_download_limit'        => 'download_limit',
+			'_download_expiry'       => 'download_expiry',
+			'post_excerpt'           => 'description',
 			'_sale_price_dates_from' => 'sale_from',
 			'_sale_price_dates_to'   => 'sale_to',
 			'_price'                 => '_price',
+			'post_status'            => 'status',
+			'product_shipping_class' => 'shipping_class_id',
 		);
 
 		return $map[ $field ] ?? $field;
 	}
 }
-

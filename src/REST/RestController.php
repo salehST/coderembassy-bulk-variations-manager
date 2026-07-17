@@ -16,7 +16,6 @@ use BulkVariations\ImportExport\CsvImporter;
 use BulkVariations\ImportExport\ImportAttributeReadiness;
 use BulkVariations\ImportExport\ImportCsvTemplate;
 use BulkVariations\Jobs\JobManager;
-use BulkVariations\Licensing\FeatureFlags;
 use BulkVariations\Repository\TemplateRepository;
 use BulkVariations\Rollback\RollbackService;
 use RuntimeException;
@@ -36,10 +35,9 @@ class RestController {
 		private CsvImporter $csv_importer,
 		private ImportAttributeReadiness $readiness,
 		private ImportCsvTemplate $templates,
-		private TemplateRepository $template_repository,
-		private FeatureFlags $feature_flags
+		private TemplateRepository $template_repository
 	) {
-		unset( $this->template_repository, $this->feature_flags );
+		unset( $this->template_repository );
 	}
 
 	public function register_routes(): void {
@@ -165,10 +163,18 @@ class RestController {
 	/**
 	 * @return true|WP_Error
 	 */
-	public function permissions_check() {
-		return current_user_can( 'manage_woocommerce' )
-			? true
-			: new WP_Error( 'bv_forbidden', 'You are not allowed to manage variations.', array( 'status' => 403 ) );
+	public function permissions_check( WP_REST_Request $request ) {
+		$nonce = (string) $request->get_header( 'x_wp_nonce' );
+
+		if ( '' === $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return new WP_Error( 'bv_rest_nonce', 'Invalid REST nonce.', array( 'status' => 401 ) );
+		}
+
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			return new WP_Error( 'bv_forbidden', 'You are not allowed to manage variations.', array( 'status' => 403 ) );
+		}
+
+		return true;
 	}
 
 	public function search_products( WP_REST_Request $request ): WP_REST_Response {
@@ -549,12 +555,19 @@ class RestController {
 
 		$meta_snapshot   = $this->variations->getMetaSnapshot( $ids );
 		$status_snapshot = $this->variations->getPostStatusSnapshot( $ids );
+		$excerpt_snapshot = $this->variations->getPostExcerptSnapshot( $ids );
 		$field_map       = array(
 			'sku'           => '_sku',
 			'regular_price' => '_regular_price',
 			'sale_price'    => '_sale_price',
 			'stock_quantity'=> '_stock',
 			'stock_status'  => '_stock_status',
+			'manage_stock'  => '_manage_stock',
+			'virtual'       => '_virtual',
+			'downloadable'  => '_downloadable',
+			'downloadable_files' => '_downloadable_files',
+			'download_limit' => '_download_limit',
+			'download_expiry'=> '_download_expiry',
 			'sale_from'     => '_sale_price_dates_from',
 			'sale_to'       => '_sale_price_dates_to',
 		);
@@ -569,6 +582,10 @@ class RestController {
 
 			if ( 'status' === $field ) {
 				$preview[ $index ]['old_value'] = (string) ( $status_snapshot[ $variation_id ] ?? '' );
+				continue;
+			}
+			if ( 'description' === $field ) {
+				$preview[ $index ]['old_value'] = (string) ( $excerpt_snapshot[ $variation_id ] ?? '' );
 				continue;
 			}
 

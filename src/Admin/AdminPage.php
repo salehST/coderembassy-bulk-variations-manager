@@ -9,14 +9,8 @@ declare(strict_types=1);
 
 namespace BulkVariations\Admin;
 
-use BulkVariations\Licensing\FeatureFlags;
-
 class AdminPage {
 	public const MENU_SLUG = 'coderembassy-bulk-variations-manager';
-
-	public function __construct( private FeatureFlags $flags ) {
-		unset( $this->flags );
-	}
 
 	public function register_menu(): void {
 		add_menu_page(
@@ -47,10 +41,16 @@ class AdminPage {
 		);
 		wp_style_add_data( 'bv-admin', 'rtl', 'replace' );
 
+		$script_bundles = $this->get_script_bundles();
+		$script_deps    = array_merge(
+			array( 'wp-element', 'wp-i18n', 'wp-data', 'wp-components', 'wp-hooks' ),
+			$this->enqueue_script_bundles( $script_bundles )
+		);
+
 		wp_enqueue_script(
 			'bv-admin',
 			BV_PLUGIN_URL . 'assets/admin/dist/index.js',
-			array( 'wp-element', 'wp-i18n', 'wp-data', 'wp-components' ),
+			array_values( array_unique( $script_deps ) ),
 			BV_VERSION,
 			true
 		);
@@ -65,12 +65,52 @@ class AdminPage {
 	}
 
 	/**
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function get_script_bundles(): array {
+		$bundles = apply_filters( 'bv_admin_script_bundles', array() );
+		return is_array( $bundles ) ? $bundles : array();
+	}
+
+	/**
+	 * @param array<int, array<string, mixed>> $bundles Script bundle definitions.
+	 * @return array<int, string> Enqueued extension script handles.
+	 */
+	private function enqueue_script_bundles( array $bundles ): array {
+		$handles = array();
+		foreach ( $bundles as $bundle ) {
+			if ( ! is_array( $bundle ) ) {
+				continue;
+			}
+
+			$handle  = sanitize_key( (string) ( $bundle['handle'] ?? '' ) );
+			$src     = esc_url_raw( (string) ( $bundle['src'] ?? '' ) );
+			$deps    = isset( $bundle['deps'] ) && is_array( $bundle['deps'] ) ? array_map( 'sanitize_key', $bundle['deps'] ) : array();
+			$version = isset( $bundle['version'] ) ? (string) $bundle['version'] : BV_VERSION;
+			$type    = sanitize_key( (string) ( $bundle['type'] ?? '' ) );
+
+			if ( '' === $handle || '' === $src ) {
+				continue;
+			}
+
+			wp_enqueue_script( $handle, $src, $deps, $version, true );
+			$handles[] = $handle;
+
+			if ( '' !== $type ) {
+				wp_script_add_data( $handle, 'type', $type );
+			}
+		}
+		return $handles;
+	}
+
+	/**
 	 * @param \WP_User $user Current user.
 	 * @return array<string, mixed>
 	 */
 	private function build_admin_globals( \WP_User $user ): array {
 		return array(
 			'rest_url'     => rest_url( 'bv/v1/' ),
+			'wp_rest_url'  => rest_url( 'wp/v2/' ),
 			'nonce'        => wp_create_nonce( 'wp_rest' ),
 			'version'      => BV_VERSION,
 			'logo_light'   => BV_PLUGIN_URL . 'assets/admin/logo-light.png',

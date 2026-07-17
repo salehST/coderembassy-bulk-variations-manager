@@ -58,7 +58,7 @@ class VariationRepository {
 			: 0;
 
 		$posts_sql = $wpdb->prepare(
-			"SELECT ID, post_status, post_title FROM {$wpdb->posts} WHERE post_parent = %d AND post_type = 'product_variation'",
+			"SELECT ID, post_status, post_title, post_excerpt FROM {$wpdb->posts} WHERE post_parent = %d AND post_type = 'product_variation'",
 			$product_id
 		);
 		$posts = $wpdb->get_results( $posts_sql, ARRAY_A );
@@ -120,6 +120,7 @@ class VariationRepository {
 				'post_status'    => (string) ( $post['post_status'] ?? 'publish' ),
 				'status'         => (string) ( $post['post_status'] ?? 'publish' ),
 				'title'          => (string) ( $post['post_title'] ?? '' ),
+				'description'    => (string) ( $post['post_excerpt'] ?? '' ),
 				'sku'            => $sku,
 				'image_id'       => $thumb_id,
 				'image_url'      => $image_url,
@@ -129,6 +130,18 @@ class VariationRepository {
 				'sale_to'        => $this->formatTimestampDate( (string) ( $meta['_sale_price_dates_to'] ?? '' ) ),
 				'stock_quantity' => (string) ( $meta['_stock'] ?? '' ),
 				'stock_status'   => (string) ( $meta['_stock_status'] ?? '' ),
+				'manage_stock'   => (string) ( $meta['_manage_stock'] ?? '' ),
+				'virtual'        => (string) ( $meta['_virtual'] ?? '' ),
+				'downloadable'   => (string) ( $meta['_downloadable'] ?? '' ),
+				'downloadable_files' => $this->formatDownloadableFiles( (string) ( $meta['_downloadable_files'] ?? '' ) ),
+				'download_limit' => (string) ( $meta['_download_limit'] ?? '' ),
+				'download_expiry' => (string) ( $meta['_download_expiry'] ?? '' ),
+				'weight'         => (string) ( $meta['_weight'] ?? '' ),
+				'length'         => (string) ( $meta['_length'] ?? '' ),
+				'width'          => (string) ( $meta['_width'] ?? '' ),
+				'height'         => (string) ( $meta['_height'] ?? '' ),
+				'tax_class'      => (string) ( $meta['_tax_class'] ?? '' ),
+				'shipping_class_id' => $this->getShippingClassId( $id ),
 			);
 			foreach ( $attributes[ $id ] ?? array() as $meta_key => $meta_value ) {
 				$row[ $meta_key ] = $meta_value;
@@ -143,6 +156,53 @@ class VariationRepository {
 			return '';
 		}
 		return gmdate( 'Y-m-d', (int) $value );
+	}
+
+	private function getShippingClassId( int $variation_id ): string {
+		if ( ! function_exists( 'wp_get_post_terms' ) ) {
+			return '';
+		}
+
+		$terms = wp_get_post_terms(
+			$variation_id,
+			'product_shipping_class',
+			array( 'fields' => 'ids' )
+		);
+
+		if ( is_wp_error( $terms ) || empty( $terms ) ) {
+			return '';
+		}
+
+		return (string) absint( $terms[0] );
+	}
+
+	private function formatDownloadableFiles( string $value ): string {
+		if ( '' === $value || ! function_exists( 'maybe_unserialize' ) ) {
+			return '';
+		}
+
+		$files = maybe_unserialize( $value );
+		if ( ! is_array( $files ) ) {
+			return '';
+		}
+
+		$out = array();
+		foreach ( $files as $file ) {
+			if ( ! is_array( $file ) ) {
+				continue;
+			}
+			$name = (string) ( $file['name'] ?? '' );
+			$url  = (string) ( $file['file'] ?? '' );
+			if ( '' === $name && '' === $url ) {
+				continue;
+			}
+			$out[] = array(
+				'name' => $name,
+				'file' => $url,
+			);
+		}
+
+		return empty( $out ) ? '' : (string) wp_json_encode( $out );
 	}
 
 	/**
@@ -213,16 +273,38 @@ class VariationRepository {
 	 * @return array<int, string>
 	 */
 	public function getPostStatusSnapshot( array $variation_ids ): array {
+		$fields = $this->getPostFieldSnapshot( $variation_ids, 'post_status' );
+		$out    = array();
+		foreach ( $fields as $variation_id => $value ) {
+			$out[ $variation_id ] = $value;
+		}
+		return $out;
+	}
+
+	/**
+	 * @param array<int, int> $variation_ids Variation IDs.
+	 * @return array<int, string>
+	 */
+	public function getPostExcerptSnapshot( array $variation_ids ): array {
+		return $this->getPostFieldSnapshot( $variation_ids, 'post_excerpt' );
+	}
+
+	/**
+	 * @param array<int, int> $variation_ids Variation IDs.
+	 * @return array<int, string>
+	 */
+	private function getPostFieldSnapshot( array $variation_ids, string $field ): array {
 		if ( empty( $variation_ids ) ) {
 			return array();
 		}
 		global $wpdb;
 		$ids_sql = implode( ',', array_map( 'intval', $variation_ids ) );
-		$sql     = "SELECT ID, post_status FROM {$wpdb->posts} WHERE post_type = 'product_variation' AND ID IN ($ids_sql)";
+		$field   = 'post_excerpt' === $field ? 'post_excerpt' : 'post_status';
+		$sql     = "SELECT ID, {$field} FROM {$wpdb->posts} WHERE post_type = 'product_variation' AND ID IN ($ids_sql)";
 		$rows    = $wpdb->get_results( $sql, ARRAY_A );
 		$out     = array();
 		foreach ( $rows as $row ) {
-			$out[ (int) $row['ID'] ] = (string) $row['post_status'];
+			$out[ (int) $row['ID'] ] = (string) $row[ $field ];
 		}
 		return $out;
 	}

@@ -16,7 +16,6 @@ use BulkVariations\Contracts\JobRepositoryInterface;
 use BulkVariations\Engine\VariationGenerator;
 use BulkVariations\Engine\VariationRepository;
 use BulkVariations\Jobs\JobManager;
-use BulkVariations\Licensing\FeatureFlags;
 use BulkVariations\Repository\TemplateRepository;
 use BulkVariations\REST\RestController;
 use BulkVariations\Rollback\RollbackService;
@@ -41,8 +40,7 @@ class RestControllerJobPayloadTest extends TestCase {
 			$this->createMock( CsvImporter::class ),
 			$this->createMock( ImportAttributeReadiness::class ),
 			$this->createMock( ImportCsvTemplate::class ),
-			$this->createMock( TemplateRepository::class ),
-			$this->createMock( FeatureFlags::class )
+			$this->createMock( TemplateRepository::class )
 		);
 	}
 

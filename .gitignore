@@ -20,8 +20,12 @@ coverage/
 .env.*
 .vscode/
 .idea/
+*.code-workspace
 .DS_Store
 Thumbs.db
+
+# Generated plugin-check reports.
+coderembassy-bulk-variations-manager-*-php-*.json
 
 # Binary planning exports; keep Markdown planning docs in source.
 *.docx

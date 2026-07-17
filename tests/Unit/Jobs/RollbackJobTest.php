@@ -140,5 +140,91 @@ class RollbackJobTest extends TestCase {
 
 		$this->assertSame( 1, $result['processed'] );
 	}
-}
 
+	/**
+	 * Related rollback deltas for the same variation are grouped into one editor row.
+	 *
+	 * @return void
+	 */
+	public function test_run_groups_price_deltas_for_same_variation(): void {
+		$bulk_editor = $this->createMock( BulkEditor::class );
+		$bulk_editor->expects( $this->once() )
+			->method( 'processChunk' )
+			->with(
+				91,
+				array(
+					array(
+						'variation_id'  => 227,
+						'regular_price' => '',
+						'_price'        => '',
+					),
+				)
+			)
+			->willReturn(
+				array(
+					'processed' => 1,
+					'errors'    => array(),
+				)
+			);
+
+		$job    = new RollbackJob( $bulk_editor );
+		$result = $job->run(
+			91,
+			array(
+				array(
+					'object_id' => 227,
+					'field'     => '_regular_price',
+					'new_value' => '',
+				),
+				array(
+					'object_id' => 227,
+					'field'     => '_price',
+					'new_value' => '',
+				),
+			)
+		);
+
+		$this->assertSame( 2, $result['processed'] );
+		$this->assertSame( array(), $result['errors'] );
+	}
+
+	/**
+	 * Post status history deltas map back to the editor status field.
+	 *
+	 * @return void
+	 */
+	public function test_run_maps_post_status_delta_to_editor_field(): void {
+		$bulk_editor = $this->createMock( BulkEditor::class );
+		$bulk_editor->expects( $this->once() )
+			->method( 'processChunk' )
+			->with(
+				88,
+				array(
+					array(
+						'variation_id' => 44,
+						'status'       => 'publish',
+					),
+				)
+			)
+			->willReturn(
+				array(
+					'processed' => 1,
+					'errors'    => array(),
+				)
+			);
+
+		$job    = new RollbackJob( $bulk_editor );
+		$result = $job->run(
+			88,
+			array(
+				array(
+					'object_id' => 44,
+					'field'     => 'post_status',
+					'new_value' => 'publish',
+				),
+			)
+		);
+
+		$this->assertSame( 1, $result['processed'] );
+	}
+}

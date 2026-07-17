@@ -154,6 +154,37 @@ class CsvImporterTest extends TestCase {
 	}
 
 	/**
+	 * Preview returns sample rows, warnings, and rejects bad numeric import values.
+	 *
+	 * @return void
+	 */
+	public function test_preview_import_reports_samples_warnings_and_numeric_errors(): void {
+		$path = sys_get_temp_dir() . '/bv-cleaned-preview-' . uniqid( '', true ) . '.csv';
+		$csv  = "product_id,sku,regular_price,sale_from,sale_to,stock_quantity,stock_status,status,attribute_frame,attribute_size\n"
+			. "18,CSV-CLEAN-01,499,2026-06-15,2026-06-30,5,instock,publish,Green,Medium\n"
+			. "18,CSV-CLEAN-02,550,2026-06-20,2026-06-18,abc,outofstock,draft,Blue,Large\n"
+			. "18,CSV-CLEAN-01,-25,2026-07-01,2026-07-15,3,onbackorder,private,Green,Small\n";
+		file_put_contents( $path, $csv ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+
+		$importer = new CsvImporter(
+			$this->createMock( JobRepositoryInterface::class ),
+			$this->createMock( JobManager::class ),
+			new ImportValidator(),
+			$this->create_attribute_readiness_mock()
+		);
+		$result = $importer->previewImport( $path, 18, array() );
+
+		unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink
+
+		$this->assertSame( 1, $result['valid_count'] );
+		$this->assertSame( 2, $result['invalid_count'] );
+		$this->assertSame( 1, $result['warning_count'] );
+		$this->assertCount( 1, $result['sample_rows'] );
+		$this->assertStringContainsString( 'stock_quantity', implode( ' ', $result['errors'][0]['issues'] ) );
+		$this->assertStringContainsString( 'sale_from', implode( ' ', $result['warnings'][0]['warnings'] ) );
+	}
+
+	/**
 	 * Import dispatches JobManager with chunked valid rows.
 	 *
 	 * @return void

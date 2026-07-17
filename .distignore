@@ -1,10 +1,13 @@
 .git/
 .github/
+.agents/
 .tmp-npd/
 artifacts/
 node_modules/
 vendor/
 coderembassy-bulk-variations-manager/
+GitHub/
+docs/
 assets/admin/src/
 tests/
 scripts/
@@ -26,3 +29,4 @@ phpunit.xml.dist
 normalize-package-data-*.tgz
 *.docx
 *.zip
+*.code-workspace

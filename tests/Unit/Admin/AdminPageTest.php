@@ -12,7 +12,6 @@ namespace BulkVariations\Tests\Unit\Admin;
 use Brain\Monkey;
 use Brain\Monkey\Functions;
 use BulkVariations\Admin\AdminPage;
-use BulkVariations\Licensing\FeatureFlags;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -56,7 +55,7 @@ class AdminPageTest extends TestCase {
 	 * @return void
 	 */
 	public function test_register_menu_calls_add_menu_page(): void {
-		$page = new AdminPage( new FeatureFlags() );
+		$page = new AdminPage();
 
 		Functions\expect( 'add_menu_page' )
 			->once()
@@ -84,7 +83,7 @@ class AdminPageTest extends TestCase {
 	 * @return void
 	 */
 	public function test_render_page_outputs_admin_root(): void {
-		$page = new AdminPage( new FeatureFlags() );
+		$page = new AdminPage();
 		ob_start();
 		$page->render_page();
 		$output = (string) ob_get_clean();
@@ -109,7 +108,7 @@ class AdminPageTest extends TestCase {
 	 * @return void
 	 */
 	public function test_enqueue_assets_skips_unrelated_hooks(): void {
-		$page = new AdminPage( new FeatureFlags() );
+		$page = new AdminPage();
 
 		Functions\expect( 'wp_enqueue_style' )->never();
 		Functions\expect( 'wp_enqueue_script' )->never();
@@ -124,7 +123,7 @@ class AdminPageTest extends TestCase {
 	 * @return void
 	 */
 	public function test_enqueue_assets_loads_on_plugin_screen(): void {
-		$page   = new AdminPage( new FeatureFlags() );
+		$page   = new AdminPage();
 		$styles = 0;
 		$scripts = 0;
 		$style_src = '';
@@ -184,7 +183,7 @@ class AdminPageTest extends TestCase {
 	 * @return void
 	 */
 	public function test_suppress_third_party_notices_on_plugin_screen(): void {
-		$page = new AdminPage( new FeatureFlags() );
+		$page = new AdminPage();
 
 		$screen       = new \stdClass();
 		$screen->id   = 'toplevel_page_' . AdminPage::MENU_SLUG;
@@ -205,7 +204,7 @@ class AdminPageTest extends TestCase {
 	 * @return void
 	 */
 	public function test_suppress_third_party_notices_skips_other_screens(): void {
-		$page = new AdminPage( new FeatureFlags() );
+		$page = new AdminPage();
 
 		$screen       = new \stdClass();
 		$screen->id   = 'options-general';
@@ -233,7 +232,7 @@ class AdminPageTest extends TestCase {
 	 * @return void
 	 */
 	public function test_append_admin_body_class(): void {
-		$page = new AdminPage( new FeatureFlags() );
+		$page = new AdminPage();
 
 		$this->assertSame(
 			'wp-admin bv-admin-active',

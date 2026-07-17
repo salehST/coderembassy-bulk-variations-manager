@@ -1,5 +1,5 @@
 /**
- * Free-tier view registry. Pro addon may extend via `bulkVariations.views` filter.
+ * Admin view registry.
  */
 import { __ } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
@@ -22,7 +22,6 @@ import PlaceholderView from '../components/views/PlaceholderView';
  * @property {boolean}       [sidebar] Show in sidebar nav (default true).
  * @property {number}        [order]   Sidebar sort order.
  * @property {string|null}   [badge]   Sidebar badge key (`runningJobs`) or null.
- * @property {'free'|'pro'}  [tier]    Omit or `free` for Free shell; Pro addon uses `pro`.
  */
 
 /** @type {ViewDefinition[]} */
@@ -36,7 +35,6 @@ const FREE_VIEWS = [
 		sidebar: true,
 		order: 10,
 		badge: null,
-		tier: 'free',
 	},
 	{
 		id: 'editor',
@@ -47,7 +45,6 @@ const FREE_VIEWS = [
 		sidebar: true,
 		order: 20,
 		badge: null,
-		tier: 'free',
 	},
 	{
 		id: 'import',
@@ -58,7 +55,6 @@ const FREE_VIEWS = [
 		sidebar: true,
 		order: 25,
 		badge: null,
-		tier: 'free',
 	},
 	{
 		id: 'jobs',
@@ -68,7 +64,6 @@ const FREE_VIEWS = [
 		sidebar: true,
 		order: 30,
 		badge: 'runningJobs',
-		tier: 'free',
 	},
 	{
 		id: 'settings',
@@ -79,7 +74,6 @@ const FREE_VIEWS = [
 		sidebar: true,
 		order: 40,
 		badge: null,
-		tier: 'free',
 	},
 	{
 		id: 'help',
@@ -89,21 +83,14 @@ const FREE_VIEWS = [
 		sidebar: true,
 		order: 50,
 		badge: null,
-		tier: 'free',
 	},
 ];
 
-export const VIEWS_FILTER = 'bulkVariations.views';
-export const SIDEBAR_FILTER = 'bulkVariations.sidebarNav';
+export const VIEWS_FILTER = 'bv_admin_views';
+export const SIDEBAR_FILTER = 'bv_sidebar_nav';
 
 /**
- * @param {ViewDefinition} view View definition.
- * @return {boolean} True when the view belongs in the Free shell.
- */
-const isFreeShellView = ( view ) => view.tier !== 'pro';
-
-/**
- * All views registered for the current shell (Free + filtered extensions).
+ * All views registered for the current shell.
  *
  * @return {ViewDefinition[]} Registered view definitions.
  */
@@ -114,11 +101,11 @@ export function getRegisteredViews() {
 		return [ ...FREE_VIEWS ];
 	}
 
-	return merged.filter( isFreeShellView );
+	return merged;
 }
 
 /**
- * Sidebar navigation items (Free shell never shows locked/pro-only entries).
+ * Sidebar navigation items.
  *
  * @return {ViewDefinition[]} Sidebar nav entries.
  */
@@ -136,7 +123,7 @@ export function getSidebarNavItems() {
 		return sorted;
 	}
 
-	return filtered.filter( isFreeShellView );
+	return filtered;
 }
 
 /**

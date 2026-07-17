@@ -1,12 +1,12 @@
 === CoderEmbassy Bulk Variations Manager for WooCommerce ===
-Contributors: coderembassy
+Contributors: codersaleh
 Tags: woocommerce, variations, bulk edit, csv import, rollback
 Requires at least: 6.3
 Tested up to: 6.8
 Requires PHP: 8.1
 WC requires at least: 7.0
 WC tested up to: 9.6
-Stable tag: 0.1.7
+Stable tag: 0.1.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,8 +28,6 @@ Free features include:
 * CSV import for updating existing variations.
 * CSV import for creating new variations from existing product attributes.
 * CSV attribute helper and downloadable CSV template.
-
-The Free plugin does not show locked Pro screens, Pro badges, or blurred feature walls.
 
 == Installation ==
 
@@ -60,6 +58,12 @@ Yes, when the parent product already has variation attributes and the CSV uses v
 
 Only when you enable "Remove plugin data on uninstall" in Settings before uninstalling.
 
+== External services ==
+
+This plugin may load Google Fonts assets on the plugin's admin Bulk Editor screen through bundled grid interface assets. The font request is made by the administrator's browser when that admin screen is opened. Google may receive standard browser request data such as the requesting IP address, user agent, and referrer in order to serve the font CSS or font files.
+
+Google Fonts is provided by Google. Terms: https://policies.google.com/terms Privacy policy: https://policies.google.com/privacy
+
 == Screenshots ==
 
 1. Bulk editor grid.
@@ -67,6 +71,10 @@ Only when you enable "Remove plugin data on uninstall" in Settings before uninst
 3. Jobs and rollback history.
 
 == Changelog ==
+
+= 0.1.8 =
+
+* Added inert developer extension hooks for admin views, script bundles, grid columns, and bulk actions.
 
 = 0.1.7 =
 * Initial Free plugin release candidate.

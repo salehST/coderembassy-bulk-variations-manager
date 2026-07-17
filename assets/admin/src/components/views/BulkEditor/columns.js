@@ -2,6 +2,7 @@
  * AG Grid column definitions for the bulk editor.
  */
 import { __ } from '@wordpress/i18n';
+import { applyFilters } from '@wordpress/hooks';
 import StatusEditor from './cellEditors/StatusEditor';
 import ThumbRenderer from './cellRenderers/ThumbRenderer';
 import SkuCellRenderer from './cellRenderers/SkuCellRenderer';
@@ -491,11 +492,27 @@ export function buildColumnDefs(
 		buildAttributeColumnDef
 	);
 
-	const columns = [
-		...BASE_COLUMNS_START.map( applyColumnLayout ),
-		...attributeDefs,
-		...BASE_COLUMNS_END.map( applyColumnLayout ),
-	];
+	const columns = applyFilters(
+		'bv_grid_columns',
+		[
+			...BASE_COLUMNS_START.map( applyColumnLayout ),
+			...attributeDefs,
+			...BASE_COLUMNS_END.map( applyColumnLayout ),
+		],
+		{
+			attributeColumns,
+			visibleColumnIds,
+			applyColumnLayout,
+		}
+	);
+
+	if ( ! Array.isArray( columns ) ) {
+		return [
+			...BASE_COLUMNS_START.map( applyColumnLayout ),
+			...attributeDefs,
+			...BASE_COLUMNS_END.map( applyColumnLayout ),
+		];
+	}
 
 	if ( ! visibleColumnIds.length ) {
 		return columns;
