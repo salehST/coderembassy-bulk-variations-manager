@@ -2,7 +2,7 @@
 Contributors: codersaleh
 Tags: woocommerce, variations, bulk edit, csv import, rollback
 Requires at least: 6.3
-Tested up to: 6.8
+Tested up to: 7.0
 Requires PHP: 8.1
 WC requires at least: 7.0
 WC tested up to: 9.6

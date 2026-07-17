@@ -9,7 +9,6 @@
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       coderembassy-bulk-variations-manager
- * Domain Path:       /languages
  * Requires at least: 6.3
  * Requires PHP:      8.1
  * WC requires at least: 7.0
@@ -29,9 +28,9 @@ define( 'BV_PLUGIN_FILE', __FILE__ );
 define( 'BV_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BV_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
-$bv_autoload = BV_PLUGIN_PATH . 'vendor/autoload.php';
+$coderembassy_bvm_autoload = BV_PLUGIN_PATH . 'vendor/autoload.php';
 
-if ( ! file_exists( $bv_autoload ) ) {
+if ( ! file_exists( $coderembassy_bvm_autoload ) ) {
 	add_action(
 		'admin_notices',
 		static function (): void {
@@ -51,9 +50,9 @@ if ( ! file_exists( $bv_autoload ) ) {
 	return;
 }
 
-require_once $bv_autoload;
+require_once $coderembassy_bvm_autoload;
 
-add_action( 'plugins_loaded', 'bv_maybe_start_rest_output_buffer', -1000 );
+add_action( 'plugins_loaded', 'coderembassy_bvm_maybe_start_rest_output_buffer', -1000 );
 
 register_activation_hook(
 	__FILE__,
@@ -65,7 +64,7 @@ register_activation_hook(
 register_deactivation_hook(
 	__FILE__,
 	static function (): void {
-		bv_deactivate_plugin();
+		coderembassy_bvm_deactivate_plugin();
 	}
 );
 
@@ -95,7 +94,7 @@ add_action(
 	20
 );
 
-add_action( 'action_scheduler_init', 'bv_schedule_retention_cron' );
+add_action( 'action_scheduler_init', 'coderembassy_bvm_schedule_retention_cron' );
 
 /**
  * Start a tiny output buffer for BV REST requests.
@@ -106,20 +105,20 @@ add_action( 'action_scheduler_init', 'bv_schedule_retention_cron' );
  *
  * @return void
  */
-function bv_maybe_start_rest_output_buffer(): void {
-	if ( ! bv_is_bulk_variations_rest_request() || headers_sent() ) {
+function coderembassy_bvm_maybe_start_rest_output_buffer(): void {
+	if ( ! coderembassy_bvm_is_rest_request() || headers_sent() ) {
 		return;
 	}
 
-	if ( ! empty( $GLOBALS['bv_rest_output_buffer_started'] ) ) {
+	if ( ! empty( $GLOBALS['coderembassy_bvm_rest_output_buffer_started'] ) ) {
 		return;
 	}
 
-	$GLOBALS['bv_rest_output_buffer_started'] = true;
-	$GLOBALS['bv_rest_output_buffer_level']   = ob_get_level();
+	$GLOBALS['coderembassy_bvm_rest_output_buffer_started'] = true;
+	$GLOBALS['coderembassy_bvm_rest_output_buffer_level']   = ob_get_level();
 
 	ob_start();
-	add_filter( 'rest_pre_serve_request', 'bv_discard_rest_output_buffer', 0 );
+	add_filter( 'rest_pre_serve_request', 'coderembassy_bvm_discard_rest_output_buffer', 0 );
 }
 
 /**
@@ -127,18 +126,23 @@ function bv_maybe_start_rest_output_buffer(): void {
  *
  * @return bool
  */
-function bv_is_bulk_variations_rest_request(): bool {
-	$rest_route = isset( $_GET['rest_route'] )
-		? sanitize_text_field( wp_unslash( (string) $_GET['rest_route'] ) )
-		: '';
+function coderembassy_bvm_is_rest_request(): bool {
+	$rest_route = '';
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Request routing only; REST permission callbacks authorize the request.
+	if ( isset( $_GET['rest_route'] ) ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Request routing only; REST permission callbacks authorize the request.
+		$rest_route = sanitize_text_field( wp_unslash( (string) $_GET['rest_route'] ) );
+	}
 
 	if ( str_starts_with( ltrim( $rest_route, '/' ), 'bv/v1/' ) ) {
 		return true;
 	}
 
-	$request_uri = isset( $_SERVER['REQUEST_URI'] )
-		? (string) wp_unslash( $_SERVER['REQUEST_URI'] )
-		: '';
+	$request_uri = '';
+	if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Request routing only; REST permission callbacks authorize the request.
+		$request_uri = esc_url_raw( wp_unslash( (string) $_SERVER['REQUEST_URI'] ) );
+	}
 
 	$path = wp_parse_url( $request_uri, PHP_URL_PATH );
 
@@ -151,9 +155,9 @@ function bv_is_bulk_variations_rest_request(): bool {
  * @param bool $served Whether the REST response has already been served.
  * @return bool
  */
-function bv_discard_rest_output_buffer( bool $served ): bool {
-	$target_level = isset( $GLOBALS['bv_rest_output_buffer_level'] )
-		? (int) $GLOBALS['bv_rest_output_buffer_level']
+function coderembassy_bvm_discard_rest_output_buffer( bool $served ): bool {
+	$target_level = isset( $GLOBALS['coderembassy_bvm_rest_output_buffer_level'] )
+		? (int) $GLOBALS['coderembassy_bvm_rest_output_buffer_level']
 		: null;
 
 	if ( null !== $target_level ) {
@@ -162,7 +166,7 @@ function bv_discard_rest_output_buffer( bool $served ): bool {
 		}
 	}
 
-	unset( $GLOBALS['bv_rest_output_buffer_started'], $GLOBALS['bv_rest_output_buffer_level'] );
+	unset( $GLOBALS['coderembassy_bvm_rest_output_buffer_started'], $GLOBALS['coderembassy_bvm_rest_output_buffer_level'] );
 
 	return $served;
 }
@@ -172,7 +176,7 @@ function bv_discard_rest_output_buffer( bool $served ): bool {
  *
  * @return void
  */
-function bv_schedule_retention_cron(): void {
+function coderembassy_bvm_schedule_retention_cron(): void {
 	$as = BV_PLUGIN_PATH . 'vendor/woocommerce/action-scheduler/action-scheduler.php';
 	if ( file_exists( $as ) ) {
 		require_once $as;
@@ -204,9 +208,9 @@ function bv_schedule_retention_cron(): void {
  *
  * @return void
  */
-function bv_deactivate_plugin(): void {
-	bv_unschedule_bv_actions();
-	bv_flush_plugin_transients();
+function coderembassy_bvm_deactivate_plugin(): void {
+	coderembassy_bvm_unschedule_actions();
+	coderembassy_bvm_flush_transients();
 }
 
 /**
@@ -214,7 +218,7 @@ function bv_deactivate_plugin(): void {
  *
  * @return void
  */
-function bv_unschedule_bv_actions(): void {
+function coderembassy_bvm_unschedule_actions(): void {
 	if ( ! function_exists( 'as_unschedule_all_actions' ) ) {
 		return;
 	}
@@ -230,14 +234,14 @@ function bv_unschedule_bv_actions(): void {
 	}
 
 	$like = $wpdb->esc_like( 'bv_' ) . '%';
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-	$hooks = $wpdb->get_col(
-		$wpdb->prepare(
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Action Scheduler table name validated above.
-			"SELECT DISTINCT hook FROM `{$table}` WHERE hook LIKE %s",
-			$like
-		)
-	);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Action Scheduler does not expose prefix-based unscheduling.
+		$hooks = $wpdb->get_col(
+			$wpdb->prepare(
+				'SELECT DISTINCT hook FROM %i WHERE hook LIKE %s',
+				$table,
+				$like
+			)
+        );
 
 	if ( ! is_array( $hooks ) ) {
 		return;
@@ -253,7 +257,7 @@ function bv_unschedule_bv_actions(): void {
  *
  * @return void
  */
-function bv_flush_plugin_transients(): void {
+function coderembassy_bvm_flush_transients(): void {
 	global $wpdb;
 
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

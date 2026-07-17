@@ -15,6 +15,18 @@ if ( ! defined( 'ARRAY_A' ) ) {
 	define( 'ARRAY_A', 'ARRAY_A' );
 }
 
+if ( ! function_exists( 'wp_delete_file' ) ) {
+	/**
+	 * Minimal wp_delete_file() stub for temporary-file tests.
+	 *
+	 * @param string $file File path.
+	 */
+	function wp_delete_file( string $file ): bool {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- Test-only WordPress API stub.
+		return unlink( $file );
+	}
+}
+
 if ( ! class_exists( 'WP_User' ) ) {
 	/**
 	 * Minimal WP_User stub for unit tests.

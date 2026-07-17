@@ -21,17 +21,21 @@ class VariationRepository {
 		}
 
 		global $wpdb;
-		$ids_sql = implode( ',', array_map( 'intval', $variation_ids ) );
-		$where   = "post_id IN ($ids_sql)";
+		$variation_ids = array_values( array_unique( array_filter( array_map( 'absint', $variation_ids ) ) ) );
+		$placeholders  = implode( ',', array_fill( 0, count( $variation_ids ), '%d' ) );
+		$where         = "post_id IN ($placeholders)";
+		$args          = $variation_ids;
 		if ( ! empty( $meta_keys ) ) {
-			$escaped = array_map(
-				static fn( string $key ): string => "'" . str_replace( "'", "''", $key ) . "'",
-				$meta_keys
-			);
-			$where .= ' AND meta_key IN (' . implode( ',', $escaped ) . ')';
+			$meta_keys         = array_values( array_map( 'strval', $meta_keys ) );
+			$key_placeholders  = implode( ',', array_fill( 0, count( $meta_keys ), '%s' ) );
+			$where            .= " AND meta_key IN ($key_placeholders)";
+			$args              = array_merge( $args, $meta_keys );
 		}
 
-		$sql  = "SELECT post_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE {$where} ORDER BY post_id ASC, meta_key ASC, meta_id DESC";
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Placeholder fragments and their values are generated together above.
+		$sql  = $wpdb->prepare( "SELECT post_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE {$where} ORDER BY post_id ASC, meta_key ASC, meta_id DESC", ...$args );
+		// phpcs:enable
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Prepared immediately above; this bulk snapshot is request-scoped.
 		$rows = $wpdb->get_results( $sql, ARRAY_A );
 		$out  = array();
 		foreach ( $rows as $row ) {
@@ -61,6 +65,7 @@ class VariationRepository {
 			"SELECT ID, post_status, post_title, post_excerpt FROM {$wpdb->posts} WHERE post_parent = %d AND post_type = 'product_variation'",
 			$product_id
 		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Prepared immediately above; results are assembled for the current admin request.
 		$posts = $wpdb->get_results( $posts_sql, ARRAY_A );
 		if ( empty( $posts ) ) {
 			return array();
@@ -76,22 +81,32 @@ class VariationRepository {
 		}
 		$snapshot = $this->getMetaSnapshot( $ids );
 
-		$lookup_table = $wpdb->get_var( "SHOW TABLES LIKE '{$wpdb->prefix}wc_product_meta_lookup'" );
+		$lookup_table = $wpdb->prefix . 'wc_product_meta_lookup';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Schema existence check.
+		$lookup_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $lookup_table ) );
 		$lookup_by_id = array();
-		if ( is_string( $lookup_table ) && '' !== $lookup_table ) {
-			$lookup_rows = $wpdb->get_results(
-				"SELECT product_id, sku FROM {$lookup_table} WHERE product_id IN (" . implode( ',', $ids ) . ')',
-				ARRAY_A
-			);
+		if ( $lookup_exists === $lookup_table ) {
+			$id_placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Identifier and value placeholders are supplied together to prepare().
+			$lookup_sql = $wpdb->prepare( "SELECT product_id, sku FROM %i WHERE product_id IN ($id_placeholders)", $lookup_table, ...$ids );
+			// phpcs:enable
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Prepared immediately above; lookup data is request-scoped.
+			$lookup_rows = $wpdb->get_results( $lookup_sql, ARRAY_A );
 			foreach ( $lookup_rows as $lookup ) {
 				$lookup_by_id[ (int) $lookup['product_id'] ] = (string) $lookup['sku'];
 			}
 		}
 
-		$attribute_rows = $wpdb->get_results(
-			"SELECT post_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE post_id IN (" . implode( ',', $ids ) . ") AND meta_key LIKE 'attribute_%'",
-			ARRAY_A
+		$id_placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+		$attribute_like  = $wpdb->esc_like( 'attribute_' ) . '%';
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Value placeholders and their values are generated together above.
+		$attribute_sql = $wpdb->prepare(
+			"SELECT post_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE post_id IN ($id_placeholders) AND meta_key LIKE %s",
+			...array_merge( $ids, array( $attribute_like ) )
 		);
+		// phpcs:enable
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Prepared immediately above; attributes are request-scoped.
+		$attribute_rows = $wpdb->get_results( $attribute_sql, ARRAY_A );
 		$attributes = array();
 		foreach ( $attribute_rows as $row ) {
 			$attributes[ (int) $row['post_id'] ][ (string) $row['meta_key'] ] = (string) $row['meta_value'];
@@ -218,10 +233,12 @@ class VariationRepository {
 			INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID
 			WHERE p.post_parent = %d
 				AND p.post_type = 'product_variation'
-				AND pm.meta_key LIKE 'attribute_%'
+				AND pm.meta_key LIKE %s
 			ORDER BY p.ID ASC, pm.meta_key ASC",
-			$product_id
+			$product_id,
+			$wpdb->esc_like( 'attribute_' ) . '%'
 		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Prepared immediately above; signatures are calculated for the current request.
 		$rows = $wpdb->get_results( $sql, ARRAY_A );
 		$out  = array();
 
@@ -298,9 +315,17 @@ class VariationRepository {
 			return array();
 		}
 		global $wpdb;
-		$ids_sql = implode( ',', array_map( 'intval', $variation_ids ) );
-		$field   = 'post_excerpt' === $field ? 'post_excerpt' : 'post_status';
-		$sql     = "SELECT ID, {$field} FROM {$wpdb->posts} WHERE post_type = 'product_variation' AND ID IN ($ids_sql)";
+		$variation_ids = array_values( array_unique( array_filter( array_map( 'absint', $variation_ids ) ) ) );
+		$field         = 'post_excerpt' === $field ? 'post_excerpt' : 'post_status';
+		$placeholders  = implode( ',', array_fill( 0, count( $variation_ids ), '%d' ) );
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Value placeholders are generated locally; the allowlisted column uses an identifier placeholder.
+		$sql = $wpdb->prepare(
+			"SELECT ID, %i FROM {$wpdb->posts} WHERE post_type = 'product_variation' AND ID IN ($placeholders)",
+			$field,
+			...$variation_ids
+		);
+		// phpcs:enable
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Prepared immediately above; post fields are request-scoped.
 		$rows    = $wpdb->get_results( $sql, ARRAY_A );
 		$out     = array();
 		foreach ( $rows as $row ) {

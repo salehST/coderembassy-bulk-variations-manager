@@ -77,6 +77,7 @@ class ImportCsvTemplate {
 		$headers = $this->getHeaders( $readiness );
 		$rows    = $this->getSampleRows( $readiness );
 
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- fputcsv() requires a stream resource.
 		$fp = fopen( 'php://temp', 'r+' );
 		if ( false === $fp ) {
 			return '';
@@ -91,6 +92,7 @@ class ImportCsvTemplate {
 		}
 		rewind( $fp );
 		$csv = stream_get_contents( $fp );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closes the in-memory CSV stream above.
 		fclose( $fp );
 		return is_string( $csv ) ? $csv : '';
 	}
@@ -116,4 +118,3 @@ class ImportCsvTemplate {
 		return (string) ( $options[0]['slug'] ?? '' );
 	}
 }
-

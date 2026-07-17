@@ -68,7 +68,7 @@ class AdminPage {
 	 * @return array<int, array<string, mixed>>
 	 */
 	private function get_script_bundles(): array {
-		$bundles = apply_filters( 'bv_admin_script_bundles', array() );
+		$bundles = apply_filters( 'coderembassy_bvm_admin_script_bundles', array() );
 		return is_array( $bundles ) ? $bundles : array();
 	}
 

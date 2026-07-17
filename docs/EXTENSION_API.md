@@ -6,12 +6,12 @@ These hooks are inert by default. If no external code registers callbacks, the p
 
 ## PHP Actions
 
-### `bv_booted`
+### `coderembassy_bvm_booted`
 
 Runs after the plugin has registered its runtime services and WordPress hooks.
 
 ```php
-do_action( 'bv_booted', $plugin );
+do_action( 'coderembassy_bvm_booted', $plugin );
 ```
 
 The `$plugin` argument exposes a neutral service registry:
@@ -22,7 +22,7 @@ $repository = $plugin->service( \BulkVariations\Engine\VariationRepository::clas
 
 ## PHP Filters
 
-### `bv_admin_script_bundles`
+### `coderembassy_bvm_admin_script_bundles`
 
 Registers additional admin JavaScript bundles on the plugin admin screen.
 
@@ -44,18 +44,18 @@ The `type` value is optional and is passed to `wp_script_add_data()`.
 
 The admin app uses `@wordpress/hooks`.
 
-### `bv_admin_views`
+### `coderembassy_bvm_admin_views`
 
 Filters registered admin views before routing and sidebar rendering.
 
-### `bv_sidebar_nav`
+### `coderembassy_bvm_sidebar_nav`
 
 Filters sidebar navigation items after registered views are sorted.
 
-### `bv_grid_columns`
+### `coderembassy_bvm_grid_columns`
 
 Filters AG Grid column definitions before visibility filtering.
 
-### `bv_bulk_actions`
+### `coderembassy_bvm_bulk_actions`
 
 Filters bulk action definitions before the editor action row is rendered.

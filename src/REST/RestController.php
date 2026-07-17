@@ -185,6 +185,7 @@ class RestController {
 				'post_status'    => array( 'publish', 'private', 'draft' ),
 				's'              => $search,
 				'posts_per_page' => 20,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- WooCommerce stores product type in this taxonomy.
 				'tax_query'      => array(
 					array(
 						'taxonomy' => 'product_type',
@@ -275,8 +276,10 @@ class RestController {
 		$per_page = min( 100, max( 1, (int) ( $request->get_param( 'per_page' ) ?: 20 ) ) );
 		$offset   = ( $page - 1 ) * $per_page;
 		$table    = $wpdb->prefix . 'bv_jobs';
-		$total    = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
-		$sql      = $wpdb->prepare( "SELECT * FROM {$table} ORDER BY id DESC LIMIT %d OFFSET %d", $per_page, $offset );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Plugin-owned table; live count is required.
+		$total    = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table ) );
+		$sql      = $wpdb->prepare( 'SELECT * FROM %i ORDER BY id DESC LIMIT %d OFFSET %d', $table, $per_page, $offset );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Prepared immediately above; job rows must be current.
 		$rows     = $wpdb->get_results( $sql, ARRAY_A );
 		$items    = array_map( array( $this, 'normalize_job_row' ), is_array( $rows ) ? $rows : array() );
 		$response = new WP_REST_Response( $items );
@@ -452,7 +455,7 @@ class RestController {
 
 	private function delete_temp_file( string $path ): void {
 		if ( file_exists( $path ) ) {
-			unlink( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink
+			wp_delete_file( $path );
 		}
 	}
 
@@ -687,6 +690,7 @@ class RestController {
 			$product_id
 		);
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Prepared immediately above; count must reflect current variations.
 		return (int) $wpdb->get_var( $sql );
 	}
 

@@ -9,6 +9,10 @@ declare(strict_types=1);
 
 namespace BulkVariations;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use BulkVariations\Admin\AdminPage;
 use BulkVariations\CLI\BulkVariationsCLI;
 use BulkVariations\Contracts\JobRepositoryInterface;
@@ -133,6 +137,6 @@ class Plugin {
 			\WP_CLI::add_command( 'bulk-variations', BulkVariationsCLI::class );
 		}
 
-		do_action( 'bv_booted', $this );
+		do_action( 'coderembassy_bvm_booted', $this );
 	}
 }

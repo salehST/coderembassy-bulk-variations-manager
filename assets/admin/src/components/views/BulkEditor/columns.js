@@ -493,7 +493,7 @@ export function buildColumnDefs(
 	);
 
 	const columns = applyFilters(
-		'bv_grid_columns',
+		'coderembassy_bvm_grid_columns',
 		[
 			...BASE_COLUMNS_START.map( applyColumnLayout ),
 			...attributeDefs,

@@ -52,8 +52,8 @@ const getWpRestUrl = () =>
 	window.BulkVariationsAdmin?.wp_rest_url ||
 	`${ window.location.origin }/wp-json/wp/v2/`;
 
-const JOB_DIFF_ACTIONS_FILTER = 'bv_job_diff_actions';
-const JOB_DIFF_SHOW_APPLY_FILTER = 'bv_job_diff_show_apply';
+const JOB_DIFF_ACTIONS_FILTER = 'coderembassy_bvm_job_diff_actions';
+const JOB_DIFF_SHOW_APPLY_FILTER = 'coderembassy_bvm_job_diff_show_apply';
 
 function DiffImageValue( { value, media } ) {
 	const id = getAttachmentId( value );

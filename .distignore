@@ -18,7 +18,6 @@ bulk-variations-uniqueness-and-polish.md
 readme.md
 package.json
 package-lock.json
-composer.json
 composer.lock
 eslint.config.js
 phpcs.xml.dist

@@ -47,6 +47,14 @@ class VariationGeneratorTest extends TestCase {
 			}
 
 			/**
+			 * @param string $text LIKE fragment.
+			 * @return string
+			 */
+			public function esc_like( string $text ): string {
+				return addcslashes( $text, '_%\\' );
+			}
+
+			/**
 			 * @param string|null $sql SQL.
 			 * @param string      $mode Mode.
 			 * @return array<int, array<string, mixed>>
@@ -106,6 +114,14 @@ class VariationGeneratorTest extends TestCase {
 			public function prepare( string $sql, mixed ...$args ): string {
 				unset( $args );
 				return $sql;
+			}
+
+			/**
+			 * @param string $text LIKE fragment.
+			 * @return string
+			 */
+			public function esc_like( string $text ): string {
+				return addcslashes( $text, '_%\\' );
 			}
 
 			/**
@@ -169,4 +185,3 @@ class VariationGeneratorTest extends TestCase {
 		);
 	}
 }
-

@@ -43,13 +43,15 @@ class JobRepository implements JobRepositoryInterface {
 			'created_at'  => current_time( 'mysql' ),
 			'meta'        => wp_json_encode( $meta ),
 		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Writes to the plugin-owned jobs table.
 		$wpdb->insert( $this->jobsTable(), $data, array( '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%s' ) );
 		return (int) $wpdb->insert_id;
 	}
 
 	public function get( int $job_id ): ?array {
 		global $wpdb;
-		$sql = $wpdb->prepare( "SELECT * FROM {$this->jobsTable()} WHERE id = %d", $job_id );
+		$sql = $wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', $this->jobsTable(), $job_id );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Prepared immediately above; job state must be current.
 		$row = $wpdb->get_row( $sql, ARRAY_A );
 		if ( empty( $row ) || ! is_array( $row ) ) {
 			return null;
@@ -84,10 +86,12 @@ class JobRepository implements JobRepositoryInterface {
 		global $wpdb;
 		$status = isset( $filters['status'] ) ? (string) $filters['status'] : '';
 		if ( '' === $status ) {
-			$value = $wpdb->get_var( "SELECT COUNT(*) FROM {$this->jobsTable()}" );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Plugin-owned table; live count is required.
+			$value = $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $this->jobsTable() ) );
 			return (int) $value;
 		}
-		$sql   = $wpdb->prepare( "SELECT COUNT(*) FROM {$this->jobsTable()} WHERE status = %s", $status );
+		$sql   = $wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE status = %s', $this->jobsTable(), $status );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Prepared immediately above; live count is required.
 		$value = $wpdb->get_var( $sql );
 		return (int) $value;
 	}
@@ -98,9 +102,11 @@ class JobRepository implements JobRepositoryInterface {
 	public function getChanges( int $job_id ): array {
 		global $wpdb;
 		$sql  = $wpdb->prepare(
-			"SELECT id, object_type, object_id, field, old_value, new_value, applied_at FROM {$this->changesTable()} WHERE job_id = %d ORDER BY id ASC",
+			'SELECT id, object_type, object_id, field, old_value, new_value, applied_at FROM %i WHERE job_id = %d ORDER BY id ASC',
+			$this->changesTable(),
 			$job_id
 		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Prepared immediately above; job changes must be current.
 		$rows = $wpdb->get_results( $sql, ARRAY_A );
 		return is_array( $rows ) ? $rows : array();
 	}
@@ -115,6 +121,7 @@ class JobRepository implements JobRepositoryInterface {
 			return false;
 		}
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Writes to the plugin-owned job changes table.
 		return false !== $wpdb->insert(
 			$this->changesTable(),
 			array(
@@ -140,6 +147,7 @@ class JobRepository implements JobRepositoryInterface {
 			),
 			$extra
 		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Writes to the plugin-owned jobs table.
 		return false !== $wpdb->update( $this->jobsTable(), $data, array( 'id' => $job_id ) );
 	}
 
@@ -162,4 +170,3 @@ class JobRepository implements JobRepositoryInterface {
 		);
 	}
 }
-

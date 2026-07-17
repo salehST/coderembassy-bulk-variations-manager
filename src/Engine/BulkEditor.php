@@ -398,31 +398,37 @@ class BulkEditor {
 		}
 
 		if ( '' === $new ) {
-			$sql = $wpdb->prepare(
-				"DELETE FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s",
-				$variation_id,
-				$key
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Fallback for environments without the WordPress metadata API.
+			return false !== $wpdb->query(
+				$wpdb->prepare(
+					"DELETE FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s",
+					$variation_id,
+					$key
+				)
 			);
-			return false !== $wpdb->query( $sql );
 		}
 
 		if ( '' !== $old ) {
-			$sql = $wpdb->prepare(
-				"UPDATE {$wpdb->postmeta} SET meta_value = %s WHERE post_id = %d AND meta_key = %s",
-				$new,
-				$variation_id,
-				$key
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Fallback for environments without the WordPress metadata API.
+			return false !== $wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$wpdb->postmeta} SET meta_value = %s WHERE post_id = %d AND meta_key = %s",
+					$new,
+					$variation_id,
+					$key
+				)
 			);
-			return false !== $wpdb->query( $sql );
 		}
 
-		$sql = $wpdb->prepare(
-			"INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value) VALUES (%d, %s, %s)",
-			$variation_id,
-			$key,
-			$new
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Fallback for environments without the WordPress metadata API.
+		return false !== $wpdb->query(
+			$wpdb->prepare(
+				"INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value) VALUES (%d, %s, %s)",
+				$variation_id,
+				$key,
+				$new
+			)
 		);
-		return false !== $wpdb->query( $sql );
 	}
 
 	/**
@@ -510,12 +516,14 @@ class BulkEditor {
 			}
 		} else {
 			global $wpdb;
-			$sql = $wpdb->prepare(
-				"UPDATE {$wpdb->posts} SET post_status = %s WHERE ID = %d",
-				$new_status,
-				$variation_id
-			);
-			if ( false === $wpdb->query( $sql ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Fallback for environments without wp_update_post().
+			if ( false === $wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$wpdb->posts} SET post_status = %s WHERE ID = %d",
+					$new_status,
+					$variation_id
+				)
+			) ) {
 				return false;
 			}
 		}
@@ -554,12 +562,14 @@ class BulkEditor {
 			}
 		} else {
 			global $wpdb;
-			$sql = $wpdb->prepare(
-				"UPDATE {$wpdb->posts} SET {$field} = %s WHERE ID = %d",
-				$new_value,
-				$variation_id
-			);
-			if ( false === $wpdb->query( $sql ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Fallback for environments without wp_update_post().
+			if ( false === $wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$wpdb->posts} SET post_excerpt = %s WHERE ID = %d",
+					$new_value,
+					$variation_id
+				)
+			) ) {
 				return false;
 			}
 		}

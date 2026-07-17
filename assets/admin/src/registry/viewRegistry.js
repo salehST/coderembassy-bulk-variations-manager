@@ -86,8 +86,8 @@ const FREE_VIEWS = [
 	},
 ];
 
-export const VIEWS_FILTER = 'bv_admin_views';
-export const SIDEBAR_FILTER = 'bv_sidebar_nav';
+export const VIEWS_FILTER = 'coderembassy_bvm_admin_views';
+export const SIDEBAR_FILTER = 'coderembassy_bvm_sidebar_nav';
 
 /**
  * All views registered for the current shell.

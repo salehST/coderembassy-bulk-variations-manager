@@ -75,7 +75,6 @@ run_command(
 	$root
 );
 
-unlink_if_exists( $package_dir . '/composer.json' );
 unlink_if_exists( $package_dir . '/composer.lock' );
 
 unlink_if_exists( $zip_path );

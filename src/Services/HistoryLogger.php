@@ -61,9 +61,9 @@ class HistoryLogger {
 
 		$sql      = 'INSERT INTO ' . $table . ' (job_id, object_type, object_id, field, old_value, new_value, applied_at) VALUES ';
 		$sql     .= implode( ',', $values );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Plugin table is internal and every value tuple was prepared above.
 		$inserted = (int) $wpdb->query( $sql );
 		$this->buffer = array();
 		return $inserted;
 	}
 }
-

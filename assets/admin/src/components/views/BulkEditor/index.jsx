@@ -603,7 +603,7 @@ export default function BulkEditor() {
 			},
 		];
 		const filtered = applyFilters(
-			'bv_bulk_actions',
+			'coderembassy_bvm_bulk_actions',
 			defaults,
 			bulkActionContext
 		);
