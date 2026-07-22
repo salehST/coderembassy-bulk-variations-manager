@@ -4,7 +4,7 @@ User guide for the WordPress.org plugin.
 
 ## What the Plugin Does
 
-CoderEmbassy Bulk Variations Manager helps store owners update WooCommerce variable product variations from one admin screen. The editor works on one selected variable product per editing session and also supports CSV import, review-before-save jobs, and rollback support.
+CoderEmbassy Bulk Variations Manager helps store owners update WooCommerce variable product variations from one admin screen. The editor can load multiple selected variable products and also supports CSV import, review-before-save jobs, and rollback support.
 
 ## Requirements
 
@@ -32,14 +32,14 @@ Changes are not written immediately while you edit. They are staged first so you
 
 ## Bulk Editor
 
-Use Bulk Editor when you want to edit variations for a selected variable product.
+Use Bulk Editor when you want to edit variations for one or more selected variable products.
 
 ### Select a Product
 
 1. Open Bulk Editor.
 2. Search for a variable product.
-3. Select the product.
-4. Load the variations.
+3. Select one or more products. Selected products appear as removable chips.
+4. Review the combined variation table.
 
 If no products appear, confirm the product type is `Variable product` in WooCommerce.
 

@@ -14,11 +14,11 @@ Bulk edit WooCommerce product variations with preview, approval, CSV import, job
 
 == Description ==
 
-CoderEmbassy Bulk Variations Manager for WooCommerce helps store managers update variations within a selected variable product.
+CoderEmbassy Bulk Variations Manager for WooCommerce helps store managers update variations across selected variable products.
 
 Core features include:
 
-* Single-product variation spreadsheet editor.
+* Multi-product variation spreadsheet editor.
 * Product search for variable products.
 * Editable SKU, prices, sale dates, stock, stock status, and variation status.
 * Read-only variation attribute columns for easier row identification.
@@ -40,7 +40,7 @@ Core features include:
 
 = Does this edit every product at once? =
 
-The editor works on one selected variable product per editing session. CSV import can identify rows by product ID when updating or creating variations.
+The editor can load variations from multiple selected variable products in one editing session. CSV import can identify rows by product ID when updating or creating variations.
 
 = Can I preview changes before applying them? =
 
