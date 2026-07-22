@@ -1,10 +1,10 @@
 /**
- * Product picker for one selected variable product at a time.
+ * Product picker for one or more selected variable products.
  */
 import { useEffect, useState } from '@wordpress/element';
 import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { search } from '@wordpress/icons';
+import { closeSmall, search } from '@wordpress/icons';
 import { products } from '../../../api/endpoints';
 import Button from '../../shared/Button';
 import CardIntro from './CardIntro';
@@ -82,12 +82,11 @@ export default function ProductPicker( {
 			sku: product?.sku || '',
 		} );
 
-		onChange?.( [ numeric ] );
+		if ( productIds.includes( numeric ) ) {
+			return;
+		}
+		onChange?.( [ ...productIds, numeric ] );
 	};
-
-	const selectedTitle = productIds
-		.map( ( id ) => titleMap[ id ] || `#${ id }` )
-		.join( ', ' );
 
 	return (
 		<section
@@ -103,7 +102,7 @@ export default function ProductPicker( {
 					'coderembassy-bulk-variations-manager'
 				) }
 				help={ __(
-					'Search for a variable product, then edit its variations in the table below.',
+					'Search for one or more variable products, then edit their variations in the table below.',
 					'coderembassy-bulk-variations-manager'
 				) }
 			/>
@@ -170,10 +169,45 @@ export default function ProductPicker( {
 				</ul>
 			) }
 			{ productIds.length > 0 && (
-				<p className="bv-product-picker__editing">
-					{ __( 'Editing:', 'coderembassy-bulk-variations-manager' ) }{ ' ' }
-					<strong>{ selectedTitle }</strong>
-				</p>
+				<div className="bv-product-picker__selected">
+					<strong className="bv-product-picker__selected-label">
+						{ __(
+							'Selected products',
+							'coderembassy-bulk-variations-manager'
+						) }
+					</strong>
+					<div className="bv-product-picker__selected-list">
+						{ productIds.map( ( id ) => {
+							const title = titleMap[ id ] || `#${ id }`;
+							return (
+								<span
+									key={ id }
+									className="bv-product-picker__selected-chip"
+								>
+									<span>{ title }</span>
+									<button
+										type="button"
+										className="bv-product-picker__selected-remove"
+										aria-label={ __(
+											'Remove product',
+											'coderembassy-bulk-variations-manager'
+										) }
+										onClick={ () =>
+											onChange?.(
+												productIds.filter(
+													( productId ) =>
+														productId !== id
+												)
+											)
+										}
+									>
+										<Icon icon={ closeSmall } size={ 16 } />
+									</button>
+								</span>
+							);
+						} ) }
+					</div>
+				</div>
 			) }
 		</section>
 	);

@@ -173,4 +173,40 @@ class ImportJobTest extends TestCase {
 
 		$this->assertSame( 1, $result['processed'] );
 	}
+
+	/**
+	 * Create rows are grouped by their own product IDs.
+	 *
+	 * @return void
+	 */
+	public function test_run_routes_create_rows_to_each_product(): void {
+		$jobs = $this->createMock( JobRepositoryInterface::class );
+		$jobs->method( 'get' )->willReturn( array( 'id' => 8, 'meta' => array() ) );
+
+		$writer = $this->createMock( VariationWriter::class );
+		$writer->expects( $this->exactly( 2 ) )
+			->method( 'createBatch' )
+			->willReturnCallback(
+				static function ( int $product_id, array $rows, int $job_id ): array {
+					return array( 18 === $product_id ? 901 : 902 );
+				}
+			);
+
+		$job = new ImportJob(
+			$jobs,
+			new ImportValidator(),
+			$writer,
+			$this->createMock( BulkEditor::class )
+		);
+
+		$result = $job->run(
+			8,
+			array(
+				array( 'product_id' => 18, 'attribute_pa_color' => 'green' ),
+				array( 'product_id' => 42, 'attribute_pa_color' => 'blue' ),
+			)
+		);
+
+		$this->assertSame( 2, $result['processed'] );
+	}
 }

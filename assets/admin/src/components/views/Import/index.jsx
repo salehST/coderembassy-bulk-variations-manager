@@ -579,7 +579,7 @@ export default function ImportView() {
 						htmlFor="bv-import-product-id"
 					>
 						{ __(
-							'Default product ID (optional)',
+							'Default product ID (optional for rows with product_id)',
 							'coderembassy-bulk-variations-manager'
 						) }
 					</label>
