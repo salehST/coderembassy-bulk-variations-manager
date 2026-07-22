@@ -5,7 +5,7 @@ import { useEffect, useId, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Button from './Button';
 
-const storageKey = ( productId ) => `bv_columns_${ productId }`;
+const storageKey = ( productId ) => `coderembassy_bvm_columns_${ productId }`;
 
 export default function ColumnPicker( {
 	productId,

@@ -381,7 +381,7 @@ function getCurrencyConfig() {
 		decimals: 2,
 	};
 	const admin =
-		typeof window !== 'undefined' ? window.BulkVariationsAdmin : null;
+		typeof window !== 'undefined' ? window.CoderEmbassyBvmAdmin : null;
 	const currency = admin?.currency;
 
 	if ( typeof currency === 'string' && currency ) {

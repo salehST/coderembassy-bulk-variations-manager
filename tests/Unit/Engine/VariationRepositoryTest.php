@@ -2,20 +2,20 @@
 /**
  * VariationRepository tests.
  *
- * @package BulkVariations\Tests\Unit\Engine
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\Engine
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\Engine;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\Engine;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use BulkVariations\Engine\VariationRepository;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationRepository;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \BulkVariations\Engine\VariationRepository
+ * @covers \CoderEmbassy\BulkVariationsManager\Engine\VariationRepository
  */
 class VariationRepositoryTest extends TestCase {
 

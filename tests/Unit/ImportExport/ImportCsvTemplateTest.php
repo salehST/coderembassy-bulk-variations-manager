@@ -2,18 +2,18 @@
 /**
  * ImportCsvTemplate unit tests.
  *
- * @package BulkVariations\Tests\Unit\ImportExport
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\ImportExport
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\ImportExport;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\ImportExport;
 
-use BulkVariations\ImportExport\ImportCsvTemplate;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportCsvTemplate;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \BulkVariations\ImportExport\ImportCsvTemplate
+ * @covers \CoderEmbassy\BulkVariationsManager\ImportExport\ImportCsvTemplate
  */
 class ImportCsvTemplateTest extends TestCase {
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Build a release zip for the Free plugin.
+ * Build a release zip for the plugin.
  *
  * @package BulkVariations
  */

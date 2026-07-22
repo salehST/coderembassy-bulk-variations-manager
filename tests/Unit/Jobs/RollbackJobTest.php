@@ -2,19 +2,19 @@
 /**
  * RollbackJob unit tests.
  *
- * @package BulkVariations\Tests\Unit\Jobs
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\Jobs
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\Jobs;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\Jobs;
 
-use BulkVariations\Engine\BulkEditor;
-use BulkVariations\Jobs\RollbackJob;
+use CoderEmbassy\BulkVariationsManager\Engine\BulkEditor;
+use CoderEmbassy\BulkVariationsManager\Jobs\RollbackJob;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \BulkVariations\Jobs\RollbackJob
+ * @covers \CoderEmbassy\BulkVariationsManager\Jobs\RollbackJob
  */
 class RollbackJobTest extends TestCase {
 

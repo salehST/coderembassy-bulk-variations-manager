@@ -18,12 +18,12 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"BulkVariations\\": "src/"
+			"CoderEmbassy\\BulkVariationsManager\\": "src/"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"BulkVariations\\Tests\\": "tests/"
+			"CoderEmbassy\\BulkVariationsManager\\Tests\\": "tests/"
 		}
 	},
 	"scripts": {

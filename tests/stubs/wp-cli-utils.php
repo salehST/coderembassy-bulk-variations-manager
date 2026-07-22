@@ -2,7 +2,7 @@
 /**
  * WP-CLI Utils stubs for tests.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);

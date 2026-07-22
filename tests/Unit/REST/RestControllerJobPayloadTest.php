@@ -2,28 +2,28 @@
 /**
  * REST job payload mapping tests.
  *
- * @package BulkVariations\Tests\Unit\REST
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\REST
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\REST;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\REST;
 
-use BulkVariations\ImportExport\CsvImporter;
-use BulkVariations\ImportExport\ImportAttributeReadiness;
-use BulkVariations\ImportExport\ImportCsvTemplate;
-use BulkVariations\Contracts\JobRepositoryInterface;
-use BulkVariations\Engine\VariationGenerator;
-use BulkVariations\Engine\VariationRepository;
-use BulkVariations\Jobs\JobManager;
-use BulkVariations\Repository\TemplateRepository;
-use BulkVariations\REST\RestController;
-use BulkVariations\Rollback\RollbackService;
+use CoderEmbassy\BulkVariationsManager\ImportExport\CsvImporter;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportAttributeReadiness;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportCsvTemplate;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationGenerator;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationRepository;
+use CoderEmbassy\BulkVariationsManager\Jobs\JobManager;
+use CoderEmbassy\BulkVariationsManager\Repository\TemplateRepository;
+use CoderEmbassy\BulkVariationsManager\REST\RestController;
+use CoderEmbassy\BulkVariationsManager\Rollback\RollbackService;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
 /**
- * @covers \BulkVariations\REST\RestController
+ * @covers \CoderEmbassy\BulkVariationsManager\REST\RestController
  */
 class RestControllerJobPayloadTest extends TestCase {
 

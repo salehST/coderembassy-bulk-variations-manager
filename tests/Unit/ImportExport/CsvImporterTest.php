@@ -2,24 +2,24 @@
 /**
  * CsvImporter unit tests.
  *
- * @package BulkVariations\Tests\Unit\ImportExport
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\ImportExport
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\ImportExport;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\ImportExport;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use BulkVariations\Contracts\JobRepositoryInterface;
-use BulkVariations\ImportExport\CsvImporter;
-use BulkVariations\ImportExport\ImportAttributeReadiness;
-use BulkVariations\ImportExport\ImportValidator;
-use BulkVariations\Jobs\JobManager;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\ImportExport\CsvImporter;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportAttributeReadiness;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportValidator;
+use CoderEmbassy\BulkVariationsManager\Jobs\JobManager;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \BulkVariations\ImportExport\CsvImporter
+ * @covers \CoderEmbassy\BulkVariationsManager\ImportExport\CsvImporter
  */
 class CsvImporterTest extends TestCase {
 

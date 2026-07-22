@@ -2,23 +2,23 @@
 /**
  * BulkEditor unit tests.
  *
- * @package BulkVariations\Tests\Unit\Engine
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\Engine
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\Engine;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\Engine;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use BulkVariations\Contracts\JobRepositoryInterface;
-use BulkVariations\Engine\BulkEditor;
-use BulkVariations\Engine\VariationRepository;
-use BulkVariations\Services\HistoryLogger;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\Engine\BulkEditor;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationRepository;
+use CoderEmbassy\BulkVariationsManager\Services\HistoryLogger;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \BulkVariations\Engine\BulkEditor
+ * @covers \CoderEmbassy\BulkVariationsManager\Engine\BulkEditor
  */
 class BulkEditorTest extends TestCase {
 

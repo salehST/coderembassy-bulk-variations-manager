@@ -2,36 +2,36 @@
 /**
  * JobManager unit tests.
  *
- * @package BulkVariations\Tests\Unit\Jobs
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\Jobs
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\Jobs;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\Jobs;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use BulkVariations\Contracts\JobRepositoryInterface;
-use BulkVariations\Engine\BulkEditor;
-use BulkVariations\Engine\VariationRepository;
-use BulkVariations\Engine\VariationGenerator;
-use BulkVariations\Engine\VariationWriter;
-use BulkVariations\Jobs\BulkUpdateJob;
-use BulkVariations\ImportExport\ImportValidator;
-use BulkVariations\Jobs\GenerateJob;
-use BulkVariations\Jobs\ImportJob;
-use BulkVariations\Jobs\JobManager;
-use BulkVariations\Jobs\RollbackJob;
-use BulkVariations\Jobs\StagedExecutionJob;
-use BulkVariations\Jobs\StagedRevertJob;
-use BulkVariations\Repository\RollbackRepository;
-use BulkVariations\Services\ActivityRecorder;
-use BulkVariations\Services\ConcurrencyLock;
-use BulkVariations\Services\HistoryLogger;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\Engine\BulkEditor;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationRepository;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationGenerator;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationWriter;
+use CoderEmbassy\BulkVariationsManager\Jobs\BulkUpdateJob;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportValidator;
+use CoderEmbassy\BulkVariationsManager\Jobs\GenerateJob;
+use CoderEmbassy\BulkVariationsManager\Jobs\ImportJob;
+use CoderEmbassy\BulkVariationsManager\Jobs\JobManager;
+use CoderEmbassy\BulkVariationsManager\Jobs\RollbackJob;
+use CoderEmbassy\BulkVariationsManager\Jobs\StagedExecutionJob;
+use CoderEmbassy\BulkVariationsManager\Jobs\StagedRevertJob;
+use CoderEmbassy\BulkVariationsManager\Repository\RollbackRepository;
+use CoderEmbassy\BulkVariationsManager\Services\ActivityRecorder;
+use CoderEmbassy\BulkVariationsManager\Services\ConcurrencyLock;
+use CoderEmbassy\BulkVariationsManager\Services\HistoryLogger;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \BulkVariations\Jobs\JobManager
+ * @covers \CoderEmbassy\BulkVariationsManager\Jobs\JobManager
  */
 class JobManagerTest extends TestCase {
 
@@ -68,8 +68,8 @@ class JobManagerTest extends TestCase {
 			}
 		};
 
-		if ( ! defined( 'BV_PLUGIN_PATH' ) ) {
-			define( 'BV_PLUGIN_PATH', dirname( __DIR__, 3 ) . '/' );
+		if ( ! defined( 'CODEREMBASSY_BVM_PLUGIN_PATH' ) ) {
+			define( 'CODEREMBASSY_BVM_PLUGIN_PATH', dirname( __DIR__, 3 ) . '/' );
 		}
 
 		Functions\when( 'update_option' )->alias(
@@ -94,8 +94,8 @@ class JobManagerTest extends TestCase {
 			static fn( $data ) => json_encode( $data ) // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 		);
 
-		$GLOBALS['bv_test_as_queue']           = array();
-		$GLOBALS['bv_test_as_enqueue_result'] = 1;
+		$GLOBALS['coderembassy_bvm_test_as_queue']           = array();
+		$GLOBALS['coderembassy_bvm_test_as_enqueue_result'] = 1;
 	}
 
 	/**
@@ -130,8 +130,8 @@ class JobManagerTest extends TestCase {
 		$manager = $this->make_manager( $repo );
 		$manager->dispatch( 10, array( array( 'variation_id' => 1 ) ) );
 
-		$this->assertArrayHasKey( 'bv_job_10_chunks', $this->options );
-		$this->assertEmpty( $GLOBALS['bv_test_as_queue'] );
+		$this->assertArrayHasKey( 'coderembassy_bvm_job_10_chunks', $this->options );
+		$this->assertEmpty( $GLOBALS['coderembassy_bvm_test_as_queue'] );
 	}
 
 	/**
@@ -156,7 +156,7 @@ class JobManagerTest extends TestCase {
 		$manager = $this->make_manager( $repo );
 		$manager->dispatch( 11, array( array( 'variation_id' => 1 ) ) );
 
-		$queue = array_values( $GLOBALS['bv_test_as_queue'] );
+		$queue = array_values( $GLOBALS['coderembassy_bvm_test_as_queue'] );
 		$this->assertCount( 1, $queue );
 		$this->assertSame( JobManager::ACTION_HOOK, $queue[0]['hook'] );
 		$this->assertSame( array( 11, 0 ), $queue[0]['args'] );
@@ -168,9 +168,9 @@ class JobManagerTest extends TestCase {
 	 * @return void
 	 */
 	public function test_cancel_cleans_up_options(): void {
-		$this->options['bv_job_12_chunks']        = array( array() );
-		$this->options['bv_job_12_total']         = 1;
-		$this->options['bv_job_12_current_chunk'] = 0;
+		$this->options['coderembassy_bvm_job_12_chunks']        = array( array() );
+		$this->options['coderembassy_bvm_job_12_total']         = 1;
+		$this->options['coderembassy_bvm_job_12_current_chunk'] = 0;
 
 		$repo = $this->createMock( JobRepositoryInterface::class );
 		$repo->method( 'get' )->willReturn(
@@ -187,7 +187,7 @@ class JobManagerTest extends TestCase {
 
 		$manager = $this->make_manager( $repo );
 		$this->assertTrue( $manager->cancel( 12 ) );
-		$this->assertArrayNotHasKey( 'bv_job_12_chunks', $this->options );
+		$this->assertArrayNotHasKey( 'coderembassy_bvm_job_12_chunks', $this->options );
 	}
 
 	/**
@@ -196,7 +196,7 @@ class JobManagerTest extends TestCase {
 	 * @return void
 	 */
 	public function test_dispatch_marks_failed_when_enqueue_rejected(): void {
-		$GLOBALS['bv_test_as_enqueue_result'] = 0;
+		$GLOBALS['coderembassy_bvm_test_as_enqueue_result'] = 0;
 
 		$statuses = array();
 
@@ -245,9 +245,9 @@ class JobManagerTest extends TestCase {
 	 * @return void
 	 */
 	public function test_discard_pending_review_cleans_options_and_cancels(): void {
-		$this->options['bv_job_3_chunks']        = array( array( 'variation_id' => 1 ) );
-		$this->options['bv_job_3_total']         = 1;
-		$this->options['bv_job_3_current_chunk'] = 0;
+		$this->options['coderembassy_bvm_job_3_chunks']        = array( array( 'variation_id' => 1 ) );
+		$this->options['coderembassy_bvm_job_3_total']         = 1;
+		$this->options['coderembassy_bvm_job_3_current_chunk'] = 0;
 
 		$repo = $this->createMock( JobRepositoryInterface::class );
 		$repo->method( 'get' )->willReturn(
@@ -272,7 +272,7 @@ class JobManagerTest extends TestCase {
 
 		$manager = $this->make_manager( $repo );
 		$this->assertTrue( $manager->discard( 3 ) );
-		$this->assertArrayNotHasKey( 'bv_job_3_chunks', $this->options );
+		$this->assertArrayNotHasKey( 'coderembassy_bvm_job_3_chunks', $this->options );
 		$this->assertTrue( $manager->isDiscardable(
 			array(
 				'status'        => 'preview',
@@ -295,8 +295,8 @@ class JobManagerTest extends TestCase {
 	 * @return void
 	 */
 	public function test_process_chunk_paused_requeues(): void {
-		$this->options['bv_job_13_chunks'] = array( array( array( 'variation_id' => 5 ) ) );
-		$this->options['bv_job_13_total']  = 1;
+		$this->options['coderembassy_bvm_job_13_chunks'] = array( array( array( 'variation_id' => 5 ) ) );
+		$this->options['coderembassy_bvm_job_13_total']  = 1;
 
 		$repo = $this->createMock( JobRepositoryInterface::class );
 		$repo->method( 'get' )->willReturn(
@@ -310,11 +310,11 @@ class JobManagerTest extends TestCase {
 		);
 
 		$manager = $this->make_manager( $repo );
-		$GLOBALS['bv_test_as_queue'] = array();
+		$GLOBALS['coderembassy_bvm_test_as_queue'] = array();
 		$manager->processChunk( 13, 0 );
 
 		/** @var array<int, array{hook: string, args: array<int, mixed>, time: int|null, group?: string}> $queue */
-		$queue = $GLOBALS['bv_test_as_queue'];
+		$queue = $GLOBALS['coderembassy_bvm_test_as_queue'];
 		$this->assertCount( 1, $queue );
 		$this->assertNotNull( $queue[0]['time'] );
 	}
@@ -325,7 +325,7 @@ class JobManagerTest extends TestCase {
 	 * @return void
 	 */
 	public function test_resume_after_approval_sync_skips_enqueue_for_small_editor_job(): void {
-		$this->options['bv_job_15_chunks']        = array(
+		$this->options['coderembassy_bvm_job_15_chunks']        = array(
 			array(
 				array(
 					'variation_id' => 20,
@@ -333,8 +333,8 @@ class JobManagerTest extends TestCase {
 				),
 			),
 		);
-		$this->options['bv_job_15_total']         = 1;
-		$this->options['bv_job_15_current_chunk'] = 0;
+		$this->options['coderembassy_bvm_job_15_total']         = 1;
+		$this->options['coderembassy_bvm_job_15_current_chunk'] = 0;
 
 		$statuses = array();
 
@@ -372,11 +372,11 @@ class JobManagerTest extends TestCase {
 				)
 			);
 
-		$GLOBALS['bv_test_as_queue'] = array();
+		$GLOBALS['coderembassy_bvm_test_as_queue'] = array();
 
 		$manager = $this->make_manager( $repo, $bulk );
 		$this->assertTrue( $manager->resumeAfterApproval( 15 ) );
-		$this->assertEmpty( $GLOBALS['bv_test_as_queue'] );
+		$this->assertEmpty( $GLOBALS['coderembassy_bvm_test_as_queue'] );
 		$this->assertContains( 'complete', array_column( $statuses, 'status' ) );
 	}
 
@@ -386,7 +386,7 @@ class JobManagerTest extends TestCase {
 	 * @return void
 	 */
 	public function test_resume_after_approval_sync_skips_enqueue_for_small_import_job(): void {
-		$this->options['bv_job_16_chunks']        = array(
+		$this->options['coderembassy_bvm_job_16_chunks']        = array(
 			array(
 				array(
 					'variation_id'  => 19,
@@ -396,8 +396,8 @@ class JobManagerTest extends TestCase {
 				),
 			),
 		);
-		$this->options['bv_job_16_total']         = 1;
-		$this->options['bv_job_16_current_chunk'] = 0;
+		$this->options['coderembassy_bvm_job_16_total']         = 1;
+		$this->options['coderembassy_bvm_job_16_current_chunk'] = 0;
 
 		$statuses = array();
 
@@ -438,11 +438,11 @@ class JobManagerTest extends TestCase {
 				)
 			);
 
-		$GLOBALS['bv_test_as_queue'] = array();
+		$GLOBALS['coderembassy_bvm_test_as_queue'] = array();
 
 		$manager = $this->make_manager( $repo, null, $import );
 		$this->assertTrue( $manager->resumeAfterApproval( 16 ) );
-		$this->assertEmpty( $GLOBALS['bv_test_as_queue'] );
+		$this->assertEmpty( $GLOBALS['coderembassy_bvm_test_as_queue'] );
 		$this->assertContains( 'complete', array_column( $statuses, 'status' ) );
 	}
 

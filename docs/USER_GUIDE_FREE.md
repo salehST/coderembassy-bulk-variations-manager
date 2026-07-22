@@ -1,12 +1,10 @@
 # CoderEmbassy Bulk Variations Manager
 
-User guide for the free WordPress.org plugin.
+User guide for the WordPress.org plugin.
 
-## What the Free Plugin Does
+## What the Plugin Does
 
-CoderEmbassy Bulk Variations Manager helps store owners update WooCommerce variable product variations from one admin screen. The free plugin focuses on core variation maintenance for one product at a time, CSV import, review-before-save jobs, and rollback support.
-
-The free plugin does not include Pro addon screens or Pro-only workflows.
+CoderEmbassy Bulk Variations Manager helps store owners update WooCommerce variable product variations from one admin screen. The editor works on one selected variable product per editing session and also supports CSV import, review-before-save jobs, and rollback support.
 
 ## Requirements
 
@@ -34,7 +32,7 @@ Changes are not written immediately while you edit. They are staged first so you
 
 ## Bulk Editor
 
-Use Bulk Editor when you want to edit variations for one variable product.
+Use Bulk Editor when you want to edit variations for a selected variable product.
 
 ### Select a Product
 
@@ -222,4 +220,3 @@ Open the job details and review the error message. A rollback can fail if WooCom
 - Keep a backup before large imports.
 - Use clear SKUs so variations are easy to identify.
 - Fix invalid CSV rows before importing again.
-

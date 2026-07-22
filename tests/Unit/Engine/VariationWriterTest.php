@@ -2,21 +2,21 @@
 /**
  * VariationWriter tests.
  *
- * @package BulkVariations\Tests\Unit\Engine
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\Engine
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\Engine;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\Engine;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use BulkVariations\Engine\VariationWriter;
-use BulkVariations\Services\HistoryLogger;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationWriter;
+use CoderEmbassy\BulkVariationsManager\Services\HistoryLogger;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \BulkVariations\Engine\VariationWriter
+ * @covers \CoderEmbassy\BulkVariationsManager\Engine\VariationWriter
  */
 class VariationWriterTest extends TestCase {
 

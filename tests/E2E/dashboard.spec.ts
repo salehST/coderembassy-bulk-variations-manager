@@ -16,7 +16,7 @@ test.describe( 'Dashboard', () => {
 		await page.goto(
 			'/wp-admin/admin.php?page=coderembassy-bulk-variations-manager#/dashboard'
 		);
-		await expect( page.locator( '#bv-admin-root' ) ).toBeVisible();
+		await expect( page.locator( '#coderembassy-bvm-admin-root' ) ).toBeVisible();
 		await expect(
 			page.getByRole( 'heading', {
 				name: /CoderEmbassy Bulk Variations Manager for WooCommerce/i,
@@ -35,12 +35,12 @@ test.describe( 'Dashboard', () => {
 
 		const restNonce = await page.evaluate( () => {
 			return (
-				window.wpApiSettings?.nonce || window.BulkVariationsAdmin?.nonce
+				window.wpApiSettings?.nonce || window.CoderEmbassyBvmAdmin?.nonce
 			);
 		} );
 
 		for ( let i = 0; i < 3; i++ ) {
-			await request.post( '/wp-json/bv/v1/jobs', {
+			await request.post( '/wp-json/coderembassy-bvm/v1/jobs', {
 				headers: {
 					'X-WP-Nonce': restNonce,
 					'Content-Type': 'application/json',

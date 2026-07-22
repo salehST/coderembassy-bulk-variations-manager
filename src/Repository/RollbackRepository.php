@@ -2,14 +2,14 @@
 /**
  * Rollback helper repository.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Repository;
+namespace CoderEmbassy\BulkVariationsManager\Repository;
 
-use BulkVariations\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
 
 class RollbackRepository {
 	public function __construct( private JobRepositoryInterface $jobs ) {

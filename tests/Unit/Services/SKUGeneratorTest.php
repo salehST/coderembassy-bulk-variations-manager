@@ -2,19 +2,19 @@
 /**
  * SKUGenerator tests.
  *
- * @package BulkVariations\Tests\Unit\Services
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\Services
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\Services;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\Services;
 
 use Brain\Monkey;
-use BulkVariations\Services\SKUGenerator;
+use CoderEmbassy\BulkVariationsManager\Services\SKUGenerator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \BulkVariations\Services\SKUGenerator
+ * @covers \CoderEmbassy\BulkVariationsManager\Services\SKUGenerator
  */
 class SKUGeneratorTest extends TestCase {
 

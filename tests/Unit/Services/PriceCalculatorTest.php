@@ -2,19 +2,19 @@
 /**
  * PriceCalculator tests.
  *
- * @package BulkVariations\Tests\Unit\Services
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\Services
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\Services;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\Services;
 
-use BulkVariations\Services\InvalidFormulaException;
-use BulkVariations\Services\PriceCalculator;
+use CoderEmbassy\BulkVariationsManager\Services\InvalidFormulaException;
+use CoderEmbassy\BulkVariationsManager\Services\PriceCalculator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \BulkVariations\Services\PriceCalculator
+ * @covers \CoderEmbassy\BulkVariationsManager\Services\PriceCalculator
  */
 class PriceCalculatorTest extends TestCase {
 

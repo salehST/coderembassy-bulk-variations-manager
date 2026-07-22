@@ -2,20 +2,20 @@
 /**
  * ImportValidator unit tests.
  *
- * @package BulkVariations\Tests\Unit\ImportExport
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\ImportExport
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\ImportExport;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\ImportExport;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use BulkVariations\ImportExport\ImportValidator;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportValidator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \BulkVariations\ImportExport\ImportValidator
+ * @covers \CoderEmbassy\BulkVariationsManager\ImportExport\ImportValidator
  */
 class ImportValidatorTest extends TestCase {
 

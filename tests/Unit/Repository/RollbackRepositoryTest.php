@@ -2,21 +2,21 @@
 /**
  * RollbackRepository unit tests.
  *
- * @package BulkVariations\Tests\Unit\Repository
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\Repository
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\Repository;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\Repository;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use BulkVariations\Contracts\JobRepositoryInterface;
-use BulkVariations\Repository\RollbackRepository;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\Repository\RollbackRepository;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \BulkVariations\Repository\RollbackRepository
+ * @covers \CoderEmbassy\BulkVariationsManager\Repository\RollbackRepository
  */
 class RollbackRepositoryTest extends TestCase {
 

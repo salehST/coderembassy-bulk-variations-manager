@@ -7,10 +7,10 @@ import App from './components/App';
 import { STORE_NAME } from './store';
 import { readInitialTheme } from './hooks/useTheme';
 
-const root = document.getElementById( 'bv-admin-root' );
+const root = document.getElementById( 'coderembassy-bvm-admin-root' );
 
 if ( root ) {
-	const globals = window.BulkVariationsAdmin || {};
+	const globals = window.CoderEmbassyBvmAdmin || {};
 	dispatch( STORE_NAME ).setGlobals( globals );
 	dispatch( STORE_NAME ).setTheme(
 		readInitialTheme(

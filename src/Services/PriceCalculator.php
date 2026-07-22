@@ -2,12 +2,12 @@
 /**
  * Price formula evaluator.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Services;
+namespace CoderEmbassy\BulkVariationsManager\Services;
 
 class PriceCalculator {
 	public function apply( string $formula, float $price ): float {

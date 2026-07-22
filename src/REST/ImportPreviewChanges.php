@@ -2,14 +2,14 @@
 /**
  * Import preview diff builder.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\REST;
+namespace CoderEmbassy\BulkVariationsManager\REST;
 
-use BulkVariations\Engine\VariationRepository;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationRepository;
 
 class ImportPreviewChanges {
 	/**

@@ -2,12 +2,12 @@
 /**
  * Invalid formula exception.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Services;
+namespace CoderEmbassy\BulkVariationsManager\Services;
 
 use RuntimeException;
 

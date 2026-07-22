@@ -5,10 +5,10 @@ import { dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { STORE_NAME } from '../store';
 
-const getNonce = () => window.BulkVariationsAdmin?.nonce || '';
+const getNonce = () => window.CoderEmbassyBvmAdmin?.nonce || '';
 
 const getRestUrl = () =>
-	window.BulkVariationsAdmin?.rest_url || '/wp-json/bv/v1/';
+	window.CoderEmbassyBvmAdmin?.rest_url || '/wp-json/coderembassy-bvm/v1/';
 
 const extractJsonCandidate = ( text ) => {
 	const source = text.trim();
@@ -147,7 +147,7 @@ const request = async ( options ) => {
 			)
 		);
 		error.status = response.status || 500;
-		error.code = 'bv_wordpress_critical_error';
+		error.code = 'coderembassy_bvm_wordpress_critical_error';
 		error.isWordPressCriticalError = true;
 		throw error;
 	}
@@ -196,7 +196,7 @@ const normalizeError = ( error ) => {
 	}
 
 	const normalized = {
-		code: error?.code || 'bv_error',
+		code: error?.code || 'coderembassy_bvm_error',
 		message,
 		status,
 		detail:

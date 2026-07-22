@@ -2,20 +2,20 @@
 /**
  * ConcurrencyLock unit tests.
  *
- * @package BulkVariations\Tests\Unit\Services
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\Services
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\Services;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\Services;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use BulkVariations\Services\ConcurrencyLock;
+use CoderEmbassy\BulkVariationsManager\Services\ConcurrencyLock;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \BulkVariations\Services\ConcurrencyLock
+ * @covers \CoderEmbassy\BulkVariationsManager\Services\ConcurrencyLock
  */
 class ConcurrencyLockTest extends TestCase {
 

@@ -49,7 +49,7 @@ const getAttachmentId = ( value ) => {
 };
 
 const getWpRestUrl = () =>
-	window.BulkVariationsAdmin?.wp_rest_url ||
+	window.CoderEmbassyBvmAdmin?.wp_rest_url ||
 	`${ window.location.origin }/wp-json/wp/v2/`;
 
 const JOB_DIFF_ACTIONS_FILTER = 'coderembassy_bvm_job_diff_actions';
@@ -150,7 +150,7 @@ export default function JobDiff( { jobId } ) {
 						headers: {
 							Accept: 'application/json',
 							'X-WP-Nonce':
-								window.BulkVariationsAdmin?.nonce || '',
+								window.CoderEmbassyBvmAdmin?.nonce || '',
 						},
 					}
 				);

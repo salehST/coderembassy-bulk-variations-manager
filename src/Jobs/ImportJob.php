@@ -2,17 +2,17 @@
 /**
  * Import worker.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Jobs;
+namespace CoderEmbassy\BulkVariationsManager\Jobs;
 
-use BulkVariations\Contracts\JobRepositoryInterface;
-use BulkVariations\Engine\BulkEditor;
-use BulkVariations\Engine\VariationWriter;
-use BulkVariations\ImportExport\ImportValidator;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\Engine\BulkEditor;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationWriter;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportValidator;
 
 class ImportJob {
 	public function __construct(

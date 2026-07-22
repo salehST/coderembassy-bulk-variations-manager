@@ -2,22 +2,22 @@
 /**
  * JobRepository unit tests.
  *
- * @package BulkVariations\Tests\Unit\Repository
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\Repository
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\Repository;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\Repository;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use BulkVariations\Repository\JobRepository;
+use CoderEmbassy\BulkVariationsManager\Repository\JobRepository;
 use PHPUnit\Framework\TestCase;
 
 /**
  * JobRepository tests.
  *
- * @covers \BulkVariations\Repository\JobRepository
+ * @covers \CoderEmbassy\BulkVariationsManager\Repository\JobRepository
  */
 class JobRepositoryTest extends TestCase {
 
@@ -107,7 +107,7 @@ class JobRepositoryTest extends TestCase {
 		);
 
 		$this->assertSame( 99, $id );
-		$this->assertSame( 'wp_bv_jobs', $capture->t );
+		$this->assertSame( 'wp_coderembassy_bvm_jobs', $capture->t );
 		$this->assertSame( 'bulk_edit', $capture->y );
 	}
 

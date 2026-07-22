@@ -2,22 +2,22 @@
 /**
  * VariationGenerator tests.
  *
- * @package BulkVariations\Tests\Unit\Engine
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\Engine
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\Engine;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\Engine;
 
 use Brain\Monkey;
-use BulkVariations\Engine\AttributeMatrix;
-use BulkVariations\Engine\TooManyCombinationsException;
-use BulkVariations\Engine\VariationGenerator;
-use BulkVariations\Engine\VariationRepository;
+use CoderEmbassy\BulkVariationsManager\Engine\AttributeMatrix;
+use CoderEmbassy\BulkVariationsManager\Engine\TooManyCombinationsException;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationGenerator;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationRepository;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \BulkVariations\Engine\VariationGenerator
+ * @covers \CoderEmbassy\BulkVariationsManager\Engine\VariationGenerator
  */
 class VariationGeneratorTest extends TestCase {
 

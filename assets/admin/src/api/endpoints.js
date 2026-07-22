@@ -1,5 +1,5 @@
 /**
- * REST endpoint helpers for bv/v1.
+ * REST endpoint helpers for coderembassy-bvm/v1.
  */
 import { bvListRequest, bvRequest } from './client';
 

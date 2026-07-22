@@ -1,5 +1,5 @@
 /**
- * Product picker for the Free plugin: one variable product at a time.
+ * Product picker for one selected variable product at a time.
  */
 import { useEffect, useState } from '@wordpress/element';
 import { Icon } from '@wordpress/components';

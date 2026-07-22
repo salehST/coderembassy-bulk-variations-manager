@@ -2,15 +2,15 @@
 /**
  * Generate variations worker.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Jobs;
+namespace CoderEmbassy\BulkVariationsManager\Jobs;
 
-use BulkVariations\Contracts\JobRepositoryInterface;
-use BulkVariations\Engine\VariationGenerator;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationGenerator;
 
 class GenerateJob {
 	public function __construct(

@@ -2,22 +2,22 @@
 /**
  * ImportAttributeReadiness editor column tests.
  *
- * @package BulkVariations\Tests\Unit\ImportExport
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\ImportExport
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\ImportExport;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\ImportExport;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use BulkVariations\Engine\AttributeMatrix;
-use BulkVariations\Engine\VariationRepository;
-use BulkVariations\ImportExport\ImportAttributeReadiness;
+use CoderEmbassy\BulkVariationsManager\Engine\AttributeMatrix;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationRepository;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportAttributeReadiness;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \BulkVariations\ImportExport\ImportAttributeReadiness::getEditorAttributeColumns
+ * @covers \CoderEmbassy\BulkVariationsManager\ImportExport\ImportAttributeReadiness::getEditorAttributeColumns
  */
 class ImportAttributeReadinessEditorColumnsTest extends TestCase {
 

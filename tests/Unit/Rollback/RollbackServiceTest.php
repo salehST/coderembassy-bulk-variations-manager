@@ -2,25 +2,25 @@
 /**
  * RollbackService unit tests.
  *
- * @package BulkVariations\Tests\Unit\Rollback
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\Rollback
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\Rollback;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\Rollback;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use BulkVariations\Contracts\JobRepositoryInterface;
-use BulkVariations\Jobs\JobManager;
-use BulkVariations\Jobs\RollbackJob;
-use BulkVariations\Repository\RollbackRepository;
-use BulkVariations\Rollback\RollbackService;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\Jobs\JobManager;
+use CoderEmbassy\BulkVariationsManager\Jobs\RollbackJob;
+use CoderEmbassy\BulkVariationsManager\Repository\RollbackRepository;
+use CoderEmbassy\BulkVariationsManager\Rollback\RollbackService;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
 
 /**
- * @covers \BulkVariations\Rollback\RollbackService
+ * @covers \CoderEmbassy\BulkVariationsManager\Rollback\RollbackService
  */
 class RollbackServiceTest extends TestCase {
 
@@ -116,7 +116,7 @@ class RollbackServiceTest extends TestCase {
 
 		$result = $service->rollback( 2 );
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'bv_already_rolled_back', $result->get_error_code() );
+		$this->assertSame( 'coderembassy_bvm_already_rolled_back', $result->get_error_code() );
 	}
 
 	/**

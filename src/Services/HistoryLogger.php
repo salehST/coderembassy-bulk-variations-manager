@@ -2,12 +2,12 @@
 /**
  * Buffered job change logger.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Services;
+namespace CoderEmbassy\BulkVariationsManager\Services;
 
 class HistoryLogger {
 	/**
@@ -44,7 +44,7 @@ class HistoryLogger {
 		}
 
 		global $wpdb;
-		$table  = $wpdb->prefix . 'bv_job_changes';
+		$table  = $wpdb->prefix . 'coderembassy_bvm_job_changes';
 		$values = array();
 		foreach ( $this->buffer as $row ) {
 			$values[] = $wpdb->prepare(

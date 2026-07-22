@@ -2,26 +2,26 @@
 /**
  * RestController::preview_import unit tests.
  *
- * @package BulkVariations\Tests\Unit\REST
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\REST
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\REST;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\REST;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use BulkVariations\Contracts\JobRepositoryInterface;
-use BulkVariations\Engine\VariationGenerator;
-use BulkVariations\Engine\VariationRepository;
-use BulkVariations\ImportExport\CsvImporter;
-use BulkVariations\ImportExport\ImportAttributeReadiness;
-use BulkVariations\ImportExport\ImportCsvTemplate;
-use BulkVariations\ImportExport\ImportValidator;
-use BulkVariations\Jobs\JobManager;
-use BulkVariations\Repository\TemplateRepository;
-use BulkVariations\REST\RestController;
-use BulkVariations\Rollback\RollbackService;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationGenerator;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationRepository;
+use CoderEmbassy\BulkVariationsManager\ImportExport\CsvImporter;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportAttributeReadiness;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportCsvTemplate;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportValidator;
+use CoderEmbassy\BulkVariationsManager\Jobs\JobManager;
+use CoderEmbassy\BulkVariationsManager\Repository\TemplateRepository;
+use CoderEmbassy\BulkVariationsManager\REST\RestController;
+use CoderEmbassy\BulkVariationsManager\Rollback\RollbackService;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use WP_Error;
@@ -71,7 +71,7 @@ final class PreviewImportRestController extends RestController {
 }
 
 /**
- * @covers \BulkVariations\REST\RestController::preview_import
+ * @covers \CoderEmbassy\BulkVariationsManager\REST\RestController::preview_import
  */
 class PreviewImportTest extends TestCase {
 
@@ -158,7 +158,7 @@ CSV;
 	 * @return WP_REST_Request
 	 */
 	private function make_request( array $params ): WP_REST_Request {
-		$request = new WP_REST_Request( 'POST', '/bv/v1/imports/preview' );
+		$request = new WP_REST_Request( 'POST', '/coderembassy-bvm/v1/imports/preview' );
 		foreach ( $params as $key => $value ) {
 			$request->set_param( $key, $value );
 		}
@@ -186,7 +186,7 @@ CSV;
 		);
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'bv_import_temp_write', $result->get_error_code() );
+		$this->assertSame( 'coderembassy_bvm_import_temp_write', $result->get_error_code() );
 		$this->assertSame( 500, $result->get_error_data()['status'] );
 	}
 
@@ -209,7 +209,7 @@ CSV;
 		);
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'bv_import_preview_failed', $result->get_error_code() );
+		$this->assertSame( 'coderembassy_bvm_import_preview_failed', $result->get_error_code() );
 		$this->assertStringContainsString( 'Parse failed', $result->get_error_message() );
 		$this->assertSame( 400, $result->get_error_data()['status'] );
 	}

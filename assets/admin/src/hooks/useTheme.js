@@ -1,11 +1,11 @@
 /**
- * Theme hook — applies data-theme on #bv-admin-root and respects system preference.
+ * Theme hook — applies data-theme on #coderembassy-bvm-admin-root and respects system preference.
  */
 import { useEffect } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { STORE_NAME } from '../store';
 
-export const THEME_KEY = 'bv_admin_theme';
+export const THEME_KEY = 'coderembassy_bvm_admin_theme';
 
 const resolveTheme = ( theme ) => {
 	if ( theme !== 'auto' ) {
@@ -30,7 +30,7 @@ export function useTheme() {
 	const { setTheme } = useDispatch( STORE_NAME );
 
 	useEffect( () => {
-		const root = document.getElementById( 'bv-admin-root' );
+		const root = document.getElementById( 'coderembassy-bvm-admin-root' );
 		if ( ! root ) {
 			return undefined;
 		}

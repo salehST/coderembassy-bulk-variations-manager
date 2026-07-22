@@ -1,5 +1,5 @@
 /**
- * Placeholder for non-core screens in Free plugin.
+ * Placeholder for non-core screens.
  */
 import { __ } from '@wordpress/i18n';
 
@@ -37,7 +37,7 @@ export default function PlaceholderView( { title, viewId = '' } ) {
 			<h2>{ title }</h2>
 			<p className="bv-muted">
 				{ __(
-					'This screen is intentionally minimal in the Free plugin.',
+					'This screen is intentionally minimal.',
 					'coderembassy-bulk-variations-manager'
 				) }
 			</p>

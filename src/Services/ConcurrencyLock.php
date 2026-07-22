@@ -2,15 +2,15 @@
 /**
  * Option-based lock helper.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Services;
+namespace CoderEmbassy\BulkVariationsManager\Services;
 
 class ConcurrencyLock {
-	private const PREFIX = 'bv_lock_';
+	private const PREFIX = 'coderembassy_bvm_lock_';
 
 	public function acquire( string $key ): bool {
 		$option = self::PREFIX . sanitize_key( $key );

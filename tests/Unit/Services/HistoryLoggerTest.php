@@ -2,22 +2,22 @@
 /**
  * HistoryLogger unit tests.
  *
- * @package BulkVariations\Tests\Unit\Services
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\Services
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\Services;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\Services;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use BulkVariations\Services\HistoryLogger;
+use CoderEmbassy\BulkVariationsManager\Services\HistoryLogger;
 use PHPUnit\Framework\TestCase;
 
 /**
  * HistoryLogger tests.
  *
- * @covers \BulkVariations\Services\HistoryLogger
+ * @covers \CoderEmbassy\BulkVariationsManager\Services\HistoryLogger
  */
 class HistoryLoggerTest extends TestCase {
 
@@ -115,7 +115,7 @@ class HistoryLoggerTest extends TestCase {
 			 * @return int
 			 */
 			public function query( string $sql ): int {
-				$this->flag->v = str_contains( $sql, 'INSERT INTO' ) && str_contains( $sql, 'wp_bv_job_changes' );
+				$this->flag->v = str_contains( $sql, 'INSERT INTO' ) && str_contains( $sql, 'wp_coderembassy_bvm_job_changes' );
 				return 2;
 			}
 		};

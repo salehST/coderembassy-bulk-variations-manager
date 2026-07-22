@@ -2,12 +2,12 @@
 /**
  * Job repository contract.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Contracts;
+namespace CoderEmbassy\BulkVariationsManager\Contracts;
 
 interface JobRepositoryInterface {
 	/**

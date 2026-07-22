@@ -9,20 +9,20 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	require_once __DIR__ . '/vendor/autoload.php';
 }
 
-if ( ! defined( 'BV_VERSION' ) ) {
-	define( 'BV_VERSION', '0.1.0' );
+if ( ! defined( 'CODEREMBASSY_BVM_VERSION' ) ) {
+	define( 'CODEREMBASSY_BVM_VERSION', '0.1.0' );
 }
 
-if ( ! defined( 'BV_PLUGIN_FILE' ) ) {
-	define( 'BV_PLUGIN_FILE', __DIR__ . '/coderembassy-bulk-variations-manager.php' );
+if ( ! defined( 'CODEREMBASSY_BVM_PLUGIN_FILE' ) ) {
+	define( 'CODEREMBASSY_BVM_PLUGIN_FILE', __DIR__ . '/coderembassy-bulk-variations-manager.php' );
 }
 
-if ( ! defined( 'BV_PLUGIN_PATH' ) ) {
-	define( 'BV_PLUGIN_PATH', __DIR__ . '/' );
+if ( ! defined( 'CODEREMBASSY_BVM_PLUGIN_PATH' ) ) {
+	define( 'CODEREMBASSY_BVM_PLUGIN_PATH', __DIR__ . '/' );
 }
 
-if ( ! defined( 'BV_PLUGIN_URL' ) ) {
-	define( 'BV_PLUGIN_URL', 'http://example.test/wp-content/plugins/coderembassy-bulk-variations-manager/' );
+if ( ! defined( 'CODEREMBASSY_BVM_PLUGIN_URL' ) ) {
+	define( 'CODEREMBASSY_BVM_PLUGIN_URL', 'http://example.test/wp-content/plugins/coderembassy-bulk-variations-manager/' );
 }
 
 if ( ! defined( 'ARRAY_A' ) ) {

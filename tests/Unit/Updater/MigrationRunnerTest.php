@@ -2,22 +2,22 @@
 /**
  * MigrationRunner unit tests.
  *
- * @package BulkVariations\Tests\Unit\Updater
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\Updater
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\Updater;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\Updater;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use BulkVariations\Updater\MigrationRunner;
+use CoderEmbassy\BulkVariationsManager\Updater\MigrationRunner;
 use PHPUnit\Framework\TestCase;
 
 /**
  * MigrationRunner tests.
  *
- * @covers \BulkVariations\Updater\MigrationRunner
+ * @covers \CoderEmbassy\BulkVariationsManager\Updater\MigrationRunner
  */
 class MigrationRunnerTest extends TestCase {
 
@@ -47,11 +47,11 @@ class MigrationRunnerTest extends TestCase {
 	 * @return void
 	 */
 	public function test_migrate_updates_db_version_option(): void {
-		if ( ! defined( 'BV_VERSION' ) ) {
-			define( 'BV_VERSION', '0.1.0' );
+		if ( ! defined( 'CODEREMBASSY_BVM_VERSION' ) ) {
+			define( 'CODEREMBASSY_BVM_VERSION', '0.1.0' );
 		}
-		if ( ! defined( 'BV_PLUGIN_PATH' ) ) {
-			define( 'BV_PLUGIN_PATH', dirname( __DIR__, 3 ) . '/' );
+		if ( ! defined( 'CODEREMBASSY_BVM_PLUGIN_PATH' ) ) {
+			define( 'CODEREMBASSY_BVM_PLUGIN_PATH', dirname( __DIR__, 3 ) . '/' );
 		}
 		if ( ! defined( 'ABSPATH' ) ) {
 			define( 'ABSPATH', dirname( __DIR__, 2 ) . '/stubs/' );
@@ -62,7 +62,7 @@ class MigrationRunnerTest extends TestCase {
 		$wpdb         = new \stdClass();
 		$wpdb->prefix = 'wp_';
 
-		$stored = array( 'bv_db_version' => '0' );
+		$stored = array( 'coderembassy_bvm_db_version' => '0' );
 
 		Functions\when( 'get_option' )->alias(
 			function ( string $key, $default_value = false ) use ( &$stored ) {
@@ -80,8 +80,8 @@ class MigrationRunnerTest extends TestCase {
 		$runner = new MigrationRunner();
 		$runner->migrate();
 
-		$this->assertArrayHasKey( 'bv_db_version', $stored );
-		$this->assertNotSame( '0', $stored['bv_db_version'] );
+		$this->assertArrayHasKey( 'coderembassy_bvm_db_version', $stored );
+		$this->assertNotSame( '0', $stored['coderembassy_bvm_db_version'] );
 	}
 
 	/**

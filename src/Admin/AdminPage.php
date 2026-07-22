@@ -2,12 +2,12 @@
 /**
  * Admin page hooks.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Admin;
+namespace CoderEmbassy\BulkVariationsManager\Admin;
 
 class AdminPage {
 	public const MENU_SLUG = 'coderembassy-bulk-variations-manager';
@@ -25,7 +25,7 @@ class AdminPage {
 	}
 
 	public function render_page(): void {
-		echo '<div id="bv-admin-root" aria-busy="true"></div>';
+		echo '<div id="coderembassy-bvm-admin-root" aria-busy="true"></div>';
 	}
 
 	public function enqueue_assets( string $hook_suffix ): void {
@@ -34,12 +34,12 @@ class AdminPage {
 		}
 
 		wp_enqueue_style(
-			'bv-admin',
-			BV_PLUGIN_URL . 'assets/admin/admin.css',
+			'coderembassy-bvm-admin',
+			CODEREMBASSY_BVM_PLUGIN_URL . 'assets/admin/admin.css',
 			array(),
-			BV_VERSION
+			CODEREMBASSY_BVM_VERSION
 		);
-		wp_style_add_data( 'bv-admin', 'rtl', 'replace' );
+		wp_style_add_data( 'coderembassy-bvm-admin', 'rtl', 'replace' );
 
 		$script_bundles = $this->get_script_bundles();
 		$script_deps    = array_merge(
@@ -48,18 +48,18 @@ class AdminPage {
 		);
 
 		wp_enqueue_script(
-			'bv-admin',
-			BV_PLUGIN_URL . 'assets/admin/dist/index.js',
+			'coderembassy-bvm-admin',
+			CODEREMBASSY_BVM_PLUGIN_URL . 'assets/admin/dist/index.js',
 			array_values( array_unique( $script_deps ) ),
-			BV_VERSION,
+			CODEREMBASSY_BVM_VERSION,
 			true
 		);
-		wp_set_script_translations( 'bv-admin', 'coderembassy-bulk-variations-manager', BV_PLUGIN_PATH . 'languages' );
+		wp_set_script_translations( 'coderembassy-bvm-admin', 'coderembassy-bulk-variations-manager', CODEREMBASSY_BVM_PLUGIN_PATH . 'languages' );
 
 		$user = wp_get_current_user();
 		wp_localize_script(
-			'bv-admin',
-			'BulkVariationsAdmin',
+			'coderembassy-bvm-admin',
+			'CoderEmbassyBvmAdmin',
 			$this->build_admin_globals( $user )
 		);
 	}
@@ -86,7 +86,7 @@ class AdminPage {
 			$handle  = sanitize_key( (string) ( $bundle['handle'] ?? '' ) );
 			$src     = esc_url_raw( (string) ( $bundle['src'] ?? '' ) );
 			$deps    = isset( $bundle['deps'] ) && is_array( $bundle['deps'] ) ? array_map( 'sanitize_key', $bundle['deps'] ) : array();
-			$version = isset( $bundle['version'] ) ? (string) $bundle['version'] : BV_VERSION;
+			$version = isset( $bundle['version'] ) ? (string) $bundle['version'] : CODEREMBASSY_BVM_VERSION;
 			$type    = sanitize_key( (string) ( $bundle['type'] ?? '' ) );
 
 			if ( '' === $handle || '' === $src ) {
@@ -109,18 +109,18 @@ class AdminPage {
 	 */
 	private function build_admin_globals( \WP_User $user ): array {
 		return array(
-			'rest_url'     => rest_url( 'bv/v1/' ),
+			'rest_url'     => rest_url( 'coderembassy-bvm/v1/' ),
 			'wp_rest_url'  => rest_url( 'wp/v2/' ),
 			'nonce'        => wp_create_nonce( 'wp_rest' ),
-			'version'      => BV_VERSION,
-			'logo_light'   => BV_PLUGIN_URL . 'assets/admin/logo-light.png',
-			'logo_dark'    => BV_PLUGIN_URL . 'assets/admin/logo-dark.png',
-			'initial_theme'=> (string) get_user_meta( (int) $user->ID, 'bv_admin_theme', true ),
+			'version'      => CODEREMBASSY_BVM_VERSION,
+			'logo_light'   => CODEREMBASSY_BVM_PLUGIN_URL . 'assets/admin/logo-light.png',
+			'logo_dark'    => CODEREMBASSY_BVM_PLUGIN_URL . 'assets/admin/logo-dark.png',
+			'initial_theme'=> (string) get_user_meta( (int) $user->ID, 'coderembassy_bvm_admin_theme', true ),
 			'settings'     => array(
-				'theme'                    => (string) get_user_meta( (int) $user->ID, 'bv_admin_theme', true ),
-				'default_product_id'       => max( 0, (int) get_user_meta( (int) $user->ID, 'bv_default_product_id', true ) ),
-				'jobs_per_page'            => (int) get_user_meta( (int) $user->ID, 'bv_jobs_per_page', true ) ?: 50,
-				'remove_data_on_uninstall' => (bool) get_option( 'bv_uninstall_remove_data', false ),
+				'theme'                    => (string) get_user_meta( (int) $user->ID, 'coderembassy_bvm_admin_theme', true ),
+				'default_product_id'       => max( 0, (int) get_user_meta( (int) $user->ID, 'coderembassy_bvm_default_product_id', true ) ),
+				'jobs_per_page'            => (int) get_user_meta( (int) $user->ID, 'coderembassy_bvm_jobs_per_page', true ) ?: 50,
+				'remove_data_on_uninstall' => (bool) get_option( 'coderembassy_bvm_uninstall_remove_data', false ),
 			),
 			'current_user' => array(
 				'id'           => (int) $user->ID,
@@ -142,6 +142,6 @@ class AdminPage {
 	}
 
 	public function append_admin_body_class( string $classes ): string {
-		return trim( $classes . ' bv-admin-active' );
+		return trim( $classes . ' coderembassy-bvm-admin-active' );
 	}
 }

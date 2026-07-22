@@ -2,7 +2,7 @@
 /**
  * PHPUnit bootstrap.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
@@ -140,13 +140,13 @@ if ( ! function_exists( 'as_enqueue_async_action' ) ) {
 	 * @return int
 	 */
 	function as_enqueue_async_action( string $hook, array $args = array(), string $group = '' ): int {
-		$GLOBALS['bv_test_as_queue'][] = array(
+		$GLOBALS['coderembassy_bvm_test_as_queue'][] = array(
 			'hook'  => $hook,
 			'args'  => $args,
 			'group' => $group,
 			'time'  => null,
 		);
-		return (int) ( $GLOBALS['bv_test_as_enqueue_result'] ?? 1 );
+		return (int) ( $GLOBALS['coderembassy_bvm_test_as_enqueue_result'] ?? 1 );
 	}
 }
 
@@ -158,7 +158,7 @@ if ( ! function_exists( 'as_next_scheduled_action' ) ) {
 	 * @return int|false
 	 */
 	function as_next_scheduled_action( string $hook, array $args = array(), string $group = '' ) {
-		foreach ( $GLOBALS['bv_test_as_queue'] ?? array() as $queued ) {
+		foreach ( $GLOBALS['coderembassy_bvm_test_as_queue'] ?? array() as $queued ) {
 			if (
 				( $queued['hook'] ?? '' ) === $hook
 				&& ( $queued['args'] ?? array() ) === $args
@@ -181,7 +181,7 @@ if ( ! function_exists( 'as_schedule_single_action' ) ) {
 	 * @return int
 	 */
 	function as_schedule_single_action( int $timestamp, string $hook, array $args = array(), string $group = '' ): int {
-		$GLOBALS['bv_test_as_queue'][] = array(
+		$GLOBALS['coderembassy_bvm_test_as_queue'][] = array(
 			'hook'  => $hook,
 			'args'  => $args,
 			'group' => $group,

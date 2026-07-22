@@ -2,18 +2,18 @@
 /**
  * Schema unit tests.
  *
- * @package BulkVariations\Tests\Unit\REST
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\REST
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\REST;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\REST;
 
-use BulkVariations\REST\Schema;
+use CoderEmbassy\BulkVariationsManager\REST\Schema;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \BulkVariations\REST\Schema
+ * @covers \CoderEmbassy\BulkVariationsManager\REST\Schema
  */
 class SchemaTest extends TestCase {
 

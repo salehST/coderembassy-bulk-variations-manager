@@ -2,7 +2,7 @@
 /**
  * Uninstall cleanup.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
@@ -13,7 +13,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  * Remove plugin data when the administrator opted into destructive cleanup.
  */
 function coderembassy_bvm_uninstall_cleanup(): void {
-	$remove_data = (bool) get_option( 'bv_uninstall_remove_data', false );
+	$remove_data = (bool) get_option( 'coderembassy_bvm_uninstall_remove_data', false );
 
 	if ( ! $remove_data ) {
 		return;
@@ -22,10 +22,10 @@ function coderembassy_bvm_uninstall_cleanup(): void {
 	global $wpdb;
 
 	$tables = array(
-		'bv_jobs',
-		'bv_job_changes',
-		'bv_templates',
-		'bv_ai_log',
+		'coderembassy_bvm_jobs',
+		'coderembassy_bvm_job_changes',
+		'coderembassy_bvm_templates',
+		'coderembassy_bvm_ai_log',
 	);
 
 	foreach ( $tables as $table ) {
@@ -37,7 +37,7 @@ function coderembassy_bvm_uninstall_cleanup(): void {
 	$wpdb->query(
 		$wpdb->prepare(
 			"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
-			$wpdb->esc_like( 'bv_' ) . '%'
+			$wpdb->esc_like( 'coderembassy_bvm_' ) . '%'
 		)
 	);
 
@@ -45,7 +45,7 @@ function coderembassy_bvm_uninstall_cleanup(): void {
 	$wpdb->query(
 		$wpdb->prepare(
 			"DELETE FROM {$wpdb->usermeta} WHERE meta_key LIKE %s",
-			$wpdb->esc_like( 'bv_' ) . '%'
+			$wpdb->esc_like( 'coderembassy_bvm_' ) . '%'
 		)
 	);
 
@@ -54,7 +54,7 @@ function coderembassy_bvm_uninstall_cleanup(): void {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Schema existence check.
 		$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
 		if ( $exists === $table ) {
-			$like = $wpdb->esc_like( 'bv_' ) . '%';
+			$like = $wpdb->esc_like( 'coderembassy_bvm_' ) . '%';
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Action Scheduler does not expose prefix-based unscheduling.
 			$hooks = $wpdb->get_col(
 				$wpdb->prepare(

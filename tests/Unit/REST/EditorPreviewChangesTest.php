@@ -2,20 +2,20 @@
 /**
  * EditorPreviewChanges unit tests.
  *
- * @package BulkVariations\Tests\Unit\REST
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\REST
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\REST;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\REST;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use BulkVariations\REST\EditorPreviewChanges;
+use CoderEmbassy\BulkVariationsManager\REST\EditorPreviewChanges;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \BulkVariations\REST\EditorPreviewChanges
+ * @covers \CoderEmbassy\BulkVariationsManager\REST\EditorPreviewChanges
  */
 class EditorPreviewChangesTest extends TestCase {
 

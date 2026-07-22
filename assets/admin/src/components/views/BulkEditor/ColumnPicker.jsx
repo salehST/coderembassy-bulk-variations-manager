@@ -6,7 +6,8 @@ import { __ } from '@wordpress/i18n';
 import { mergeColumnCatalog } from './columns';
 import CardIntro from './CardIntro';
 
-const storageKey = ( productId ) => `bv_columns_${ productId || 0 }`;
+const storageKey = ( productId ) =>
+	`coderembassy_bvm_columns_${ productId || 0 }`;
 
 /**
  * Ensure default attribute columns are visible after image_url.

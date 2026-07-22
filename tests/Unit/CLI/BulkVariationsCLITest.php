@@ -2,18 +2,18 @@
 /**
  * BulkVariationsCLI unit tests.
  *
- * @package BulkVariations\Tests\Unit\CLI
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\CLI
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\CLI;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\CLI;
 
-use BulkVariations\CLI\BulkVariationsCLI;
+use CoderEmbassy\BulkVariationsManager\CLI\BulkVariationsCLI;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \BulkVariations\CLI\BulkVariationsCLI
+ * @covers \CoderEmbassy\BulkVariationsManager\CLI\BulkVariationsCLI
  */
 class BulkVariationsCLITest extends TestCase {
 

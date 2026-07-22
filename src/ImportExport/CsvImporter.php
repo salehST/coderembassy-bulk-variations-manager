@@ -2,15 +2,15 @@
 /**
  * CSV import orchestrator.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\ImportExport;
+namespace CoderEmbassy\BulkVariationsManager\ImportExport;
 
-use BulkVariations\Contracts\JobRepositoryInterface;
-use BulkVariations\Jobs\JobManager;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\Jobs\JobManager;
 use RuntimeException;
 
 class CsvImporter {

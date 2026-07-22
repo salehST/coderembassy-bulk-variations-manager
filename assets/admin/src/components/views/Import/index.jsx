@@ -421,7 +421,7 @@ export default function ImportView() {
 		} catch ( err ) {
 			const message =
 				err?.isWordPressCriticalError ||
-				err?.code === 'bv_wordpress_critical_error'
+				err?.code === 'coderembassy_bvm_wordpress_critical_error'
 					? err.message
 					: err?.bv?.message || err?.message;
 			setError(

@@ -14,7 +14,7 @@
  * WC requires at least: 7.0
  * WC tested up to:   9.6
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
@@ -23,12 +23,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'BV_VERSION', '0.1.8' );
-define( 'BV_PLUGIN_FILE', __FILE__ );
-define( 'BV_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
-define( 'BV_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'CODEREMBASSY_BVM_VERSION', '0.1.8' );
+define( 'CODEREMBASSY_BVM_PLUGIN_FILE', __FILE__ );
+define( 'CODEREMBASSY_BVM_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
+define( 'CODEREMBASSY_BVM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
-$coderembassy_bvm_autoload = BV_PLUGIN_PATH . 'vendor/autoload.php';
+$coderembassy_bvm_autoload = CODEREMBASSY_BVM_PLUGIN_PATH . 'vendor/autoload.php';
 
 if ( ! file_exists( $coderembassy_bvm_autoload ) ) {
 	add_action(
@@ -57,7 +57,7 @@ add_action( 'plugins_loaded', 'coderembassy_bvm_maybe_start_rest_output_buffer',
 register_activation_hook(
 	__FILE__,
 	static function (): void {
-		\BulkVariations\Updater\MigrationRunner::run();
+		\CoderEmbassy\BulkVariationsManager\Updater\MigrationRunner::run();
 	}
 );
 
@@ -74,12 +74,12 @@ add_action(
 		if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
 			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
 				'custom_order_tables',
-				BV_PLUGIN_FILE,
+				CODEREMBASSY_BVM_PLUGIN_FILE,
 				true
 			);
 			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
 				'cart_checkout_blocks',
-				BV_PLUGIN_FILE,
+				CODEREMBASSY_BVM_PLUGIN_FILE,
 				true
 			);
 		}
@@ -89,7 +89,7 @@ add_action(
 add_action(
 	'plugins_loaded',
 	static function (): void {
-		\BulkVariations\Plugin::instance()->boot();
+		\CoderEmbassy\BulkVariationsManager\Plugin::instance()->boot();
 	},
 	20
 );
@@ -134,7 +134,7 @@ function coderembassy_bvm_is_rest_request(): bool {
 		$rest_route = sanitize_text_field( wp_unslash( (string) $_GET['rest_route'] ) );
 	}
 
-	if ( str_starts_with( ltrim( $rest_route, '/' ), 'bv/v1/' ) ) {
+	if ( str_starts_with( ltrim( $rest_route, '/' ), 'coderembassy-bvm/v1/' ) ) {
 		return true;
 	}
 
@@ -146,7 +146,7 @@ function coderembassy_bvm_is_rest_request(): bool {
 
 	$path = wp_parse_url( $request_uri, PHP_URL_PATH );
 
-	return is_string( $path ) && str_contains( $path, '/wp-json/bv/v1/' );
+	return is_string( $path ) && str_contains( $path, '/wp-json/coderembassy-bvm/v1/' );
 }
 
 /**
@@ -177,7 +177,7 @@ function coderembassy_bvm_discard_rest_output_buffer( bool $served ): bool {
  * @return void
  */
 function coderembassy_bvm_schedule_retention_cron(): void {
-	$as = BV_PLUGIN_PATH . 'vendor/woocommerce/action-scheduler/action-scheduler.php';
+	$as = CODEREMBASSY_BVM_PLUGIN_PATH . 'vendor/woocommerce/action-scheduler/action-scheduler.php';
 	if ( file_exists( $as ) ) {
 		require_once $as;
 	}
@@ -190,7 +190,7 @@ function coderembassy_bvm_schedule_retention_cron(): void {
 		return;
 	}
 
-	$hook  = \BulkVariations\Jobs\JobManager::RETENTION_HOOK;
+	$hook  = \CoderEmbassy\BulkVariationsManager\Jobs\JobManager::RETENTION_HOOK;
 	$group = 'coderembassy-bulk-variations-manager';
 
 	if ( as_next_scheduled_action( $hook, array(), $group ) ) {
@@ -214,7 +214,7 @@ function coderembassy_bvm_deactivate_plugin(): void {
 }
 
 /**
- * Unschedule all Action Scheduler hooks prefixed with bv_.
+ * Unschedule all Action Scheduler hooks prefixed with coderembassy_bvm_.
  *
  * @return void
  */
@@ -233,7 +233,7 @@ function coderembassy_bvm_unschedule_actions(): void {
 		return;
 	}
 
-	$like = $wpdb->esc_like( 'bv_' ) . '%';
+	$like = $wpdb->esc_like( 'coderembassy_bvm_' ) . '%';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Action Scheduler does not expose prefix-based unscheduling.
 		$hooks = $wpdb->get_col(
 			$wpdb->prepare(
@@ -241,7 +241,7 @@ function coderembassy_bvm_unschedule_actions(): void {
 				$table,
 				$like
 			)
-        );
+		);
 
 	if ( ! is_array( $hooks ) ) {
 		return;
@@ -264,8 +264,8 @@ function coderembassy_bvm_flush_transients(): void {
 	$wpdb->query(
 		$wpdb->prepare(
 			"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-			$wpdb->esc_like( '_transient_bv_' ) . '%',
-			$wpdb->esc_like( '_transient_timeout_bv_' ) . '%'
+			$wpdb->esc_like( '_transient_coderembassy_bvm_' ) . '%',
+			$wpdb->esc_like( '_transient_timeout_coderembassy_bvm_' ) . '%'
 		)
 	);
 }

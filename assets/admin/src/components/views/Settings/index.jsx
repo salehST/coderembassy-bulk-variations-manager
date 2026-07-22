@@ -140,7 +140,7 @@ export default function Settings() {
 					</h2>
 					<p className="bv-muted">
 						{ __(
-							'Control the Free plugin defaults used by the editor, CSV import, and jobs screens.',
+							'Control the defaults used by the editor, CSV import, and jobs screens.',
 							'coderembassy-bulk-variations-manager'
 						) }
 					</p>

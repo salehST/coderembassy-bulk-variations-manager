@@ -2,25 +2,25 @@
 /**
  * ImportJob unit tests.
  *
- * @package BulkVariations\Tests\Unit\Jobs
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\Jobs
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\Jobs;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\Jobs;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use BulkVariations\Contracts\JobRepositoryInterface;
-use BulkVariations\Engine\BulkEditor;
-use BulkVariations\Engine\VariationWriter;
-use BulkVariations\ImportExport\ImportValidator;
-use BulkVariations\Jobs\ImportJob;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\Engine\BulkEditor;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationWriter;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportValidator;
+use CoderEmbassy\BulkVariationsManager\Jobs\ImportJob;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
 /**
- * @covers \BulkVariations\Jobs\ImportJob
+ * @covers \CoderEmbassy\BulkVariationsManager\Jobs\ImportJob
  */
 class ImportJobTest extends TestCase {
 
@@ -56,10 +56,10 @@ class ImportJobTest extends TestCase {
 		$method->setAccessible( true );
 
 		$job = new ImportJob(
-			$this->createMock( \BulkVariations\Contracts\JobRepositoryInterface::class ),
-			$this->createMock( \BulkVariations\ImportExport\ImportValidator::class ),
-			$this->createMock( \BulkVariations\Engine\VariationWriter::class ),
-			$this->createMock( \BulkVariations\Engine\BulkEditor::class )
+			$this->createMock( \CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface::class ),
+			$this->createMock( \CoderEmbassy\BulkVariationsManager\ImportExport\ImportValidator::class ),
+			$this->createMock( \CoderEmbassy\BulkVariationsManager\Engine\VariationWriter::class ),
+			$this->createMock( \CoderEmbassy\BulkVariationsManager\Engine\BulkEditor::class )
 		);
 
 		$row = $method->invoke(
@@ -100,10 +100,10 @@ class ImportJobTest extends TestCase {
 		$method->setAccessible( true );
 
 		$job = new ImportJob(
-			$this->createMock( \BulkVariations\Contracts\JobRepositoryInterface::class ),
-			$this->createMock( \BulkVariations\ImportExport\ImportValidator::class ),
-			$this->createMock( \BulkVariations\Engine\VariationWriter::class ),
-			$this->createMock( \BulkVariations\Engine\BulkEditor::class )
+			$this->createMock( \CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface::class ),
+			$this->createMock( \CoderEmbassy\BulkVariationsManager\ImportExport\ImportValidator::class ),
+			$this->createMock( \CoderEmbassy\BulkVariationsManager\Engine\VariationWriter::class ),
+			$this->createMock( \CoderEmbassy\BulkVariationsManager\Engine\BulkEditor::class )
 		);
 
 		$row = $method->invoke(

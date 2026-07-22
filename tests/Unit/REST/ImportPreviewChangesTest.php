@@ -2,21 +2,21 @@
 /**
  * ImportPreviewChanges unit tests.
  *
- * @package BulkVariations\Tests\Unit\REST
+ * @package CoderEmbassyBulkVariationsManager\Tests\Unit\REST
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Tests\Unit\REST;
+namespace CoderEmbassy\BulkVariationsManager\Tests\Unit\REST;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use BulkVariations\Engine\VariationRepository;
-use BulkVariations\REST\ImportPreviewChanges;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationRepository;
+use CoderEmbassy\BulkVariationsManager\REST\ImportPreviewChanges;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \BulkVariations\REST\ImportPreviewChanges
+ * @covers \CoderEmbassy\BulkVariationsManager\REST\ImportPreviewChanges
  */
 class ImportPreviewChangesTest extends TestCase {
 

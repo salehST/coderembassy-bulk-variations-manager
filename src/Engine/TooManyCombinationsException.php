@@ -2,12 +2,12 @@
 /**
  * Combination overflow exception.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Engine;
+namespace CoderEmbassy\BulkVariationsManager\Engine;
 
 use RuntimeException;
 

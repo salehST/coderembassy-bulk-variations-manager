@@ -2,7 +2,7 @@
 /**
  * Minimal WP-CLI stubs for unit tests and PHPStan.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 if ( ! class_exists( 'WP_CLI_Command', false ) ) {

@@ -2,29 +2,29 @@
 /**
  * REST controller for the Free admin app.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\REST;
+namespace CoderEmbassy\BulkVariationsManager\REST;
 
-use BulkVariations\Contracts\JobRepositoryInterface;
-use BulkVariations\Engine\VariationGenerator;
-use BulkVariations\Engine\VariationRepository;
-use BulkVariations\ImportExport\CsvImporter;
-use BulkVariations\ImportExport\ImportAttributeReadiness;
-use BulkVariations\ImportExport\ImportCsvTemplate;
-use BulkVariations\Jobs\JobManager;
-use BulkVariations\Repository\TemplateRepository;
-use BulkVariations\Rollback\RollbackService;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationGenerator;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationRepository;
+use CoderEmbassy\BulkVariationsManager\ImportExport\CsvImporter;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportAttributeReadiness;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportCsvTemplate;
+use CoderEmbassy\BulkVariationsManager\Jobs\JobManager;
+use CoderEmbassy\BulkVariationsManager\Repository\TemplateRepository;
+use CoderEmbassy\BulkVariationsManager\Rollback\RollbackService;
 use RuntimeException;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 
 class RestController {
-	private const NAMESPACE = 'bv/v1';
+	private const NAMESPACE = 'coderembassy-bvm/v1';
 
 	public function __construct(
 		private JobRepositoryInterface $jobs,
@@ -167,11 +167,11 @@ class RestController {
 		$nonce = (string) $request->get_header( 'x_wp_nonce' );
 
 		if ( '' === $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
-			return new WP_Error( 'bv_rest_nonce', 'Invalid REST nonce.', array( 'status' => 401 ) );
+			return new WP_Error( 'coderembassy_bvm_rest_nonce', 'Invalid REST nonce.', array( 'status' => 401 ) );
 		}
 
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			return new WP_Error( 'bv_forbidden', 'You are not allowed to manage variations.', array( 'status' => 403 ) );
+			return new WP_Error( 'coderembassy_bvm_forbidden', 'You are not allowed to manage variations.', array( 'status' => 403 ) );
 		}
 
 		return true;
@@ -245,10 +245,10 @@ class RestController {
 
 		$path = $this->create_import_preview_temp_path();
 		if ( null === $path ) {
-			return ErrorResponse::make( 'bv_import_temp_create', 'Unable to create temporary preview file path.', 500 );
+			return ErrorResponse::make( 'coderembassy_bvm_import_temp_create', 'Unable to create temporary preview file path.', 500 );
 		}
 		if ( ! $this->write_import_preview_csv( $path, $csv_content ) ) {
-			return ErrorResponse::make( 'bv_import_temp_write', 'Unable to write temporary preview file.', 500 );
+			return ErrorResponse::make( 'coderembassy_bvm_import_temp_write', 'Unable to write temporary preview file.', 500 );
 		}
 
 		try {
@@ -262,7 +262,7 @@ class RestController {
 			);
 		} catch ( RuntimeException $error ) {
 			$this->delete_temp_file( $path );
-			return ErrorResponse::make( 'bv_import_preview_failed', $error->getMessage(), 400 );
+			return ErrorResponse::make( 'coderembassy_bvm_import_preview_failed', $error->getMessage(), 400 );
 		}
 
 		$this->delete_temp_file( $path );
@@ -275,7 +275,7 @@ class RestController {
 		$page     = max( 1, (int) $request->get_param( 'page' ) );
 		$per_page = min( 100, max( 1, (int) ( $request->get_param( 'per_page' ) ?: 20 ) ) );
 		$offset   = ( $page - 1 ) * $per_page;
-		$table    = $wpdb->prefix . 'bv_jobs';
+		$table    = $wpdb->prefix . 'coderembassy_bvm_jobs';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Plugin-owned table; live count is required.
 		$total    = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table ) );
 		$sql      = $wpdb->prepare( 'SELECT * FROM %i ORDER BY id DESC LIMIT %d OFFSET %d', $table, $per_page, $offset );
@@ -305,7 +305,7 @@ class RestController {
 			$rows = $this->rows_from_change_payload( $type, $changes );
 		}
 		if ( ! is_array( $rows ) ) {
-			return ErrorResponse::make( 'bv_invalid_rows', 'No rows were provided for this job.', 400 );
+			return ErrorResponse::make( 'coderembassy_bvm_invalid_rows', 'No rows were provided for this job.', 400 );
 		}
 
 		$rows   = array_values( $rows );
@@ -341,7 +341,7 @@ class RestController {
 
 		$job = $this->jobs->get( $job_id );
 		if ( ! is_array( $job ) ) {
-			return ErrorResponse::make( 'bv_job_not_found', 'Job not found.', 404 );
+			return ErrorResponse::make( 'coderembassy_bvm_job_not_found', 'Job not found.', 404 );
 		}
 
 		return new WP_REST_Response( $this->format_job_for_api( $job, true ), 201 );
@@ -353,7 +353,7 @@ class RestController {
 	public function get_job( WP_REST_Request $request ) {
 		$job = $this->jobs->get( (int) $request['id'] );
 		if ( ! is_array( $job ) ) {
-			return ErrorResponse::make( 'bv_job_not_found', 'Job not found.', 404 );
+			return ErrorResponse::make( 'coderembassy_bvm_job_not_found', 'Job not found.', 404 );
 		}
 		return new WP_REST_Response( $this->format_job_for_api( $job, true ) );
 	}
@@ -412,16 +412,16 @@ class RestController {
 		$user_id = get_current_user_id();
 
 		$theme = $this->sanitize_theme_setting( $request->get_param( 'theme' ) );
-		update_user_meta( $user_id, 'bv_admin_theme', $theme );
+		update_user_meta( $user_id, 'coderembassy_bvm_admin_theme', $theme );
 
 		$default_product_id = $this->absint_setting( $request->get_param( 'default_product_id' ) );
-		update_user_meta( $user_id, 'bv_default_product_id', $default_product_id );
+		update_user_meta( $user_id, 'coderembassy_bvm_default_product_id', $default_product_id );
 
 		$jobs_per_page = $this->sanitize_jobs_per_page( $request->get_param( 'jobs_per_page' ) );
-		update_user_meta( $user_id, 'bv_jobs_per_page', $jobs_per_page );
+		update_user_meta( $user_id, 'coderembassy_bvm_jobs_per_page', $jobs_per_page );
 
 		$remove_data = (bool) $request->get_param( 'remove_data_on_uninstall' );
-		update_option( 'bv_uninstall_remove_data', $remove_data, false );
+		update_option( 'coderembassy_bvm_uninstall_remove_data', $remove_data, false );
 
 		return new WP_REST_Response( $this->read_settings() );
 	}
@@ -431,7 +431,7 @@ class RestController {
 		if ( '' === $dir ) {
 			return null;
 		}
-		return $dir . 'bv-import-preview-' . wp_generate_password( 12, false, false ) . '.csv';
+		return $dir . 'coderembassy-bvm-import-preview-' . wp_generate_password( 12, false, false ) . '.csv';
 	}
 
 	protected function write_import_preview_csv( string $path, string $csv_content ): bool {
@@ -701,10 +701,10 @@ class RestController {
 		$user_id = get_current_user_id();
 
 		return array(
-			'theme'                    => $this->sanitize_theme_setting( get_user_meta( $user_id, 'bv_admin_theme', true ) ),
-			'default_product_id'       => $this->absint_setting( get_user_meta( $user_id, 'bv_default_product_id', true ) ),
-			'jobs_per_page'            => $this->sanitize_jobs_per_page( get_user_meta( $user_id, 'bv_jobs_per_page', true ) ),
-			'remove_data_on_uninstall' => (bool) get_option( 'bv_uninstall_remove_data', false ),
+			'theme'                    => $this->sanitize_theme_setting( get_user_meta( $user_id, 'coderembassy_bvm_admin_theme', true ) ),
+			'default_product_id'       => $this->absint_setting( get_user_meta( $user_id, 'coderembassy_bvm_default_product_id', true ) ),
+			'jobs_per_page'            => $this->sanitize_jobs_per_page( get_user_meta( $user_id, 'coderembassy_bvm_jobs_per_page', true ) ),
+			'remove_data_on_uninstall' => (bool) get_option( 'coderembassy_bvm_uninstall_remove_data', false ),
 		);
 	}
 

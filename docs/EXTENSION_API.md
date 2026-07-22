@@ -17,7 +17,7 @@ do_action( 'coderembassy_bvm_booted', $plugin );
 The `$plugin` argument exposes a neutral service registry:
 
 ```php
-$repository = $plugin->service( \BulkVariations\Engine\VariationRepository::class );
+$repository = $plugin->service( \CoderEmbassy\BulkVariationsManager\Engine\VariationRepository::class );
 ```
 
 ## PHP Filters
