@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 8.1
 WC requires at least: 7.0
 WC tested up to: 9.6
-Stable tag: 0.1.8
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,11 @@ Google Fonts is provided by Google. Terms: https://policies.google.com/terms Pri
 3. Jobs and rollback history.
 
 == Changelog ==
+
+= 1.0.1 =
+
+* Improved admin asset loading and interface compatibility.
+* Updated public plugin identifiers for the WordPress.org release.
 
 = 0.1.8 =
 

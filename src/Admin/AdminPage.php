@@ -34,12 +34,19 @@ class AdminPage {
 		}
 
 		wp_enqueue_style(
+			'coderembassy-bvm-grid',
+			CODEREMBASSY_BVM_PLUGIN_URL . 'assets/admin/dist/index.css',
+			array(),
+			$this->asset_version( 'assets/admin/dist/index.css' )
+		);
+		wp_style_add_data( 'coderembassy-bvm-grid', 'rtl', 'replace' );
+
+		wp_enqueue_style(
 			'coderembassy-bvm-admin',
 			CODEREMBASSY_BVM_PLUGIN_URL . 'assets/admin/admin.css',
-			array(),
-			CODEREMBASSY_BVM_VERSION
+			array( 'coderembassy-bvm-grid' ),
+			$this->asset_version( 'assets/admin/admin.css' )
 		);
-		wp_style_add_data( 'coderembassy-bvm-admin', 'rtl', 'replace' );
 
 		$script_bundles = $this->get_script_bundles();
 		$script_deps    = array_merge(
@@ -51,7 +58,7 @@ class AdminPage {
 			'coderembassy-bvm-admin',
 			CODEREMBASSY_BVM_PLUGIN_URL . 'assets/admin/dist/index.js',
 			array_values( array_unique( $script_deps ) ),
-			CODEREMBASSY_BVM_VERSION,
+			$this->asset_version( 'assets/admin/dist/index.js' ),
 			true
 		);
 		wp_set_script_translations( 'coderembassy-bvm-admin', 'coderembassy-bulk-variations-manager', CODEREMBASSY_BVM_PLUGIN_PATH . 'languages' );
@@ -62,6 +69,13 @@ class AdminPage {
 			'CoderEmbassyBvmAdmin',
 			$this->build_admin_globals( $user )
 		);
+	}
+
+	private function asset_version( string $relative_path ): string {
+		$path = CODEREMBASSY_BVM_PLUGIN_PATH . ltrim( $relative_path, '/\\' );
+		$time = file_exists( $path ) ? filemtime( $path ) : false;
+
+		return false !== $time ? (string) $time : CODEREMBASSY_BVM_VERSION;
 	}
 
 	/**

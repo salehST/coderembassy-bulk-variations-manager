@@ -1,6 +1,6 @@
 {
 	"name": "coderembassy-bulk-variations-manager",
-	"version": "0.1.8",
+	"version": "1.0.1",
 	"private": true,
 	"scripts": {
 		"build": "wp-scripts build assets/admin/src/index.js --output-path=assets/admin/dist",

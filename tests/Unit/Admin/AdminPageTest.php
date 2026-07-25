@@ -126,16 +126,17 @@ class AdminPageTest extends TestCase {
 		$page   = new AdminPage();
 		$styles = 0;
 		$scripts = 0;
-		$style_src = '';
+		$style_sources = array();
+		$style_dependencies = array();
 		$script_src = '';
 		$localized_name = '';
 		$localized_data = array();
 
 		Functions\when( 'wp_enqueue_style' )->alias(
-			static function ( string $handle, string $src ) use ( &$styles, &$style_src ): bool {
-				unset( $handle );
+			static function ( string $handle, string $src, array $dependencies = array() ) use ( &$styles, &$style_sources, &$style_dependencies ): bool {
 				++$styles;
-				$style_src = $src;
+				$style_sources[ $handle ] = $src;
+				$style_dependencies[ $handle ] = $dependencies;
 				return true;
 			}
 		);
@@ -163,9 +164,11 @@ class AdminPageTest extends TestCase {
 
 		$page->enqueue_assets( 'toplevel_page_' . AdminPage::MENU_SLUG );
 
-		$this->assertSame( 1, $styles );
+		$this->assertSame( 2, $styles );
 		$this->assertGreaterThanOrEqual( 1, $scripts );
-		$this->assertStringContainsString( 'assets/admin/admin.css', $style_src );
+		$this->assertStringContainsString( 'assets/admin/dist/index.css', $style_sources['coderembassy-bvm-grid'] );
+		$this->assertStringContainsString( 'assets/admin/admin.css', $style_sources['coderembassy-bvm-admin'] );
+		$this->assertSame( array( 'coderembassy-bvm-grid' ), $style_dependencies['coderembassy-bvm-admin'] );
 		$this->assertStringContainsString( 'assets/admin/dist/index.js', $script_src );
 		$this->assertSame( 'CoderEmbassyBvmAdmin', $localized_name );
 		$this->assertArrayHasKey( 'rest_url', $localized_data );

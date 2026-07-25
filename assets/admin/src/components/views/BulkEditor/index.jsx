@@ -878,6 +878,7 @@ export default function BulkEditor() {
 					columnDefs={ columnDefs }
 					defaultColDef={ defaultColDef }
 					gridOptions={ gridOptions }
+					theme="legacy"
 					rowSelection="multiple"
 					onGridReady={ onGridReady }
 					onCellValueChanged={ onCellValueChanged }

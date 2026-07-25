@@ -3,7 +3,7 @@
  * Plugin Name:       CoderEmbassy Bulk Variations Manager for WooCommerce
  * Plugin URI:        https://coderembassy.com
  * Description:       Bulk edit and create WooCommerce product variations with a spreadsheet editor, CSV import, background jobs, and rollback.
- * Version:           0.1.8
+ * Version:           1.0.1
  * Author:            CoderEmbassy
  * Author URI:        https://coderembassy.com
  * License:           GPL-2.0-or-later
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CODEREMBASSY_BVM_VERSION', '0.1.8' );
+define( 'CODEREMBASSY_BVM_VERSION', '1.0.1' );
 define( 'CODEREMBASSY_BVM_PLUGIN_FILE', __FILE__ );
 define( 'CODEREMBASSY_BVM_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CODEREMBASSY_BVM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
