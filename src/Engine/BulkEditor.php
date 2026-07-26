@@ -2,15 +2,15 @@
 /**
  * Bulk variation updater.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Engine;
+namespace CoderEmbassy\BulkVariationsManager\Engine;
 
-use BulkVariations\Contracts\JobRepositoryInterface;
-use BulkVariations\Services\HistoryLogger;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\Services\HistoryLogger;
 
 class BulkEditor {
 	public function __construct(

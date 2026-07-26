@@ -2,12 +2,12 @@
 /**
  * SKU generation and duplicate checks.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Services;
+namespace CoderEmbassy\BulkVariationsManager\Services;
 
 class SKUGenerator {
 	/**

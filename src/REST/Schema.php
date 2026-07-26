@@ -2,12 +2,12 @@
 /**
  * REST schema catalog.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\REST;
+namespace CoderEmbassy\BulkVariationsManager\REST;
 
 class Schema {
 	/**

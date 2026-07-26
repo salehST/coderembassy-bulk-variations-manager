@@ -2,12 +2,12 @@
 /**
  * WP-CLI helpers.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\CLI;
+namespace CoderEmbassy\BulkVariationsManager\CLI;
 
 class BulkVariationsCLI {
 	/**

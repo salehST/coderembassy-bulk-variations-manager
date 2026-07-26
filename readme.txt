@@ -5,8 +5,8 @@ Requires at least: 6.3
 Tested up to: 7.0
 Requires PHP: 8.1
 WC requires at least: 7.0
-WC tested up to: 10.9
-Stable tag: 1.0.0
+WC tested up to: 9.6
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,11 +14,11 @@ Bulk edit WooCommerce product variations with preview, approval, CSV import, job
 
 == Description ==
 
-CoderEmbassy Bulk Variations Manager for WooCommerce helps store managers update variations for one variable product at a time.
+CoderEmbassy Bulk Variations Manager for WooCommerce helps store managers update variations across selected variable products.
 
-Free features include:
+Core features include:
 
-* Single-product variation spreadsheet editor.
+* Multi-product variation spreadsheet editor.
 * Product search for variable products.
 * Editable SKU, prices, sale dates, stock, stock status, and variation status.
 * Read-only variation attribute columns for easier row identification.
@@ -40,7 +40,7 @@ Free features include:
 
 = Does this edit every product at once? =
 
-No. The Free plugin edits one variable product at a time.
+The editor can load variations from multiple selected variable products in one editing session. CSV import can identify rows by product ID when updating or creating variations.
 
 = Can I preview changes before applying them? =
 
@@ -72,5 +72,14 @@ Google Fonts is provided by Google. Terms: https://policies.google.com/terms Pri
 
 == Changelog ==
 
-= 1.0.0 =
-* Initial release.
+= 1.0.3 =
+
+* Improved admin asset loading and interface compatibility.
+* Updated public plugin identifiers for the WordPress.org release.
+
+= 0.1.8 =
+
+* Added inert developer extension hooks for admin views, script bundles, grid columns, and bulk actions.
+
+= 0.1.7 =
+* Initial release candidate.

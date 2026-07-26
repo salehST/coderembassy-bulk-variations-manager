@@ -2,16 +2,16 @@
 /**
  * Product import readiness service.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\ImportExport;
+namespace CoderEmbassy\BulkVariationsManager\ImportExport;
 
-use BulkVariations\Engine\AttributeMatrix;
-use BulkVariations\Engine\VariationGenerator;
-use BulkVariations\Engine\VariationRepository;
+use CoderEmbassy\BulkVariationsManager\Engine\AttributeMatrix;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationGenerator;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationRepository;
 
 class ImportAttributeReadiness {
 	public function __construct(

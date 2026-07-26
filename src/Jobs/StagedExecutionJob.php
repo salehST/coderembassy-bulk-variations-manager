@@ -2,12 +2,12 @@
 /**
  * Placeholder staged execution worker.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Jobs;
+namespace CoderEmbassy\BulkVariationsManager\Jobs;
 
 class StagedExecutionJob {
 	/**

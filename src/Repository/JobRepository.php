@@ -2,26 +2,26 @@
 /**
  * Job repository implementation.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Repository;
+namespace CoderEmbassy\BulkVariationsManager\Repository;
 
-use BulkVariations\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
 
 class JobRepository implements JobRepositoryInterface {
 	private const ALLOWED_CONTROL = array( 'queued', 'running', 'paused', 'cancelled' );
 
 	private function jobsTable(): string {
 		global $wpdb;
-		return $wpdb->prefix . 'bv_jobs';
+		return $wpdb->prefix . 'coderembassy_bvm_jobs';
 	}
 
 	private function changesTable(): string {
 		global $wpdb;
-		return $wpdb->prefix . 'bv_job_changes';
+		return $wpdb->prefix . 'coderembassy_bvm_job_changes';
 	}
 
 	/**

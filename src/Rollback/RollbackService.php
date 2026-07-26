@@ -2,17 +2,17 @@
 /**
  * Rollback service.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Rollback;
+namespace CoderEmbassy\BulkVariationsManager\Rollback;
 
-use BulkVariations\Contracts\JobRepositoryInterface;
-use BulkVariations\Jobs\JobManager;
-use BulkVariations\Jobs\RollbackJob;
-use BulkVariations\Repository\RollbackRepository;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\Jobs\JobManager;
+use CoderEmbassy\BulkVariationsManager\Jobs\RollbackJob;
+use CoderEmbassy\BulkVariationsManager\Repository\RollbackRepository;
 use WP_Error;
 
 class RollbackService {
@@ -47,11 +47,11 @@ class RollbackService {
 	public function rollback( int $source_job_id ) {
 		$source = $this->jobs->get( $source_job_id );
 		if ( ! is_array( $source ) ) {
-			return new WP_Error( 'bv_source_job_not_found', 'Source job not found.', array( 'status' => 404 ) );
+			return new WP_Error( 'coderembassy_bvm_source_job_not_found', 'Source job not found.', array( 'status' => 404 ) );
 		}
 
 		if ( 'rolled_back' === ( $source['status'] ?? '' ) || $this->rollback_repository->isRolledBack( $source_job_id ) ) {
-			return new WP_Error( 'bv_already_rolled_back', 'This job has already been rolled back.', array( 'status' => 409 ) );
+			return new WP_Error( 'coderembassy_bvm_already_rolled_back', 'This job has already been rolled back.', array( 'status' => 409 ) );
 		}
 
 		$inverse = $this->rollback_repository->getInverseDeltas( $source_job_id );

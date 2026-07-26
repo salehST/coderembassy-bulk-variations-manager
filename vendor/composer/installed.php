@@ -3,7 +3,7 @@
         'name' => 'coderembassy/bulk-variations-manager',
         'pretty_version' => '1.0.1.x-dev',
         'version' => '1.0.1.9999999-dev',
-        'reference' => '374c5f68d5e6f0b1f3f7a14546e9711b70d0d919',
+        'reference' => '1f419a90329aa5cc98263ed7baffafde84dff0f5',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'coderembassy/bulk-variations-manager' => array(
             'pretty_version' => '1.0.1.x-dev',
             'version' => '1.0.1.9999999-dev',
-            'reference' => '374c5f68d5e6f0b1f3f7a14546e9711b70d0d919',
+            'reference' => '1f419a90329aa5cc98263ed7baffafde84dff0f5',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

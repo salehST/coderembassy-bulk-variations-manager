@@ -2,12 +2,12 @@
 /**
  * Attribute matrix utilities.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Engine;
+namespace CoderEmbassy\BulkVariationsManager\Engine;
 
 class AttributeMatrix {
 	/**

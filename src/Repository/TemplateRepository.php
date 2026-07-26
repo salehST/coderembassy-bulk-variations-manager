@@ -2,12 +2,12 @@
 /**
  * Free-tier template repository placeholder.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Repository;
+namespace CoderEmbassy\BulkVariationsManager\Repository;
 
 class TemplateRepository {
 	/**

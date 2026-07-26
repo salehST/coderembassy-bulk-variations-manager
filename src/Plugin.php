@@ -2,45 +2,45 @@
 /**
  * Plugin runtime bootstrap.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations;
+namespace CoderEmbassy\BulkVariationsManager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use BulkVariations\Admin\AdminPage;
-use BulkVariations\CLI\BulkVariationsCLI;
-use BulkVariations\Contracts\JobRepositoryInterface;
-use BulkVariations\Engine\AttributeMatrix;
-use BulkVariations\Engine\BulkEditor;
-use BulkVariations\Engine\VariationGenerator;
-use BulkVariations\Engine\VariationRepository;
-use BulkVariations\Engine\VariationWriter;
-use BulkVariations\ImportExport\CsvImporter;
-use BulkVariations\ImportExport\ImportAttributeReadiness;
-use BulkVariations\ImportExport\ImportCsvTemplate;
-use BulkVariations\ImportExport\ImportValidator;
-use BulkVariations\Jobs\BulkUpdateJob;
-use BulkVariations\Jobs\GenerateJob;
-use BulkVariations\Jobs\ImportJob;
-use BulkVariations\Jobs\JobManager;
-use BulkVariations\Jobs\RollbackJob;
-use BulkVariations\Jobs\StagedExecutionJob;
-use BulkVariations\Jobs\StagedRevertJob;
-use BulkVariations\Repository\JobRepository;
-use BulkVariations\Repository\RollbackRepository;
-use BulkVariations\Repository\TemplateRepository;
-use BulkVariations\REST\RestController;
-use BulkVariations\Rollback\RollbackService;
-use BulkVariations\Services\ActivityRecorder;
-use BulkVariations\Services\ConcurrencyLock;
-use BulkVariations\Services\HistoryLogger;
-use BulkVariations\Updater\MigrationRunner;
+use CoderEmbassy\BulkVariationsManager\Admin\AdminPage;
+use CoderEmbassy\BulkVariationsManager\CLI\BulkVariationsCLI;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\Engine\AttributeMatrix;
+use CoderEmbassy\BulkVariationsManager\Engine\BulkEditor;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationGenerator;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationRepository;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationWriter;
+use CoderEmbassy\BulkVariationsManager\ImportExport\CsvImporter;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportAttributeReadiness;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportCsvTemplate;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportValidator;
+use CoderEmbassy\BulkVariationsManager\Jobs\BulkUpdateJob;
+use CoderEmbassy\BulkVariationsManager\Jobs\GenerateJob;
+use CoderEmbassy\BulkVariationsManager\Jobs\ImportJob;
+use CoderEmbassy\BulkVariationsManager\Jobs\JobManager;
+use CoderEmbassy\BulkVariationsManager\Jobs\RollbackJob;
+use CoderEmbassy\BulkVariationsManager\Jobs\StagedExecutionJob;
+use CoderEmbassy\BulkVariationsManager\Jobs\StagedRevertJob;
+use CoderEmbassy\BulkVariationsManager\Repository\JobRepository;
+use CoderEmbassy\BulkVariationsManager\Repository\RollbackRepository;
+use CoderEmbassy\BulkVariationsManager\Repository\TemplateRepository;
+use CoderEmbassy\BulkVariationsManager\REST\RestController;
+use CoderEmbassy\BulkVariationsManager\Rollback\RollbackService;
+use CoderEmbassy\BulkVariationsManager\Services\ActivityRecorder;
+use CoderEmbassy\BulkVariationsManager\Services\ConcurrencyLock;
+use CoderEmbassy\BulkVariationsManager\Services\HistoryLogger;
+use CoderEmbassy\BulkVariationsManager\Updater\MigrationRunner;
 
 class Plugin {
 	private static ?self $instance = null;

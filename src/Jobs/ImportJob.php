@@ -2,17 +2,17 @@
 /**
  * Import worker.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Jobs;
+namespace CoderEmbassy\BulkVariationsManager\Jobs;
 
-use BulkVariations\Contracts\JobRepositoryInterface;
-use BulkVariations\Engine\BulkEditor;
-use BulkVariations\Engine\VariationWriter;
-use BulkVariations\ImportExport\ImportValidator;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\Engine\BulkEditor;
+use CoderEmbassy\BulkVariationsManager\Engine\VariationWriter;
+use CoderEmbassy\BulkVariationsManager\ImportExport\ImportValidator;
 
 class ImportJob {
 	public function __construct(
@@ -31,7 +31,7 @@ class ImportJob {
 		$job = $this->jobs->get( $job_id );
 		$meta = is_array( $job['meta'] ?? null ) ? $job['meta'] : array();
 
-		$create_rows = array();
+		$create_rows_by_product = array();
 		$update_rows = array();
 		foreach ( $rows as $row ) {
 			$variation_id = (int) ( $row['variation_id'] ?? 0 );
@@ -39,15 +39,17 @@ class ImportJob {
 				$update_rows[] = $this->mapRowToBulkUpdate( $row, $variation_id );
 				continue;
 			}
-			$create_rows[] = $row;
+			$product_id = (int) ( $row['product_id'] ?? ( $meta['product_id'] ?? 0 ) );
+			if ( $product_id > 0 ) {
+				$create_rows_by_product[ $product_id ][] = $row;
+			}
 		}
 
 		$processed = 0;
 		$errors    = array();
 
-		if ( ! empty( $create_rows ) ) {
-			$product_id = (int) ( $create_rows[0]['product_id'] ?? ( $meta['product_id'] ?? 0 ) );
-			$created    = $this->writer->createBatch( $product_id, $create_rows, $job_id );
+		foreach ( $create_rows_by_product as $product_id => $create_rows ) {
+			$created    = $this->writer->createBatch( (int) $product_id, $create_rows, $job_id );
 			$processed += count( $created );
 		}
 
@@ -93,4 +95,3 @@ class ImportJob {
 		return $out;
 	}
 }
-

@@ -2,15 +2,15 @@
 /**
  * DB migration runner.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Updater;
+namespace CoderEmbassy\BulkVariationsManager\Updater;
 
 class MigrationRunner {
-	private const OPTION_KEY = 'bv_db_version';
+	private const OPTION_KEY = 'coderembassy_bvm_db_version';
 
 	public static function run(): void {
 		$runner = new self();
@@ -43,8 +43,8 @@ class MigrationRunner {
 		}
 
 		$charset_collate = $wpdb->get_charset_collate();
-		$jobs_table      = $wpdb->prefix . 'bv_jobs';
-		$changes_table   = $wpdb->prefix . 'bv_job_changes';
+		$jobs_table      = $wpdb->prefix . 'coderembassy_bvm_jobs';
+		$changes_table   = $wpdb->prefix . 'coderembassy_bvm_job_changes';
 
 		dbDelta(
 			"CREATE TABLE {$jobs_table} (

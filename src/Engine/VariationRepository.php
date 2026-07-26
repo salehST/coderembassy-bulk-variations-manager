@@ -2,12 +2,12 @@
 /**
  * Variation data access.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Engine;
+namespace CoderEmbassy\BulkVariationsManager\Engine;
 
 class VariationRepository {
 	/**

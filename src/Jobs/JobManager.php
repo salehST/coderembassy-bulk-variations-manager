@@ -2,23 +2,23 @@
 /**
  * Job scheduling coordinator.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Jobs;
+namespace CoderEmbassy\BulkVariationsManager\Jobs;
 
-use BulkVariations\Contracts\JobRepositoryInterface;
-use BulkVariations\Engine\BulkEditor;
-use BulkVariations\Repository\RollbackRepository;
-use BulkVariations\Services\ActivityRecorder;
-use BulkVariations\Services\ConcurrencyLock;
+use CoderEmbassy\BulkVariationsManager\Contracts\JobRepositoryInterface;
+use CoderEmbassy\BulkVariationsManager\Engine\BulkEditor;
+use CoderEmbassy\BulkVariationsManager\Repository\RollbackRepository;
+use CoderEmbassy\BulkVariationsManager\Services\ActivityRecorder;
+use CoderEmbassy\BulkVariationsManager\Services\ConcurrencyLock;
 
 class JobManager {
-	public const ACTION_HOOK = 'bv_process_chunk';
+	public const ACTION_HOOK = 'coderembassy_bvm_process_chunk';
 
-	public const RETENTION_HOOK = 'bv_retention_cleanup';
+	public const RETENTION_HOOK = 'coderembassy_bvm_retention_cleanup';
 
 	public function __construct(
 		private JobRepositoryInterface $jobs,
@@ -40,9 +40,9 @@ class JobManager {
 	 * @param array<int, array<int, array<string, mixed>>> $chunks
 	 */
 	public function dispatch( int $job_id, array $chunks ): void {
-		update_option( $this->optionKey( $job_id, 'chunks' ), $chunks );
-		update_option( $this->optionKey( $job_id, 'total' ), count( $chunks ) );
-		update_option( $this->optionKey( $job_id, 'current_chunk' ), 0 );
+		update_option( $this->optionKey( $job_id, 'chunks' ), $chunks, false );
+		update_option( $this->optionKey( $job_id, 'total' ), count( $chunks ), false );
+		update_option( $this->optionKey( $job_id, 'current_chunk' ), 0, false );
 
 		$job = $this->jobs->get( $job_id );
 		if ( ! is_array( $job ) ) {
@@ -253,6 +253,6 @@ class JobManager {
 	}
 
 	private function optionKey( int $job_id, string $suffix ): string {
-		return 'bv_job_' . $job_id . '_' . $suffix;
+		return 'coderembassy_bvm_job_' . $job_id . '_' . $suffix;
 	}
 }

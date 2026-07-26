@@ -2,12 +2,12 @@
 /**
  * REST error envelope.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\REST;
+namespace CoderEmbassy\BulkVariationsManager\REST;
 
 use WP_Error;
 

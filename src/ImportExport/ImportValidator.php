@@ -2,12 +2,12 @@
 /**
  * CSV import row validator.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\ImportExport;
+namespace CoderEmbassy\BulkVariationsManager\ImportExport;
 
 class ImportValidator {
 	/**

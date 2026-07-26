@@ -2,14 +2,14 @@
 /**
  * Variation creator.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Engine;
+namespace CoderEmbassy\BulkVariationsManager\Engine;
 
-use BulkVariations\Services\HistoryLogger;
+use CoderEmbassy\BulkVariationsManager\Services\HistoryLogger;
 
 class VariationWriter {
 	public function __construct( private ?HistoryLogger $history_logger = null ) {

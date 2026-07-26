@@ -2,14 +2,14 @@
 /**
  * Bulk update worker.
  *
- * @package BulkVariations
+ * @package CoderEmbassyBulkVariationsManager
  */
 
 declare(strict_types=1);
 
-namespace BulkVariations\Jobs;
+namespace CoderEmbassy\BulkVariationsManager\Jobs;
 
-use BulkVariations\Engine\BulkEditor;
+use CoderEmbassy\BulkVariationsManager\Engine\BulkEditor;
 
 class BulkUpdateJob {
 	public function __construct( private BulkEditor $editor ) {
