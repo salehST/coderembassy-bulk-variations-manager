@@ -260,7 +260,10 @@ export default function Settings() {
 						) }
 					</h3>
 					<div className="bv-settings-toggle">
-						<span className="bv-toggle">
+						<label
+							className="bv-toggle"
+							htmlFor="bv-setting-remove-data"
+						>
 							<input
 								id="bv-setting-remove-data"
 								className="bv-toggle__input"
@@ -280,7 +283,7 @@ export default function Settings() {
 							>
 								<span className="bv-toggle__thumb" />
 							</span>
-						</span>
+						</label>
 						<label
 							id="bv-setting-remove-data-label"
 							htmlFor="bv-setting-remove-data"
