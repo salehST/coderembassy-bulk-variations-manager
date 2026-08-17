@@ -1,12 +1,12 @@
-=== CoderEmbassy Bulk Variations Manager for WooCommerce ===
+=== CoderEmbassy Bulk Variations Manager ===
 Contributors: codersaleh
 Tags: woocommerce, variations, bulk edit, csv import, rollback
 Requires at least: 6.3
 Tested up to: 7.0
 Requires PHP: 8.1
 WC requires at least: 7.0
-WC tested up to: 9.6
-Stable tag: 1.0.1
+WC tested up to: 10.9
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,7 +14,7 @@ Bulk edit WooCommerce product variations with preview, approval, CSV import, job
 
 == Description ==
 
-CoderEmbassy Bulk Variations Manager for WooCommerce helps store managers update variations across selected variable products.
+CoderEmbassy Bulk Variations Manager helps store managers update WooCommerce variations across selected variable products.
 
 Core features include:
 
@@ -66,13 +66,29 @@ Google Fonts is provided by Google. Terms: https://policies.google.com/terms Pri
 
 == Screenshots ==
 
-1. Bulk editor grid.
-2. CSV import validation.
-3. Jobs and rollback history.
+1. Admin dashboard.
+2. Edit product.
+3. Choose a product to edit.
+4. Customize the table columns.
+5. Filter rows.
+6. Edit price.
+7. Price updated.
+8. Jobs.
+9. CSV import.
+10. Settings.
+11. Dark theme for the dashboard.
 
 == Changelog ==
 
-= 1.0.1 =
+= 1.0.3 =
+
+* Fixed: background jobs larger than one chunk reported only the final chunk's processed count and stayed at 0% progress while running.
+* Fixed: failed and completed background jobs left their queued row data behind in the options table.
+* Fixed: variations created by CSV import or generation could show stale prices on the storefront until the parent product was saved again.
+* Fixed: the plugin admin body class was added on every admin screen instead of only the plugin screen.
+* Improved: database table checks no longer run on every request.
+
+= 1.0.2 =
 
 * Improved admin asset loading and interface compatibility.
 * Updated public plugin identifiers for the WordPress.org release.

@@ -145,8 +145,7 @@ class AdminPage {
 	}
 
 	public function suppress_third_party_notices(): void {
-		$screen = get_current_screen();
-		if ( ! is_object( $screen ) || ! isset( $screen->id ) || ! str_contains( (string) $screen->id, self::MENU_SLUG ) ) {
+		if ( ! $this->is_plugin_screen() ) {
 			return;
 		}
 		remove_all_actions( 'admin_notices' );
@@ -156,6 +155,18 @@ class AdminPage {
 	}
 
 	public function append_admin_body_class( string $classes ): string {
+		if ( ! $this->is_plugin_screen() ) {
+			return $classes;
+		}
+
 		return trim( $classes . ' coderembassy-bvm-admin-active' );
+	}
+
+	private function is_plugin_screen(): bool {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+
+		return is_object( $screen )
+			&& isset( $screen->id )
+			&& str_contains( (string) $screen->id, self::MENU_SLUG );
 	}
 }

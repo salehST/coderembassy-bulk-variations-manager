@@ -24,10 +24,15 @@ class MigrationRunner {
 	public function migrate(): void {
 		$current = self::get_db_version();
 		$target  = $this->targetVersion();
-		$this->createTables();
+
+		// migrate() runs on every request via Plugin::boot(), so the dbDelta
+		// pass must stay behind the version gate; fresh installs are covered by
+		// the activation hook.
 		if ( $current === $target ) {
 			return;
 		}
+
+		$this->createTables();
 		update_option( self::OPTION_KEY, $target );
 	}
 

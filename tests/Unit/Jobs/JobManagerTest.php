@@ -447,6 +447,163 @@ class JobManagerTest extends TestCase {
 	}
 
 	/**
+	 * Intermediate chunks persist the running processed total and progress.
+	 *
+	 * @return void
+	 */
+	public function test_process_chunk_persists_running_total_between_chunks(): void {
+		$this->options['coderembassy_bvm_job_17_chunks'] = array(
+			array( array( 'variation_id' => 1 ) ),
+			array( array( 'variation_id' => 2 ) ),
+		);
+		$this->options['coderembassy_bvm_job_17_total']  = 2;
+
+		$statuses = array();
+
+		$repo = $this->createMock( JobRepositoryInterface::class );
+		$repo->method( 'get' )->willReturn(
+			array(
+				'id'          => 17,
+				'type'        => 'bulk_edit',
+				'meta'        => array(),
+				'status'      => 'running',
+				'control'     => 'running',
+				'total_items' => 4,
+				'processed'   => 2,
+			)
+		);
+		$repo->method( 'updateStatus' )->willReturnCallback(
+			static function ( int $id, string $status, array $extra = array() ) use ( &$statuses ): bool {
+				unset( $id );
+				$statuses[] = array(
+					'status' => $status,
+					'extra'  => $extra,
+				);
+				return true;
+			}
+		);
+
+		$bulk = $this->createMock( BulkUpdateJob::class );
+		$bulk->method( 'run' )->willReturn(
+			array(
+				'processed' => 2,
+				'errors'    => array(),
+			)
+		);
+
+		$manager = $this->make_manager( $repo, $bulk );
+		$manager->processChunk( 17, 0 );
+
+		$this->assertCount( 1, $statuses );
+		$this->assertSame( 'running', $statuses[0]['status'] );
+		$this->assertSame( 4, $statuses[0]['extra']['processed'] );
+		$this->assertSame( 100, $statuses[0]['extra']['progress'] );
+	}
+
+	/**
+	 * A failing chunk records what was already written and frees chunk options.
+	 *
+	 * @return void
+	 */
+	public function test_process_chunk_failure_records_progress_and_cleans_up(): void {
+		$this->options['coderembassy_bvm_job_18_chunks']        = array(
+			array( array( 'variation_id' => 1 ) ),
+			array( array( 'variation_id' => 2 ) ),
+		);
+		$this->options['coderembassy_bvm_job_18_total']         = 2;
+		$this->options['coderembassy_bvm_job_18_current_chunk'] = 0;
+
+		$statuses = array();
+
+		$repo = $this->createMock( JobRepositoryInterface::class );
+		$repo->method( 'get' )->willReturn(
+			array(
+				'id'          => 18,
+				'type'        => 'bulk_edit',
+				'meta'        => array(),
+				'status'      => 'running',
+				'control'     => 'running',
+				'total_items' => 4,
+				'processed'   => 2,
+			)
+		);
+		$repo->method( 'updateStatus' )->willReturnCallback(
+			static function ( int $id, string $status, array $extra = array() ) use ( &$statuses ): bool {
+				unset( $id );
+				$statuses[] = array(
+					'status' => $status,
+					'extra'  => $extra,
+				);
+				return true;
+			}
+		);
+
+		$bulk = $this->createMock( BulkUpdateJob::class );
+		$bulk->method( 'run' )->willReturn(
+			array(
+				'processed' => 1,
+				'errors'    => array( 'Database update failed.' ),
+			)
+		);
+
+		$manager = $this->make_manager( $repo, $bulk );
+		$manager->processChunk( 18, 0 );
+
+		$this->assertSame( 'failed', $statuses[0]['status'] );
+		$this->assertSame( 3, $statuses[0]['extra']['processed'] );
+		$this->assertArrayNotHasKey( 'coderembassy_bvm_job_18_chunks', $this->options );
+	}
+
+	/**
+	 * The final chunk completes the job and frees chunk options.
+	 *
+	 * @return void
+	 */
+	public function test_process_chunk_final_chunk_cleans_up_options(): void {
+		$this->options['coderembassy_bvm_job_19_chunks'] = array( array( array( 'variation_id' => 1 ) ) );
+		$this->options['coderembassy_bvm_job_19_total']  = 1;
+
+		$statuses = array();
+
+		$repo = $this->createMock( JobRepositoryInterface::class );
+		$repo->method( 'get' )->willReturn(
+			array(
+				'id'          => 19,
+				'type'        => 'bulk_edit',
+				'meta'        => array(),
+				'status'      => 'running',
+				'control'     => 'running',
+				'total_items' => 1,
+				'processed'   => 0,
+			)
+		);
+		$repo->method( 'updateStatus' )->willReturnCallback(
+			static function ( int $id, string $status, array $extra = array() ) use ( &$statuses ): bool {
+				unset( $id );
+				$statuses[] = array(
+					'status' => $status,
+					'extra'  => $extra,
+				);
+				return true;
+			}
+		);
+
+		$bulk = $this->createMock( BulkUpdateJob::class );
+		$bulk->method( 'run' )->willReturn(
+			array(
+				'processed' => 1,
+				'errors'    => array(),
+			)
+		);
+
+		$manager = $this->make_manager( $repo, $bulk );
+		$manager->processChunk( 19, 0 );
+
+		$this->assertContains( 'complete', array_column( $statuses, 'status' ) );
+		$this->assertArrayNotHasKey( 'coderembassy_bvm_job_19_chunks', $this->options );
+	}
+
+	/**
 	 * @param JobRepositoryInterface $repo Repository mock.
 	 * @param BulkUpdateJob|null     $bulk Optional bulk worker mock.
 	 * @param ImportJob|null         $import Optional import worker mock.

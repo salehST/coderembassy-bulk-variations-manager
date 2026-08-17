@@ -129,26 +129,42 @@ class JobManager {
 		$errors    = $result['errors'] ?? array();
 		$processed = (int) ( $result['processed'] ?? 0 );
 
+		// Each chunk runs in its own request, so the running total has to be
+		// persisted before returning or the count restarts from zero next time.
+		$total_processed = (int) ( $job['processed'] ?? 0 ) + $processed;
+
 		if ( ! empty( $errors ) ) {
 			$this->jobs->updateStatus(
 				$job_id,
 				'failed',
 				array(
-					'error_log' => implode( '; ', array_map( 'strval', $errors ) ),
+					'processed'    => $total_processed,
+					'progress'     => $this->progressPercent( $total_processed, $job ),
+					'completed_at' => current_time( 'mysql' ),
+					'error_log'    => implode( '; ', array_map( 'strval', $errors ) ),
 				)
 			);
+			$this->cleanupChunkOptions( $job_id );
 			return;
 		}
 
-		$total_processed = (int) ( $job['processed'] ?? 0 ) + $processed;
-		$total_chunks    = (int) get_option( $this->optionKey( $job_id, 'total' ), count( $chunks ) );
+		$total_chunks = (int) get_option( $this->optionKey( $job_id, 'total' ), count( $chunks ) );
 		if ( $chunk_index + 1 < $total_chunks ) {
 			update_option( $this->optionKey( $job_id, 'current_chunk' ), $chunk_index + 1 );
+			$this->jobs->updateStatus(
+				$job_id,
+				'running',
+				array(
+					'processed' => $total_processed,
+					'progress'  => $this->progressPercent( $total_processed, $job ),
+				)
+			);
 			as_enqueue_async_action( self::ACTION_HOOK, array( $job_id, $chunk_index + 1 ), 'coderembassy-bulk-variations-manager' );
 			return;
 		}
 
 		$this->markJobComplete( $job_id, $total_processed, $job );
+		$this->cleanupChunkOptions( $job_id );
 	}
 
 	public function resumeAfterApproval( int $job_id ): bool {
@@ -216,8 +232,7 @@ class JobManager {
 	private function markJobComplete( int $job_id, int $processed, ?array $job ): void {
 		$meta                  = is_array( $job['meta'] ?? null ) ? $job['meta'] : array();
 		$meta['review_status'] = 'applied';
-		$total                 = max( 1, (int) ( $job['total_items'] ?? 0 ) );
-		$progress              = min( 100, (int) round( ( $processed / $total ) * 100 ) );
+		$progress              = $this->progressPercent( $processed, $job );
 		$started_at            = (string) ( $job['started_at'] ?? '' );
 
 		$this->jobs->updateStatus(
@@ -244,6 +259,14 @@ class JobManager {
 			'rollback' => $this->rollback->run( $job_id, $rows ),
 			default    => $this->bulk_update->run( $job_id, $rows ),
 		};
+	}
+
+	/**
+	 * @param array<string, mixed>|null $job Job row supplying total_items.
+	 */
+	private function progressPercent( int $processed, ?array $job ): int {
+		$total = max( 1, (int) ( $job['total_items'] ?? 0 ) );
+		return min( 100, (int) round( ( $processed / $total ) * 100 ) );
 	}
 
 	private function cleanupChunkOptions( int $job_id ): void {

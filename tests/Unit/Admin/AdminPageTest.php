@@ -237,9 +237,36 @@ class AdminPageTest extends TestCase {
 	public function test_append_admin_body_class(): void {
 		$page = new AdminPage();
 
+		$screen                    = new \stdClass();
+		$screen->id                = 'toplevel_page_' . AdminPage::MENU_SLUG;
+		$GLOBALS['current_screen'] = $screen;
+
+		Functions\when( 'get_current_screen' )->justReturn( $screen );
+
 		$this->assertSame(
 			'wp-admin coderembassy-bvm-admin-active',
 			$page->append_admin_body_class( 'wp-admin' )
 		);
+
+		unset( $GLOBALS['current_screen'] );
+	}
+
+	/**
+	 * append_admin_body_class() leaves unrelated admin screens untouched.
+	 *
+	 * @return void
+	 */
+	public function test_append_admin_body_class_skips_other_screens(): void {
+		$page = new AdminPage();
+
+		$screen                    = new \stdClass();
+		$screen->id                = 'options-general';
+		$GLOBALS['current_screen'] = $screen;
+
+		Functions\when( 'get_current_screen' )->justReturn( $screen );
+
+		$this->assertSame( 'wp-admin', $page->append_admin_body_class( 'wp-admin' ) );
+
+		unset( $GLOBALS['current_screen'] );
 	}
 }
